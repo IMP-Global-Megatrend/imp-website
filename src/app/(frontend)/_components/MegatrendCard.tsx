@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { Button } from '@/components/ui/button'
 
 interface MegatrendCardProps {
   title: string
@@ -35,15 +36,19 @@ export function MegatrendCard({ title, body, icon, image, tickers, reverse }: Me
                 <Image src={icon} alt="" width={48} height={50} className="rounded-md" />
                 <p className="text-[#2b3045] text-[16px] md:text-[17px] leading-[1.7]">{body}</p>
 
-                <Link
-                  href="/megatrends"
-                  className="inline-flex items-center gap-2 border border-[#0040ff] text-[#0040ff] px-5 py-2.5 rounded text-[13px] uppercase tracking-[0.12em] font-medium hover:bg-[#0040ff]/5 transition-colors"
+                <Button
+                  asChild
+                  variant="outlineBrand"
+                  size="clear"
+                  className="px-5 py-2.5"
                 >
-                  Megatrend Details
-                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                    <path d="M2 10L10 2M10 2H4M10 2v6" stroke="currentColor" strokeWidth="1.5" />
-                  </svg>
-                </Link>
+                  <Link href="/megatrends">
+                    Megatrend Details
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                      <path d="M2 10L10 2M10 2H4M10 2v6" stroke="currentColor" strokeWidth="1.5" />
+                    </svg>
+                  </Link>
+                </Button>
 
                 <div className="flex flex-wrap gap-3 pt-2">
                   {tickers.map(([ticker, company]) => (

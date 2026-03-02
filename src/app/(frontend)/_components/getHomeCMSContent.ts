@@ -18,6 +18,8 @@ type DownloadItem = {
   href: string
 }
 
+type WixRecord = Record<string, unknown>
+
 export type HomeCMSContent = {
   hero: {
     heading: string
@@ -150,56 +152,205 @@ function richTextToParagraphs(richText: unknown): string[] {
     .filter(Boolean)
 }
 
-function parseRegulatoryItems(blockText: string): RegulatoryItem[] {
-  const lines = blockText
-    .split('\n')
-    .map((line) => line.trim())
-    .filter(Boolean)
-
-  const items = lines
-    .map((line) => {
-      const [label, ...rest] = line.split(':')
-      const value = rest.join(':').trim()
-      if (!label || !value) return null
-      return { label: label.trim(), value }
-    })
-    .filter((item): item is RegulatoryItem => item !== null)
-
-  return items.length > 0 ? items : fallbackHomeContent.regulatoryItems
+function stripHtml(value: string): string {
+  return value
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
 }
 
-function parseTickers(line: string): [string, string][] {
-  const cleaned = line.replace('Representative holdings:', '').trim()
-  if (!cleaned) return []
+function resolveWixDocumentUrl(value: string): string {
+  if (!value) return ''
+  if (value.startsWith('http://') || value.startsWith('https://')) return value
 
-  return cleaned
-    .split(',')
-    .map((entry) => entry.trim())
-    .map((entry) => {
-      const match = entry.match(/^(.+?)\s*\((.+)\)$/)
-      if (!match) return null
-      return [match[1].trim(), match[2].trim()] as [string, string]
-    })
-    .filter((ticker): ticker is [string, string] => ticker !== null)
+  // Expected format: wix:document://v1/ugd/<file-id>.pdf/<human-readable-name>.pdf
+  const match = value.match(/wix:document:\/\/v1\/ugd\/([^/]+)/)
+  if (match?.[1]) {
+    return `https://www.impgmtfund.com/_files/ugd/${match[1]}`
+  }
+
+  return ''
 }
 
-function parseDownloads(blockText: string): DownloadItem[] {
-  const lines = blockText
-    .split('\n')
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .slice(1)
+function getRecordTextValue(
+  record: Record<string, unknown>,
+  key: string,
+  keyPrefix?: string,
+): string | null {
+  const direct = record[key]
+  if (typeof direct === 'string' && direct.trim() !== '') {
+    return direct
+  }
 
-  const items = lines
-    .map((line) => {
-      const [label, ...rest] = line.split(':')
-      const href = rest.join(':').trim()
-      if (!label || !href) return null
-      return { label: label.trim(), href }
+  const textFields = Array.isArray(record.textFields)
+    ? (record.textFields as Array<Record<string, unknown>>)
+    : []
+
+  const match = textFields.find((entry) => {
+    const entryKey = entry?.key
+    if (typeof entryKey !== 'string') return false
+    if (entryKey === key) return true
+    if (keyPrefix && entryKey.startsWith(keyPrefix)) return true
+    return false
+  })
+
+  const value = match?.value
+  if (typeof value === 'string' && value.trim() !== '') {
+    return value
+  }
+
+  return null
+}
+
+function getRecordSortValue(record: WixRecord): string {
+  const directSort = getRecordTextValue(record, '_manualSort_', '_manualSort_')
+  if (directSort) return directSort
+
+  const raw = record._manualSort
+  return typeof raw === 'string' ? raw : ''
+}
+
+function parseWixRichParagraphs(richContent: unknown): string[] {
+  const nodes = (richContent as { nodes?: unknown[] } | null)?.nodes
+  if (!Array.isArray(nodes)) return []
+
+  return nodes
+    .map((node) => {
+      const nodeRecord = (node ?? {}) as WixRecord
+      const children = Array.isArray(nodeRecord.nodes) ? (nodeRecord.nodes as WixRecord[]) : []
+      const text = children
+        .map((child) => {
+          const textData = (child.textData && typeof child.textData === 'object'
+            ? child.textData
+            : {}) as WixRecord
+          return typeof textData.text === 'string' ? textData.text : ''
+        })
+        .join('')
+      return stripHtml(text)
+    })
+    .filter((paragraph) => paragraph.length > 0)
+}
+
+function parseTrustListItems(docs: Array<Record<string, unknown>>): RegulatoryItem[] {
+  return docs
+    .map((doc) => {
+      const data = (doc.data && typeof doc.data === 'object'
+        ? doc.data
+        : {}) as Record<string, unknown>
+
+      const label = getRecordTextValue(data, 'title_fld')
+      const rawValue = getRecordTextValue(data, 'description_fld')
+      const value = rawValue ? stripHtml(rawValue) : null
+      const manualSort = getRecordSortValue(data)
+
+      if (!label || !value) {
+        return null
+      }
+
+      return { label, value, manualSort }
+    })
+    .filter((item): item is RegulatoryItem & { manualSort: string } => item !== null)
+    .sort((a, b) => {
+      if (a.manualSort !== b.manualSort) return a.manualSort.localeCompare(b.manualSort)
+      return a.label.localeCompare(b.label)
+    })
+    .map(({ label, value }) => ({ label, value }))
+}
+
+function parseTrendItems(docs: WixRecord[]): TrendItem[] {
+  return docs
+    .map((doc) => {
+      const data = (doc.data && typeof doc.data === 'object' ? doc.data : {}) as WixRecord
+      const title = getRecordTextValue(data, 'title_fld')
+      const descriptionHtml = getRecordTextValue(data, 'description_fld')
+      const body = descriptionHtml ? stripHtml(descriptionHtml) : ''
+
+      const firstCode = getRecordTextValue(data, 'firstStockCode')
+      const firstName = getRecordTextValue(data, 'firstStockName')
+      const secondCode = getRecordTextValue(data, 'secondStockCode')
+      const secondName = getRecordTextValue(data, 'secondStockName')
+      const tickers: [string, string][] = []
+
+      if (firstCode && firstName) tickers.push([firstCode, firstName])
+      if (secondCode && secondName) tickers.push([secondCode, secondName])
+
+      const manualSort = getRecordSortValue(data)
+
+      if (!title || !body) return null
+      return { title, body, tickers, manualSort }
+    })
+    .filter((item): item is TrendItem & { manualSort: string } => item !== null)
+    .sort((a, b) => {
+      if (a.manualSort !== b.manualSort) return a.manualSort.localeCompare(b.manualSort)
+      return a.title.localeCompare(b.title)
+    })
+    .map(({ title, body, tickers }) => ({ title, body, tickers }))
+}
+
+function parseDownloadItems(docs: WixRecord[]): DownloadItem[] {
+  const first = docs[0]
+  if (!first) return []
+
+  const data = (first.data && typeof first.data === 'object' ? first.data : {}) as WixRecord
+  const mapping: Array<{ key: string; label: string }> = [
+    { key: 'factSheet', label: 'Factsheet USD' },
+    { key: 'factsheetChfHedged', label: 'Factsheet CHF Hedged' },
+    { key: 'fundCommentary', label: 'Fund Commentary' },
+    { key: 'presentation', label: 'Presentation' },
+  ]
+
+  return mapping
+    .map(({ key, label }) => {
+      const raw = getRecordTextValue(data, key)
+      if (!raw) return null
+      const href = resolveWixDocumentUrl(raw)
+      if (!href) return null
+      return { label, href }
     })
     .filter((item): item is DownloadItem => item !== null)
+}
 
-  return items.length > 0 ? items : fallbackHomeContent.downloads
+function parseRegulatoryNoticeFromWix(
+  legalDocs: WixRecord[],
+  contactDocs: WixRecord[],
+): HomeCMSContent['regulatoryNotice'] | null {
+  const legalData = ((legalDocs[0]?.data as WixRecord | undefined) ?? {}) as WixRecord
+  const contactData = ((contactDocs[0]?.data as WixRecord | undefined) ?? {}) as WixRecord
+
+  const title = getRecordTextValue(legalData, 'title_fld')
+  const legalParagraphs = parseWixRichParagraphs(legalData.richcontent)
+  const body =
+    legalParagraphs.find((paragraph) => /portfolio management/i.test(paragraph)) ??
+    legalParagraphs[0] ??
+    ''
+
+  const addressRaw = getRecordTextValue(contactData, 'address')
+  const websiteName = getRecordTextValue(contactData, 'websiteName')
+  const websiteUrl = getRecordTextValue(contactData, 'websiteUrl')
+
+  const addressParts: string[] = []
+  if (addressRaw) {
+    addressParts.push(addressRaw.replace(/\s*\n\s*/g, ' · ').trim())
+  }
+  if (websiteName) {
+    addressParts.push(websiteName.trim())
+  } else if (websiteUrl) {
+    try {
+      const host = new URL(websiteUrl).host
+      addressParts.push(host)
+    } catch {
+      addressParts.push(websiteUrl.trim())
+    }
+  }
+
+  if (!title && !body && addressParts.length === 0) return null
+
+  return {
+    title: title || fallbackHomeContent.regulatoryNotice.title,
+    body: body || fallbackHomeContent.regulatoryNotice.body,
+    address: addressParts.join(' · ') || fallbackHomeContent.regulatoryNotice.address,
+  }
 }
 
 export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
@@ -217,36 +368,77 @@ export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
     const page = result.docs?.[0]
     if (!page) return fallbackHomeContent
 
+    const trustListResult = await payload.find({
+      collection: 'wix-trust-list',
+      limit: 100,
+      pagination: false,
+      depth: 0,
+    })
+    const trustListDocs = (trustListResult.docs ?? []) as unknown as Array<Record<string, unknown>>
+    const trustListItems = parseTrustListItems(trustListDocs)
+
+    if (trustListItems.length === 0) {
+      payload.logger.warn(
+        'Regulatory strip fallback in use: no valid rows found in wix-trust-list.',
+      )
+    }
+
+    const trendResult = await payload.find({
+      collection: 'wix-megatrend-dataset',
+      limit: 100,
+      pagination: false,
+      depth: 0,
+    })
+    const trendDocs = (trendResult.docs ?? []) as unknown as WixRecord[]
+    const trendItems = parseTrendItems(trendDocs)
+    if (trendItems.length === 0) {
+      payload.logger.warn(
+        'Trends fallback in use: no valid rows found in wix-megatrend-dataset.',
+      )
+    }
+
+    const downloadResult = await payload.find({
+      collection: 'wix-homepage-links',
+      limit: 10,
+      pagination: false,
+      depth: 0,
+    })
+    const downloadDocs = (downloadResult.docs ?? []) as unknown as WixRecord[]
+    const downloadItems = parseDownloadItems(downloadDocs)
+    if (downloadItems.length === 0) {
+      payload.logger.warn(
+        'Downloads fallback in use: no valid rows found in wix-homepage-links.',
+      )
+    }
+
+    const legalResult = await payload.find({
+      collection: 'wix-legal-information',
+      limit: 5,
+      pagination: false,
+      depth: 0,
+    })
+    const legalDocs = (legalResult.docs ?? []) as unknown as WixRecord[]
+
+    const contactResult = await payload.find({
+      collection: 'wix-contact-us',
+      limit: 5,
+      pagination: false,
+      depth: 0,
+    })
+    const contactDocs = (contactResult.docs ?? []) as unknown as WixRecord[]
+
+    const regulatoryNoticeFromWix = parseRegulatoryNoticeFromWix(legalDocs, contactDocs)
+    if (!regulatoryNoticeFromWix) {
+      payload.logger.warn(
+        'Regulatory notice fallback in use: no valid data found in wix-legal-information / wix-contact-us.',
+      )
+    }
+
     const heroParagraphs = richTextToParagraphs(page.hero?.richText)
     const heroSource = heroParagraphs[0] ?? ''
     const heroSplit = heroSource.split('Harnessing')
     const heroHeading = (heroSplit[0] ?? '').replace(/\.+$/, '').trim()
     const heroSubtitle = heroSplit[1] ? `Harnessing${heroSplit[1]}`.trim() : ''
-
-    const contentBlocks = (page.layout ?? [])
-      .filter((block) => block?.blockType === 'content')
-      .map((block) => {
-        const firstCol = block?.columns?.[0]
-        const paragraphs = richTextToParagraphs(firstCol?.richText)
-        return paragraphs
-      })
-
-    const regulatoryBlockText = contentBlocks[0]?.[0] ?? ''
-    const trendBlocks = contentBlocks.slice(1, 7)
-    const downloadsBlockText = contentBlocks[7]?.[0] ?? ''
-    const noticeBlock = contentBlocks[8] ?? []
-
-    const trends = trendBlocks
-      .map((paragraphs) => {
-        const [title, body, holdings] = paragraphs
-        if (!title || !body) return null
-        return {
-          title,
-          body,
-          tickers: parseTickers(holdings ?? ''),
-        }
-      })
-      .filter((trend): trend is TrendItem => trend !== null)
 
     return {
       hero: {
@@ -256,19 +448,10 @@ export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
         ctaHref: fallbackHomeContent.hero.ctaHref,
       },
       regulatoryItems:
-        regulatoryBlockText.length > 0
-          ? parseRegulatoryItems(regulatoryBlockText)
-          : fallbackHomeContent.regulatoryItems,
-      trends: trends.length > 0 ? trends : fallbackHomeContent.trends,
-      downloads:
-        downloadsBlockText.length > 0
-          ? parseDownloads(downloadsBlockText)
-          : fallbackHomeContent.downloads,
-      regulatoryNotice: {
-        title: noticeBlock[0] || fallbackHomeContent.regulatoryNotice.title,
-        body: noticeBlock[1] || fallbackHomeContent.regulatoryNotice.body,
-        address: noticeBlock[2] || fallbackHomeContent.regulatoryNotice.address,
-      },
+        trustListItems.length > 0 ? trustListItems : fallbackHomeContent.regulatoryItems,
+      trends: trendItems.length > 0 ? trendItems : fallbackHomeContent.trends,
+      downloads: downloadItems.length > 0 ? downloadItems : fallbackHomeContent.downloads,
+      regulatoryNotice: regulatoryNoticeFromWix ?? fallbackHomeContent.regulatoryNotice,
     }
   } catch {
     return fallbackHomeContent

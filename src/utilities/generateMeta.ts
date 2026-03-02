@@ -7,13 +7,19 @@ import { getServerSideURL } from './getURL'
 
 const getImageURL = (image?: Media | Config['db']['defaultIDType'] | null) => {
   const serverUrl = getServerSideURL()
+  const toAbsolute = (value: string): string =>
+    value.startsWith('http://') || value.startsWith('https://') ? value : `${serverUrl}${value}`
 
   let url = serverUrl + '/website-template-OG.webp'
 
   if (image && typeof image === 'object' && 'url' in image) {
     const ogUrl = image.sizes?.og?.url
 
-    url = ogUrl ? serverUrl + ogUrl : serverUrl + image.url
+    if (ogUrl) {
+      url = toAbsolute(ogUrl)
+    } else if (image.url) {
+      url = toAbsolute(image.url)
+    }
   }
 
   return url

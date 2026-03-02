@@ -1,5 +1,5 @@
 import type { Payload } from 'payload'
-import type { WixBlogPost, ImportIdMap } from '../types'
+import type { WixBlogPost, ImportEntityResult, ImportIdMap } from '../types'
 import {
   wixRichContentToLexical,
   plainTextToLexical,
@@ -47,15 +47,19 @@ export async function importPosts(
   wixPosts: WixBlogPost[],
   options?: {
     skipExisting?: boolean
+    upsertByWixId?: boolean
+    dryRun?: boolean
     publishOnImport?: boolean
     idMap?: ImportIdMap
+    mediaResult?: ImportEntityResult
   },
-): Promise<{ created: number; skipped: number; errors: string[] }> {
-  const result = { created: 0, skipped: 0, errors: [] as string[] }
+): Promise<ImportEntityResult> {
+  const result: ImportEntityResult = { created: 0, updated: 0, skipped: 0, errors: [] }
   const idMap = options?.idMap ?? {
     categories: new Map(),
     media: new Map(),
     posts: new Map(),
+    pages: new Map(),
   }
 
   // Pre-download all images from posts' rich content
@@ -74,37 +78,55 @@ export async function importPosts(
 
   if (allImageUrls.length > 0) {
     payload.logger.info(`  Pre-downloading ${allImageUrls.length} images from posts...`)
-    await importMediaBatch(payload, allImageUrls, {
+    const mediaBatchResult = await importMediaBatch(payload, allImageUrls, {
       skipExisting: options?.skipExisting,
+      dryRun: options?.dryRun,
       idMap,
       concurrency: 5,
     })
+    if (options?.mediaResult) {
+      mergeEntityResult(options.mediaResult, mediaBatchResult)
+    }
   }
 
   for (const post of wixPosts) {
     try {
       const slug = post.slug || toKebabCase(post.title)
 
-      if (options?.skipExisting) {
-        const existing = await payload.find({
+      let existingByWixId: { docs?: Array<{ id: number | string }> } | null = null
+      if (options?.upsertByWixId) {
+        existingByWixId = await payload.find({
           collection: 'posts',
-          where: { slug: { equals: slug } },
+          where: { wixId: { equals: post.id } },
           limit: 1,
           depth: 0,
         })
+      }
 
-        if (existing.docs.length > 0) {
-          idMap.posts.set(post.id, existing.docs[0].id)
-          result.skipped++
-          payload.logger.info(`  Skipping existing post: ${post.title}`)
-          continue
-        }
+      const existingBySlug = await payload.find({
+        collection: 'posts',
+        where: { slug: { equals: slug } },
+        limit: 1,
+        depth: 0,
+      })
+      const existingDoc = existingByWixId?.docs?.[0] || existingBySlug.docs[0]
+
+      if (existingDoc && !options?.upsertByWixId && options?.skipExisting) {
+        idMap.posts.set(post.id, existingDoc.id)
+        result.skipped++
+        payload.logger.info(`  Skipping existing post: ${post.title}`)
+        continue
       }
 
       // Convert rich content to Lexical
       let content
       if (post.richContent) {
-        content = wixRichContentToLexical(post.richContent)
+        content = wixRichContentToLexical(post.richContent, {
+          resolveMediaId: (url) => idMap.media.get(url) ?? null,
+          onUnresolvedMedia: (url) => {
+            payload.logger.warn(`  Unresolved post inline media URL: ${url}`)
+          },
+        })
       } else if (post.plainContent) {
         content = plainTextToLexical(post.plainContent)
       } else {
@@ -123,6 +145,7 @@ export async function importPosts(
           heroImageId = await importMediaByUrl(payload, coverUrl, {
             alt: post.title,
             skipExisting: options?.skipExisting,
+            dryRun: options?.dryRun,
             idMap,
           })
         }
@@ -143,6 +166,8 @@ export async function importPosts(
       const postData: Record<string, unknown> = {
         title: post.title,
         slug,
+        wixId: post.id,
+        wixUpdatedAt: post.editedDate || post.lastPublishedDate || post.publishedDate || null,
         content,
         publishedAt: post.firstPublishedDate || post.publishedDate || new Date().toISOString(),
         meta: {
@@ -159,20 +184,41 @@ export async function importPosts(
         postData.categories = categoryIds
       }
 
-      const doc = await payload.create({
-        collection: 'posts',
-        draft: !options?.publishOnImport,
-        data: {
-          ...postData,
-          _status: options?.publishOnImport ? 'published' : 'draft',
-        },
-        depth: 0,
-        context: { disableRevalidate: true },
-      } as unknown as Parameters<typeof payload.create>[0])
+      if (existingDoc && options?.upsertByWixId) {
+        if (!options?.dryRun) {
+          await payload.update({
+            collection: 'posts',
+            id: existingDoc.id,
+            draft: !options?.publishOnImport,
+            data: {
+              ...postData,
+              _status: options?.publishOnImport ? 'published' : 'draft',
+            },
+            depth: 0,
+            context: { disableRevalidate: true },
+          } as unknown as Parameters<typeof payload.update>[0])
+        }
+        idMap.posts.set(post.id, existingDoc.id)
+        result.updated++
+        payload.logger.info(`  Updated post: ${post.title}`)
+      } else {
+        const doc = options?.dryRun
+          ? { id: `dry-run:${post.id}` }
+          : await payload.create({
+              collection: 'posts',
+              draft: !options?.publishOnImport,
+              data: {
+                ...postData,
+                _status: options?.publishOnImport ? 'published' : 'draft',
+              },
+              depth: 0,
+              context: { disableRevalidate: true },
+            } as unknown as Parameters<typeof payload.create>[0])
 
-      idMap.posts.set(post.id, doc.id)
-      result.created++
-      payload.logger.info(`  Created post: ${post.title}`)
+        idMap.posts.set(post.id, doc.id)
+        result.created++
+        payload.logger.info(`  Created post: ${post.title}`)
+      }
     } catch (error) {
       const msg = `Failed to import post "${post.title}": ${error}`
       result.errors.push(msg)
@@ -181,4 +227,11 @@ export async function importPosts(
   }
 
   return result
+}
+
+function mergeEntityResult(target: ImportEntityResult, source: ImportEntityResult): void {
+  target.created += source.created
+  target.updated += source.updated
+  target.skipped += source.skipped
+  target.errors.push(...source.errors)
 }

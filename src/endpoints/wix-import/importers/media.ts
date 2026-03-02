@@ -1,5 +1,5 @@
 import type { Payload, File } from 'payload'
-import type { ImportIdMap } from '../types'
+import type { ImportEntityResult, ImportIdMap } from '../types'
 import { resolveWixImageUrl } from '../converters/rich-text'
 
 /**
@@ -17,7 +17,7 @@ async function fetchFileByURL(url: string): Promise<File> {
 
   const urlPath = new URL(url).pathname
   const filename = urlPath.split('/').pop() || `wix-media-${Date.now()}`
-  const cleanFilename = filename.split('?')[0]
+  const cleanFilename = sanitizeFilename(filename.split('?')[0])
 
   return {
     name: cleanFilename,
@@ -25,6 +25,24 @@ async function fetchFileByURL(url: string): Promise<File> {
     mimetype: contentType,
     size: data.byteLength,
   }
+}
+
+function sanitizeFilename(filename: string): string {
+  const lastDot = filename.lastIndexOf('.')
+  const hasExt = lastDot > 0 && lastDot < filename.length - 1
+  const base = hasExt ? filename.slice(0, lastDot) : filename
+  const ext = hasExt ? filename.slice(lastDot + 1) : ''
+
+  const safeBase = base
+    .replace(/[^a-zA-Z0-9._-]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 180)
+
+  const safeExt = ext.replace(/[^a-zA-Z0-9]+/g, '').slice(0, 10)
+  if (!safeBase && safeExt) return `wix-media-${Date.now()}.${safeExt}`
+  if (!safeBase) return `wix-media-${Date.now()}`
+  return safeExt ? `${safeBase}.${safeExt}` : safeBase
 }
 
 /**
@@ -37,6 +55,7 @@ export async function importMediaByUrl(
   options?: {
     alt?: string
     skipExisting?: boolean
+    dryRun?: boolean
     idMap?: ImportIdMap
   },
 ): Promise<number | string | null> {
@@ -48,6 +67,18 @@ export async function importMediaByUrl(
   }
 
   if (options?.skipExisting) {
+    const bySourceUrl = await payload.find({
+      collection: 'media',
+      where: { wixSourceUrl: { equals: resolvedUrl } },
+      limit: 1,
+      depth: 0,
+    })
+    if (bySourceUrl.docs.length > 0) {
+      const id = bySourceUrl.docs[0].id
+      options.idMap?.media.set(resolvedUrl, id)
+      return id
+    }
+
     const urlPath = new URL(resolvedUrl).pathname
     const filename = urlPath.split('/').pop()?.split('?')[0] || ''
 
@@ -68,10 +99,17 @@ export async function importMediaByUrl(
   }
 
   try {
+    if (options?.dryRun) {
+      return `dry-run:${resolvedUrl}`
+    }
+
     const file = await fetchFileByURL(resolvedUrl)
     const doc = await payload.create({
       collection: 'media',
-      data: { alt: options?.alt || '' },
+      data: {
+        alt: options?.alt || '',
+        wixSourceUrl: resolvedUrl,
+      },
       file,
     })
 
@@ -91,11 +129,12 @@ export async function importMediaBatch(
   urls: string[],
   options?: {
     skipExisting?: boolean
+    dryRun?: boolean
     idMap?: ImportIdMap
     concurrency?: number
   },
-): Promise<{ created: number; skipped: number; errors: string[] }> {
-  const result = { created: 0, skipped: 0, errors: [] as string[] }
+): Promise<ImportEntityResult> {
+  const result: ImportEntityResult = { created: 0, updated: 0, skipped: 0, errors: [] }
   const concurrency = options?.concurrency ?? 3
   const uniqueUrls = [...new Set(urls.map(resolveWixImageUrl).filter(Boolean))]
 
@@ -110,6 +149,7 @@ export async function importMediaBatch(
 
         const id = await importMediaByUrl(payload, url, {
           skipExisting: options?.skipExisting,
+          dryRun: options?.dryRun,
           idMap: options?.idMap,
         })
 

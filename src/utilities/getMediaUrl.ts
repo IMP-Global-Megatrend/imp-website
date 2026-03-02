@@ -15,10 +15,12 @@ export const getMediaUrl = (url: string | null | undefined, cacheTag?: string | 
 
   // Check if URL already has http/https protocol
   if (url.startsWith('http://') || url.startsWith('https://')) {
-    return cacheTag ? `${url}?${cacheTag}` : url
+    if (!cacheTag) return url
+    return `${url}${url.includes('?') ? '&' : '?'}${cacheTag}`
   }
 
   // Otherwise prepend client-side URL
   const baseUrl = getClientSideURL()
-  return cacheTag ? `${baseUrl}${url}?${cacheTag}` : `${baseUrl}${url}`
+  if (!cacheTag) return `${baseUrl}${url}`
+  return `${baseUrl}${url}${url.includes('?') ? '&' : '?'}${cacheTag}`
 }

@@ -21,8 +21,22 @@ export const Categories: CollectionConfig = {
       type: 'text',
       required: true,
     },
+    {
+      name: 'wixId',
+      type: 'text',
+      index: true,
+      admin: {
+        position: 'sidebar',
+      },
+    },
     slugField({
       position: undefined,
     }),
+  ],
+  indexes: [
+    {
+      fields: ['wixId'],
+      unique: true,
+    },
   ],
 }

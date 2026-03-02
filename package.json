@@ -12,8 +12,8 @@
     "dev:prod": "cross-env NODE_OPTIONS=--no-deprecation rm -rf .next && pnpm build && pnpm start",
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
-    "lint": "cross-env NODE_OPTIONS=--no-deprecation next lint",
-    "lint:fix": "cross-env NODE_OPTIONS=--no-deprecation next lint --fix",
+    "lint": "cross-env NODE_OPTIONS=--no-deprecation tsc --noEmit",
+    "lint:fix": "cross-env NODE_OPTIONS=--no-deprecation tsc --noEmit",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "prepare": "husky"
@@ -22,6 +22,7 @@
     "@aws-sdk/client-s3": "^3.995.0",
     "@payloadcms/admin-bar": "^3.77.0",
     "@payloadcms/db-postgres": "^3.77.0",
+    "@payloadcms/email-resend": "^3.77.0",
     "@payloadcms/live-preview-react": "^3.77.0",
     "@payloadcms/next": "^3.77.0",
     "@payloadcms/plugin-form-builder": "^3.77.0",

@@ -24,6 +24,14 @@ export const Media: CollectionConfig = {
       type: 'text',
     },
     {
+      name: 'wixSourceUrl',
+      type: 'text',
+      index: true,
+      admin: {
+        position: 'sidebar',
+      },
+    },
+    {
       name: 'caption',
       type: 'richText',
       editor: lexicalEditor({

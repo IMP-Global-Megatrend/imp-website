@@ -5,6 +5,7 @@ import type {
   WixBlogPostsResponse,
   WixBlogCategoriesResponse,
   WixDataItem,
+  WixSitePage,
   WixPaginatedResponse,
 } from './types'
 
@@ -26,7 +27,11 @@ export class WixClient {
     }
   }
 
-  private async request<T>(path: string, options?: RequestInit): Promise<T> {
+  private async request<T>(
+    path: string,
+    options?: RequestInit,
+    retryAttempt = 0,
+  ): Promise<T> {
     const url = `${WIX_API_BASE}${path}`
     const res = await fetch(url, {
       ...options,
@@ -37,6 +42,12 @@ export class WixClient {
     })
 
     if (!res.ok) {
+      if ((res.status === 429 || res.status >= 500) && retryAttempt < 3) {
+        const retryDelayMs = 500 * 2 ** retryAttempt
+        await new Promise((resolve) => setTimeout(resolve, retryDelayMs))
+        return this.request<T>(path, options, retryAttempt + 1)
+      }
+
       const errorBody = await res.text().catch(() => 'No response body')
       throw new Error(
         `Wix API error ${res.status} ${res.statusText} for ${path}: ${errorBody}`,
@@ -59,25 +70,6 @@ export class WixClient {
 
     const body: Record<string, unknown> = {
       paging: { limit, offset },
-      fieldsToInclude: [
-        'TITLE',
-        'EXCERPT',
-        'RICH_CONTENT',
-        'SLUG',
-        'FEATURED',
-        'CATEGORY_IDS',
-        'COVER_IMAGE',
-        'PUBLISHED_DATE',
-        'SEO_DATA',
-        'HASHTAGS',
-        'TAG_IDS',
-        'CONTENT_ID',
-        'HERO_IMAGE',
-        'PLAIN_CONTENT',
-        'INTERNAL_ID',
-        'MEDIA',
-        'METRICS',
-      ],
     }
 
     if (sort) body.sort = sort
@@ -174,13 +166,20 @@ export class WixClient {
     if (filter) (body.query as Record<string, unknown>).filter = filter
     if (sort) (body.query as Record<string, unknown>).sort = sort
 
-    return this.request<WixPaginatedResponse<WixDataItem>>(
+    const response = await this.request<
+      WixPaginatedResponse<WixDataItem> & { dataItems?: WixDataItem[] }
+    >(
       '/wix-data/v2/items/query',
       {
         method: 'POST',
         body: JSON.stringify(body),
       },
     )
+
+    return {
+      ...response,
+      items: response.items ?? response.dataItems ?? [],
+    }
   }
 
   async getAllDataCollectionItems(
@@ -209,6 +208,73 @@ export class WixClient {
     }
 
     return allItems
+  }
+
+  // -- Wix Site Pages --
+
+  async listSitePages(options?: {
+    limit?: number
+    offset?: number
+  }): Promise<WixPaginatedResponse<WixSitePage>> {
+    const { limit = 50, offset = 0 } = options ?? {}
+
+    const body = JSON.stringify({
+      query: {
+        paging: { limit, offset },
+      },
+    })
+
+    const endpoints = ['/site/v3/pages/query', '/site/v2/pages/query', '/site/v1/pages/query']
+    let lastError: unknown
+    for (const endpoint of endpoints) {
+      try {
+        const response = await this.request<{
+          pages?: WixSitePage[]
+          items?: WixSitePage[]
+          metaData?: WixPaginatedResponse<WixSitePage>['metaData']
+          pagingMetadata?: WixPaginatedResponse<WixSitePage>['pagingMetadata']
+        }>(endpoint, {
+          method: 'POST',
+          body,
+        })
+
+        return {
+          items: response.items ?? response.pages ?? [],
+          metaData: response.metaData,
+          pagingMetadata: response.pagingMetadata,
+        }
+      } catch (error) {
+        lastError = error
+      }
+    }
+
+    throw new Error(`Failed to query Wix site pages: ${String(lastError)}`)
+  }
+
+  async getAllSitePages(options?: {
+    limit?: number
+    offset?: number
+  }): Promise<WixSitePage[]> {
+    const allPages: WixSitePage[] = []
+    const batchSize = 50
+    let offset = options?.offset ?? 0
+    const maxItems = options?.limit ?? Infinity
+
+    while (allPages.length < maxItems) {
+      const currentLimit = Math.min(batchSize, maxItems - allPages.length)
+      const response = await this.listSitePages({ limit: currentLimit, offset })
+      const items = response.items ?? []
+      if (!items.length) break
+
+      allPages.push(...items)
+      offset += items.length
+
+      if (items.length < currentLimit) break
+      if (response.pagingMetadata && !response.pagingMetadata.hasNext) break
+      if (response.metaData && offset >= response.metaData.total) break
+    }
+
+    return allPages
   }
 }
 

@@ -10,26 +10,58 @@
 @custom-variant 2xl (@media (width >= theme(--breakpoint-2xl)));
 
 @font-face {
-  font-family: 'orig_safiro_medium';
+  font-family: 'orig_manuale_light';
+  src: url('/fonts/manuale/manuale-variable.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'orig_manuale_light';
+  src: url('/fonts/manuale/manuale-italic-variable.ttf') format('truetype');
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'orig_safiro';
   src:
-    url('/impgmt-clone/static.wixstatic.com/ufonts/ba1b62_293565bf067242aa85d2c9816ef579fd/woff2/file.woff2')
-      format('woff2'),
-    url('/impgmt-clone/static.wixstatic.com/ufonts/ba1b62_293565bf067242aa85d2c9816ef579fd/woff/file.woff')
-      format('woff');
+    url('/fonts/safiro/safiro-regular-webfont.woff2') format('woff2'),
+    url('/fonts/safiro/safiro-regular-webfont.woff') format('woff');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'orig_safiro';
+  src:
+    url('/fonts/safiro/safiro-medium-webfont.woff2') format('woff2'),
+    url('/fonts/safiro/safiro-medium-webfont.woff') format('woff');
   font-style: normal;
   font-weight: 500;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'orig_manuale_light';
+  font-family: 'orig_safiro';
   src:
-    url('/impgmt-clone/static.wixstatic.com/ufonts/c3fe54_9b286a232e56478fa6d14d94d8be22bd/woff2/file.woff2')
-      format('woff2'),
-    url('/impgmt-clone/static.wixstatic.com/ufonts/c3fe54_9b286a232e56478fa6d14d94d8be22bd/woff/file.woff')
-      format('woff');
+    url('/fonts/safiro/safiro-semibold-webfont.woff2') format('woff2'),
+    url('/fonts/safiro/safiro-semibold-webfont.woff') format('woff');
   font-style: normal;
-  font-weight: 300 400;
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'orig_safiro';
+  src:
+    url('/fonts/safiro/safiro-bold-webfont.woff2') format('woff2'),
+    url('/fonts/safiro/safiro-bold-webfont.woff') format('woff');
+  font-style: normal;
+  font-weight: 700;
   font-display: swap;
 }
 
@@ -69,7 +101,8 @@
   --breakpoint-2xl: 86rem;
   --font-mono: var(--font-geist-mono);
   --font-sans: 'orig_manuale_light', var(--font-geist-sans), system-ui, sans-serif;
-  --font-display: 'orig_safiro_medium', var(--font-geist-sans), system-ui, sans-serif;
+  --font-display-regular: 'orig_safiro', var(--font-geist-sans), system-ui, sans-serif;
+  --font-display: 'orig_safiro', var(--font-geist-sans), system-ui, sans-serif;
 }
 
 @layer utilities {
@@ -118,10 +151,12 @@
   --card-foreground: #0d1026;
   --popover: #ffffff;
   --popover-foreground: #0d1026;
-  --primary: #0040ff;
+  --primary: #1a22d6;
+  --primary-light: #0040ff;
+  --primary-light-accessible: #b8c7ff;
   --primary-foreground: #ffffff;
-  --secondary: #f2f5ff;
-  --secondary-foreground: #0d1026;
+  --secondary: #0b1035;
+  --secondary-foreground: #ffffff;
   --muted: #f6f7fb;
   --muted-foreground: #5f6477;
   --accent: #4b67ea;
@@ -158,6 +193,8 @@
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
+  --color-primary-light: var(--primary-light);
+  --color-primary-light-accessible: var(--primary-light-accessible);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
@@ -203,5 +240,42 @@
   body {
     @apply bg-background text-foreground min-h-[100vh] flex flex-col;
     font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-kerning: normal;
+  }
+}
+
+@keyframes hero-word-flip {
+  0%,
+  38% {
+    transform: rotateX(0deg);
+  }
+  62%,
+  100% {
+    transform: rotateX(180deg);
+  }
+}
+
+@keyframes hero-word-reveal {
+  0% {
+    opacity: 0;
+    transform: translateY(0.45em);
+    filter: blur(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes logo-spin-once {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }

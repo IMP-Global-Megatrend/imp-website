@@ -87,6 +87,9 @@ src/
    - `S3_SECRET_ACCESS_KEY` — Your Supabase S3 secret key
    - `S3_BUCKET` — Your storage bucket name (e.g. `media`)
    - `S3_REGION` — Your Supabase project region
+   - `RESEND_API_KEY` — Your Resend API key
+   - `RESEND_FROM_EMAIL` — A verified sender address in Resend (e.g. `noreply@yourdomain.com`)
+   - `RESEND_FROM_NAME` — Sender name shown in outgoing emails
    - `PAYLOAD_SECRET` — A random secret string
    - `CRON_SECRET` — A random secret for cron job authentication
    - `PREVIEW_SECRET` — A random secret for preview mode
@@ -102,3 +105,63 @@ src/
 | `pnpm lint`                | Run ESLint                           |
 | `pnpm generate:types`      | Generate Payload TypeScript types    |
 | `pnpm generate:importmap`  | Generate Payload import map          |
+
+## Wix Import Runbook
+
+The Wix importer endpoint is:
+
+- `POST /next/wix-import`
+- Requires an authenticated Payload admin session (same browser where you are logged into `/admin`)
+
+Required environment variables:
+
+- `WIX_API_KEY`
+- `WIX_SITE_ID`
+- `WIX_ACCOUNT_ID`
+
+### Example payloads
+
+Dry run (safe smoke test):
+
+```json
+{
+  "dryRun": true,
+  "upsertByWixId": true,
+  "skipExisting": true,
+  "publishOnImport": false,
+  "categories": true,
+  "posts": true,
+  "pages": true,
+  "dataCollections": [],
+  "limit": 10
+}
+```
+
+Full import (repeatable upsert):
+
+```json
+{
+  "dryRun": false,
+  "upsertByWixId": true,
+  "skipExisting": true,
+  "publishOnImport": true,
+  "categories": true,
+  "posts": true,
+  "pages": true,
+  "dataCollections": ["CollectionA", "CollectionB"]
+}
+```
+
+Only Wix CMS collections:
+
+```json
+{
+  "dryRun": false,
+  "upsertByWixId": true,
+  "skipExisting": true,
+  "categories": false,
+  "posts": false,
+  "pages": false,
+  "dataCollections": ["CollectionA", "CollectionB"]
+}
+```

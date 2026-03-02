@@ -21,6 +21,11 @@ interface LexicalNode {
   [key: string]: unknown
 }
 
+export interface RichTextConversionOptions {
+  resolveMediaId?: (url: string) => number | string | null | undefined
+  onUnresolvedMedia?: (url: string) => void
+}
+
 export interface LexicalRoot {
   [key: string]: unknown
   root: {
@@ -352,7 +357,7 @@ function convertDivider(): LexicalHorizontalRuleNode {
   }
 }
 
-function convertImage(node: WixRichContentNode): LexicalNode {
+function convertImage(node: WixRichContentNode, options?: RichTextConversionOptions): LexicalNode {
   const imageData = node.imageData
   const src = resolveWixImageUrl(imageData?.image?.src?.url || imageData?.image?.src?.id)
   const alt = imageData?.altText || imageData?.image?.altText || ''
@@ -371,12 +376,26 @@ function convertImage(node: WixRichContentNode): LexicalNode {
     } satisfies LexicalParagraphNode
   }
 
+  const mediaId = options?.resolveMediaId?.(src)
+  if (!mediaId) {
+    options?.onUnresolvedMedia?.(src)
+    return {
+      type: 'paragraph',
+      children: [createTextNode(`[Image: ${alt || 'unresolved media'}] ${src}`)],
+      direction: 'ltr',
+      format: '',
+      indent: 0,
+      textFormat: 0,
+      version: 1,
+    } satisfies LexicalParagraphNode
+  }
+
   // Store as a Payload block node (mediaBlock) that the post content supports
   return {
     type: 'block',
     fields: {
       blockType: 'mediaBlock',
-      media: src,
+      media: mediaId,
       position: 'default',
       blockName: '',
     },
@@ -430,7 +449,10 @@ function convertHtml(node: WixRichContentNode): LexicalParagraphNode {
   }
 }
 
-function convertCollapsibleList(node: WixRichContentNode): LexicalNode[] {
+function convertCollapsibleList(
+  node: WixRichContentNode,
+  options?: RichTextConversionOptions,
+): LexicalNode[] {
   const results: LexicalNode[] = []
   if (!node.nodes?.length) return results
 
@@ -455,7 +477,7 @@ function convertCollapsibleList(node: WixRichContentNode): LexicalNode[] {
     }
 
     if (bodyNode?.nodes?.length) {
-      results.push(...convertNodes(bodyNode.nodes))
+      results.push(...convertNodes(bodyNode.nodes, options))
     }
   }
 
@@ -573,31 +595,44 @@ export function resolveWixImageUrl(urlOrId?: string): string {
 
 // -- Main conversion --
 
-const NODE_CONVERTERS: Partial<
-  Record<WixNodeType, (node: WixRichContentNode) => LexicalNode | LexicalNode[]>
-> = {
-  PARAGRAPH: convertParagraph,
-  HEADING: convertHeading,
-  BULLETED_LIST: convertBulletedList,
-  ORDERED_LIST: convertOrderedList,
-  BLOCKQUOTE: convertBlockquote,
-  DIVIDER: convertDivider,
-  IMAGE: convertImage,
-  CODE_BLOCK: convertCodeBlock,
-  EMBED: convertEmbed,
-  HTML: convertHtml,
-  TABLE: convertTable,
-  BUTTON: convertButton,
-}
-
-function convertNode(node: WixRichContentNode): LexicalNode | LexicalNode[] | null {
+function convertNode(
+  node: WixRichContentNode,
+  options?: RichTextConversionOptions,
+): LexicalNode | LexicalNode[] | null {
   if (node.type === 'COLLAPSIBLE_LIST') {
-    return convertCollapsibleList(node)
+    return convertCollapsibleList(node, options)
   }
-
-  const converter = NODE_CONVERTERS[node.type]
-  if (converter) {
-    return converter(node)
+  if (node.type === 'PARAGRAPH') return convertParagraph(node)
+  if (node.type === 'HEADING') return convertHeading(node)
+  if (node.type === 'BULLETED_LIST') return convertBulletedList(node)
+  if (node.type === 'ORDERED_LIST') return convertOrderedList(node)
+  if (node.type === 'BLOCKQUOTE') return convertBlockquote(node)
+  if (node.type === 'DIVIDER') return convertDivider()
+  if (node.type === 'IMAGE') return convertImage(node, options)
+  if (node.type === 'CODE_BLOCK') return convertCodeBlock(node)
+  if (node.type === 'EMBED') return convertEmbed(node)
+  if (node.type === 'HTML') return convertHtml(node)
+  if (node.type === 'TABLE') return convertTable(node)
+  if (node.type === 'BUTTON') return convertButton(node)
+  if (node.type === 'GALLERY' && node.galleryData?.items?.length) {
+    const galleryNodes: LexicalNode[] = []
+    for (const item of node.galleryData.items) {
+      const src = resolveWixImageUrl(item.image?.src?.url || item.image?.src?.id)
+      if (!src) continue
+      galleryNodes.push(
+        convertImage(
+          {
+            type: 'IMAGE',
+            imageData: {
+              image: item.image,
+              altText: item.altText,
+            },
+          },
+          options,
+        ),
+      )
+    }
+    return galleryNodes
   }
 
   // Fallback: try to extract text content
@@ -619,11 +654,11 @@ function convertNode(node: WixRichContentNode): LexicalNode | LexicalNode[] | nu
   return null
 }
 
-function convertNodes(nodes: WixRichContentNode[]): LexicalNode[] {
+function convertNodes(nodes: WixRichContentNode[], options?: RichTextConversionOptions): LexicalNode[] {
   const result: LexicalNode[] = []
 
   for (const node of nodes) {
-    const converted = convertNode(node)
+    const converted = convertNode(node, options)
     if (converted === null) continue
     if (Array.isArray(converted)) {
       result.push(...converted)
@@ -639,8 +674,11 @@ function convertNodes(nodes: WixRichContentNode[]): LexicalNode[] {
  * Converts Wix Rich Content (Ricos) to Payload CMS Lexical editor format.
  * Returns a complete Lexical serialized state.
  */
-export function wixRichContentToLexical(richContent: WixRichContent): LexicalRoot {
-  const children = convertNodes(richContent.nodes || [])
+export function wixRichContentToLexical(
+  richContent: WixRichContent,
+  options?: RichTextConversionOptions,
+): LexicalRoot {
+  const children = convertNodes(richContent.nodes || [], options)
 
   // Ensure there's at least one paragraph
   if (children.length === 0) {

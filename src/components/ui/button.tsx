@@ -12,9 +12,15 @@ const buttonVariants = cva(
         destructive: 'bg-destructive text-destructive-foreground shadow-xs hover:bg-destructive/90',
         outline:
           'border border-input bg-background shadow-xs hover:bg-accent hover:text-accent-foreground',
+        outlineBrand:
+          'inline-flex items-center gap-2 border border-primary-light text-primary-light rounded text-[13px] uppercase tracking-[0.12em] font-medium hover:bg-primary-light/5 transition-colors',
+        headerSubscribe:
+          'items-center gap-2 border border-white/70 px-4 py-2 rounded-none text-[13px] font-display font-normal uppercase tracking-[0.12em] text-white hover:bg-white hover:text-primary-light transition-colors duration-300 ease-out',
         secondary: 'bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80',
         ghost: 'hover:bg-accent hover:text-accent-foreground',
         link: 'text-primary underline-offset-4 hover:underline',
+        heroCta:
+          'items-center gap-2.5 border border-white/50 px-6 py-3 rounded-none text-[14px] font-display font-normal uppercase tracking-[0.15em] text-white hover:bg-white/10 transition-colors [&_svg]:transition-transform [&_svg]:duration-300 hover:[&_svg]:scale-x-[-1]',
       },
       size: {
         clear: '',

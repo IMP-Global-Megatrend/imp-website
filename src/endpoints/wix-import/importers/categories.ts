@@ -1,5 +1,5 @@
 import type { Payload } from 'payload'
-import type { WixBlogCategory, ImportIdMap } from '../types'
+import type { WixBlogCategory, ImportEntityResult, ImportIdMap } from '../types'
 
 function toKebabCase(str: string): string {
   return str
@@ -16,41 +16,78 @@ export async function importCategories(
   wixCategories: WixBlogCategory[],
   options?: {
     skipExisting?: boolean
+    upsertByWixId?: boolean
+    dryRun?: boolean
     idMap?: ImportIdMap
   },
-): Promise<{ created: number; skipped: number; errors: string[] }> {
-  const result = { created: 0, skipped: 0, errors: [] as string[] }
+): Promise<ImportEntityResult> {
+  const result: ImportEntityResult = { created: 0, updated: 0, skipped: 0, errors: [] }
 
   for (const wixCat of wixCategories) {
     try {
       const slug = wixCat.slug || toKebabCase(wixCat.label || wixCat.title || wixCat.id)
       const title = wixCat.label || wixCat.title || slug
 
-      if (options?.skipExisting) {
-        const existing = await payload.find({
+      let existingByWixId: { docs?: Array<{ id: number | string }> } | null = null
+
+      if (options?.upsertByWixId) {
+        existingByWixId = await payload.find({
           collection: 'categories',
-          where: { slug: { equals: slug } },
+          where: { wixId: { equals: wixCat.id } },
           limit: 1,
           depth: 0,
         })
+      }
 
-        if (existing.docs.length > 0) {
-          options.idMap?.categories.set(wixCat.id, existing.docs[0].id)
+      const existingBySlug = await payload.find({
+        collection: 'categories',
+        where: { slug: { equals: slug } },
+        limit: 1,
+        depth: 0,
+      })
+
+      const existingDoc = existingByWixId?.docs?.[0] || existingBySlug.docs[0]
+      if (existingDoc) {
+        options?.idMap?.categories.set(wixCat.id, existingDoc.id)
+
+        if (options?.upsertByWixId) {
+          if (!options.dryRun) {
+            await payload.update({
+              collection: 'categories',
+              id: existingDoc.id,
+              data: {
+                title,
+                slug,
+                wixId: wixCat.id,
+              },
+              depth: 0,
+              context: { disableRevalidate: true },
+            })
+          }
+          result.updated++
+          payload.logger.info(`  Updated category: ${title}`)
+          continue
+        }
+
+        if (options?.skipExisting) {
           result.skipped++
           payload.logger.info(`  Skipping existing category: ${title}`)
           continue
         }
       }
 
-      const doc = await payload.create({
-        collection: 'categories',
-        data: {
-          title,
-          slug,
-        },
-        depth: 0,
-        context: { disableRevalidate: true },
-      })
+      const doc = options?.dryRun
+        ? { id: `dry-run:${wixCat.id}` }
+        : await payload.create({
+            collection: 'categories',
+            data: {
+              title,
+              slug,
+              wixId: wixCat.id,
+            },
+            depth: 0,
+            context: { disableRevalidate: true },
+          })
 
       options?.idMap?.categories.set(wixCat.id, doc.id)
       result.created++

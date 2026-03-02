@@ -202,7 +202,7 @@ export const seed = async ({
 
   payload.logger.info(`— Seeding pages...`)
 
-  const [_, contactPage] = await Promise.all([
+  await Promise.all([
     payload.create({
       collection: 'pages',
       depth: 0,
@@ -225,18 +225,36 @@ export const seed = async ({
           {
             link: {
               type: 'custom',
-              label: 'Posts',
-              url: '/posts',
+              label: 'The Fund',
+              url: '/fund',
             },
           },
           {
             link: {
-              type: 'reference',
-              label: 'Contact',
-              reference: {
-                relationTo: 'pages',
-                value: contactPage.id,
-              },
+              type: 'custom',
+              label: 'Our Megatrends',
+              url: '/megatrends',
+            },
+          },
+          {
+            link: {
+              type: 'custom',
+              label: 'Portfolio Strategy',
+              url: '/portfolio-strategy',
+            },
+          },
+          {
+            link: {
+              type: 'custom',
+              label: 'Performance Analysis',
+              url: '/performance-analysis',
+            },
+          },
+          {
+            link: {
+              type: 'custom',
+              label: 'About Us',
+              url: '/about-us',
             },
           },
         ],
@@ -249,24 +267,43 @@ export const seed = async ({
           {
             link: {
               type: 'custom',
-              label: 'Admin',
-              url: '/admin',
+              label: 'The Fund',
+              url: '/fund',
             },
           },
           {
             link: {
               type: 'custom',
-              label: 'Source Code',
-              newTab: true,
-              url: 'https://github.com/payloadcms/payload/tree/main/templates/website',
+              label: 'Our Megatrends',
+              url: '/megatrends',
             },
           },
           {
             link: {
               type: 'custom',
-              label: 'Payload',
-              newTab: true,
-              url: 'https://payloadcms.com/',
+              label: 'Portfolio Strategy',
+              url: '/portfolio-strategy',
+            },
+          },
+          {
+            link: {
+              type: 'custom',
+              label: 'Performance Analysis',
+              url: '/performance-analysis',
+            },
+          },
+          {
+            link: {
+              type: 'custom',
+              label: 'About Us',
+              url: '/about-us',
+            },
+          },
+          {
+            link: {
+              type: 'custom',
+              label: 'Contact Us',
+              url: '/contact-us',
             },
           },
         ],

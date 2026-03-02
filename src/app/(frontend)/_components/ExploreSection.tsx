@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { Button } from '@/components/ui/button'
 
 export function ExploreSection() {
   return (
@@ -12,15 +13,19 @@ export function ExploreSection() {
           they create.
         </p>
         <div className="mt-8">
-          <Link
-            href="/megatrends"
-            className="inline-flex items-center gap-2 border border-[#0040ff] text-[#0040ff] px-6 py-3 rounded text-[13px] uppercase tracking-[0.12em] font-medium hover:bg-[#0040ff]/5 transition-colors"
+          <Button
+            asChild
+            variant="outlineBrand"
+            size="clear"
+            className="px-6 py-3"
           >
-            Explore details
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-              <path d="M2 10L10 2M10 2H4M10 2v6" stroke="currentColor" strokeWidth="1.5" />
-            </svg>
-          </Link>
+            <Link href="/megatrends">
+              Explore details
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                <path d="M2 10L10 2M10 2H4M10 2v6" stroke="currentColor" strokeWidth="1.5" />
+              </svg>
+            </Link>
+          </Button>
         </div>
       </div>
     </section>

@@ -10,6 +10,12 @@ declare global {
       S3_SECRET_ACCESS_KEY: string
       S3_BUCKET: string
       S3_REGION: string
+      WIX_API_KEY: string
+      WIX_SITE_ID: string
+      WIX_ACCOUNT_ID: string
+      RESEND_API_KEY: string
+      RESEND_FROM_EMAIL: string
+      RESEND_FROM_NAME: string
     }
   }
 }

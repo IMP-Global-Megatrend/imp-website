@@ -1,8 +1,11 @@
 import type { Payload } from 'payload'
-import type { WixImportOptions, WixImportResult, ImportIdMap } from './types'
+import type { WixImportOptions, WixImportResult, ImportIdMap, ImportEntityResult } from './types'
 import { createWixClient } from './wix-client'
 import { importCategories } from './importers/categories'
 import { importPosts } from './importers/posts'
+import { importPages } from './importers/pages'
+import { importDataCollectionItems } from './importers/data-collections'
+import { wixCollectionSlugById } from '@/collections/WixCollections'
 
 /**
  * Main Wix data import orchestrator.
@@ -28,23 +31,28 @@ export async function wixImport({
   const {
     posts: importPostsEnabled = true,
     categories: importCategoriesEnabled = true,
+    pages: importPagesEnabled = true,
     skipExisting = true,
+    upsertByWixId = true,
+    dryRun = false,
     publishOnImport = true,
     limit,
     offset,
   } = options
 
   const result: WixImportResult = {
-    categories: { created: 0, skipped: 0, errors: [] },
-    media: { created: 0, skipped: 0, errors: [] },
-    posts: { created: 0, skipped: 0, errors: [] },
-    dataCollections: { created: 0, skipped: 0, errors: [] },
+    categories: { created: 0, updated: 0, skipped: 0, errors: [] },
+    media: { created: 0, updated: 0, skipped: 0, errors: [] },
+    posts: { created: 0, updated: 0, skipped: 0, errors: [] },
+    pages: { created: 0, updated: 0, skipped: 0, errors: [] },
+    dataCollections: { created: 0, updated: 0, skipped: 0, errors: [] },
   }
 
   const idMap: ImportIdMap = {
     categories: new Map(),
     media: new Map(),
     posts: new Map(),
+    pages: new Map(),
   }
 
   payload.logger.info('=== Starting Wix Data Import ===')
@@ -60,6 +68,8 @@ export async function wixImport({
 
       const catResult = await importCategories(payload, wixCategories, {
         skipExisting,
+        upsertByWixId,
+        dryRun,
         idMap,
       })
       result.categories = catResult
@@ -79,8 +89,11 @@ export async function wixImport({
 
       const postResult = await importPosts(payload, wixPosts, {
         skipExisting,
+        upsertByWixId,
+        dryRun,
         publishOnImport,
         idMap,
+        mediaResult: result.media,
       })
       result.posts = postResult
     } catch (error) {
@@ -90,28 +103,58 @@ export async function wixImport({
     }
   }
 
-  // Step 3: Import Wix Data Collections (CMS items)
+  // Step 3: Import site pages
+  if (importPagesEnabled) {
+    payload.logger.info('Fetching Wix site pages...')
+    try {
+      const wixPages = await wix.getAllSitePages({ limit, offset })
+      payload.logger.info(`Found ${wixPages.length} pages`)
+
+      const pageResult = await importPages(payload, wixPages, {
+        skipExisting,
+        upsertByWixId,
+        dryRun,
+        publishOnImport,
+        idMap,
+        mediaResult: result.media,
+      })
+      result.pages = pageResult
+    } catch (error) {
+      const msg = `Failed to fetch/import pages: ${error}`
+      result.pages.errors.push(msg)
+      payload.logger.error(msg)
+    }
+  }
+
+  // Step 4: Import Wix Data Collections (CMS items)
   if (options.dataCollections?.length) {
     for (const collectionId of options.dataCollections) {
       payload.logger.info(`Fetching Wix data collection: ${collectionId}...`)
       try {
-        const items = await wix.getAllDataCollectionItems(collectionId, { limit })
-        payload.logger.info(`Found ${items.length} items in collection "${collectionId}"`)
-
-        // Data collection items are stored as generic key-value data.
-        // Users should extend this section to map specific Wix collections
-        // to their Payload collections based on their data model.
-        for (const item of items) {
-          payload.logger.info(
-            `  [${collectionId}] Item ${item.id}: ${JSON.stringify(item.data).substring(0, 100)}...`,
-          )
-          result.dataCollections.created++
+        const targetCollection = wixCollectionSlugById[collectionId]
+        if (!targetCollection) {
+          const msg = `No Payload collection mapping exists for Wix collection "${collectionId}".`
+          result.dataCollections.errors.push(msg)
+          payload.logger.error(msg)
+          continue
         }
 
-        payload.logger.info(
-          `  Note: Data collection "${collectionId}" items are logged but not yet mapped to Payload collections. ` +
-            `Extend the importers to handle your specific data model.`,
+        const items = await wix.getAllDataCollectionItems(collectionId, { limit })
+        payload.logger.info(`Found ${items.length} items in collection "${collectionId}"`)
+        const collectionResult = await importDataCollectionItems(
+          payload,
+          collectionId,
+          targetCollection as Parameters<typeof payload.find>[0]['collection'],
+          items,
+          {
+          skipExisting,
+          upsertByWixId,
+          dryRun,
+          idMap,
+          mediaResult: result.media,
+          },
         )
+        mergeEntityResult(result.dataCollections, collectionResult)
       } catch (error) {
         const msg = `Failed to fetch data collection "${collectionId}": ${error}`
         result.dataCollections.errors.push(msg)
@@ -122,11 +165,24 @@ export async function wixImport({
 
   // Log summary
   payload.logger.info('=== Wix Import Complete ===')
-  payload.logger.info(`Categories: ${result.categories.created} created, ${result.categories.skipped} skipped, ${result.categories.errors.length} errors`)
-  payload.logger.info(`Posts: ${result.posts.created} created, ${result.posts.skipped} skipped, ${result.posts.errors.length} errors`)
+  payload.logger.info(formatResultSummary('Categories', result.categories))
+  payload.logger.info(formatResultSummary('Posts', result.posts))
+  payload.logger.info(formatResultSummary('Pages', result.pages))
+  payload.logger.info(formatResultSummary('Media', result.media))
   if (options.dataCollections?.length) {
-    payload.logger.info(`Data Collections: ${result.dataCollections.created} items found, ${result.dataCollections.errors.length} errors`)
+    payload.logger.info(formatResultSummary('Data Collections', result.dataCollections))
   }
 
   return result
+}
+
+function mergeEntityResult(target: ImportEntityResult, source: ImportEntityResult): void {
+  target.created += source.created
+  target.updated += source.updated
+  target.skipped += source.skipped
+  target.errors.push(...source.errors)
+}
+
+function formatResultSummary(label: string, value: ImportEntityResult): string {
+  return `${label}: ${value.created} created, ${value.updated} updated, ${value.skipped} skipped, ${value.errors.length} errors`
 }

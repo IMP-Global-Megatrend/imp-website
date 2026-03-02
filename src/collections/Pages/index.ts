@@ -117,6 +117,21 @@ export const Pages: CollectionConfig<'pages'> = {
         position: 'sidebar',
       },
     },
+    {
+      name: 'wixId',
+      type: 'text',
+      index: true,
+      admin: {
+        position: 'sidebar',
+      },
+    },
+    {
+      name: 'wixUpdatedAt',
+      type: 'date',
+      admin: {
+        position: 'sidebar',
+      },
+    },
     slugField(),
   ],
   hooks: {
@@ -133,4 +148,10 @@ export const Pages: CollectionConfig<'pages'> = {
     },
     maxPerDoc: 50,
   },
+  indexes: [
+    {
+      fields: ['wixId'],
+      unique: true,
+    },
+  ],
 }

@@ -326,6 +326,26 @@ export interface WixDataItem {
   _updatedDate?: string
 }
 
+// -- Wix Site Page --
+
+export interface WixSitePage {
+  id: string
+  title?: string
+  pageTitle?: string
+  slug?: string
+  path?: string
+  seoData?: WixSeoData
+  richContent?: WixRichContent
+  plainContent?: string
+  coverImage?: WixCoverImage
+  heroImage?: WixCoverImage
+  firstPublishedDate?: string
+  publishedDate?: string
+  status?: 'PUBLISHED' | 'DRAFT' | 'UNPUBLISHED'
+  updatedDate?: string
+  [key: string]: unknown
+}
+
 // -- Wix Media Item --
 
 export interface WixMediaItem {
@@ -380,12 +400,18 @@ export interface WixImportOptions {
   posts?: boolean
   /** Import blog categories */
   categories?: boolean
+  /** Import Wix site pages */
+  pages?: boolean
   /** Import media (images from posts/pages) */
   media?: boolean
   /** Import Wix Data collections (CMS items) */
   dataCollections?: string[]
   /** Skip existing items (match by slug) */
   skipExisting?: boolean
+  /** Update existing docs when a matching wixId/slug exists */
+  upsertByWixId?: boolean
+  /** Do not write to the database, only log/report actions */
+  dryRun?: boolean
   /** Publish imported items immediately */
   publishOnImport?: boolean
   /** Maximum posts to import (for testing) */
@@ -394,11 +420,19 @@ export interface WixImportOptions {
   offset?: number
 }
 
+export interface ImportEntityResult {
+  created: number
+  updated: number
+  skipped: number
+  errors: string[]
+}
+
 export interface WixImportResult {
-  categories: { created: number; skipped: number; errors: string[] }
-  media: { created: number; skipped: number; errors: string[] }
-  posts: { created: number; skipped: number; errors: string[] }
-  dataCollections: { created: number; skipped: number; errors: string[] }
+  categories: ImportEntityResult
+  media: ImportEntityResult
+  posts: ImportEntityResult
+  pages: ImportEntityResult
+  dataCollections: ImportEntityResult
 }
 
 // Maps Wix IDs to Payload IDs for cross-referencing during import
@@ -406,4 +440,5 @@ export interface ImportIdMap {
   categories: Map<string, number | string>
   media: Map<string, number | string>
   posts: Map<string, number | string>
+  pages: Map<string, number | string>
 }

@@ -72,6 +72,32 @@ export interface Config {
     media: Media;
     categories: Category;
     users: User;
+    'content-gate-submissions': ContentGateSubmission;
+    'wix-data-items': WixDataItem;
+    'wix-about-us-list': WixAboutUsList;
+    'wix-contact-us': WixContactUs;
+    'wix-country-selection': WixCountrySelection;
+    'wix-fund-attributes': WixFundAttribute;
+    'wix-fund-details': WixFundDetail;
+    'wix-geographic-allocations': WixGeographicAllocation;
+    'wix-homepage-links': WixHomepageLink;
+    'wix-import-usd': WixImportUsd;
+    'wix-import-chf': WixImportChf;
+    'wix-investment-process': WixInvestmentProcess;
+    'wix-legal-information': WixLegalInformation;
+    'wix-megatrend-dataset': WixMegatrendDataset;
+    'wix-megatrends-allocations': WixMegatrendsAllocation;
+    'wix-megatrends-detail': WixMegatrendsDetail;
+    'wix-members-badges': WixMembersBadge;
+    'wix-members-full-data': WixMembersFullDatum;
+    'wix-members-private-data': WixMembersPrivateDatum;
+    'wix-members-public-data': WixMembersPublicDatum;
+    'wix-menu-list': WixMenuList;
+    'wix-portfolio-strategy-process': WixPortfolioStrategyProcess;
+    'wix-privacy-policy': WixPrivacyPolicy;
+    'wix-sector-allocations': WixSectorAllocation;
+    'wix-top-holdings': WixTopHolding;
+    'wix-trust-list': WixTrustList;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -94,6 +120,32 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
+    'content-gate-submissions': ContentGateSubmissionsSelect<false> | ContentGateSubmissionsSelect<true>;
+    'wix-data-items': WixDataItemsSelect<false> | WixDataItemsSelect<true>;
+    'wix-about-us-list': WixAboutUsListSelect<false> | WixAboutUsListSelect<true>;
+    'wix-contact-us': WixContactUsSelect<false> | WixContactUsSelect<true>;
+    'wix-country-selection': WixCountrySelectionSelect<false> | WixCountrySelectionSelect<true>;
+    'wix-fund-attributes': WixFundAttributesSelect<false> | WixFundAttributesSelect<true>;
+    'wix-fund-details': WixFundDetailsSelect<false> | WixFundDetailsSelect<true>;
+    'wix-geographic-allocations': WixGeographicAllocationsSelect<false> | WixGeographicAllocationsSelect<true>;
+    'wix-homepage-links': WixHomepageLinksSelect<false> | WixHomepageLinksSelect<true>;
+    'wix-import-usd': WixImportUsdSelect<false> | WixImportUsdSelect<true>;
+    'wix-import-chf': WixImportChfSelect<false> | WixImportChfSelect<true>;
+    'wix-investment-process': WixInvestmentProcessSelect<false> | WixInvestmentProcessSelect<true>;
+    'wix-legal-information': WixLegalInformationSelect<false> | WixLegalInformationSelect<true>;
+    'wix-megatrend-dataset': WixMegatrendDatasetSelect<false> | WixMegatrendDatasetSelect<true>;
+    'wix-megatrends-allocations': WixMegatrendsAllocationsSelect<false> | WixMegatrendsAllocationsSelect<true>;
+    'wix-megatrends-detail': WixMegatrendsDetailSelect<false> | WixMegatrendsDetailSelect<true>;
+    'wix-members-badges': WixMembersBadgesSelect<false> | WixMembersBadgesSelect<true>;
+    'wix-members-full-data': WixMembersFullDataSelect<false> | WixMembersFullDataSelect<true>;
+    'wix-members-private-data': WixMembersPrivateDataSelect<false> | WixMembersPrivateDataSelect<true>;
+    'wix-members-public-data': WixMembersPublicDataSelect<false> | WixMembersPublicDataSelect<true>;
+    'wix-menu-list': WixMenuListSelect<false> | WixMenuListSelect<true>;
+    'wix-portfolio-strategy-process': WixPortfolioStrategyProcessSelect<false> | WixPortfolioStrategyProcessSelect<true>;
+    'wix-privacy-policy': WixPrivacyPolicySelect<false> | WixPrivacyPolicySelect<true>;
+    'wix-sector-allocations': WixSectorAllocationsSelect<false> | WixSectorAllocationsSelect<true>;
+    'wix-top-holdings': WixTopHoldingsSelect<false> | WixTopHoldingsSelect<true>;
+    'wix-trust-list': WixTrustListSelect<false> | WixTrustListSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -208,6 +260,8 @@ export interface Page {
     description?: string | null;
   };
   publishedAt?: string | null;
+  wixId?: string | null;
+  wixUpdatedAt?: string | null;
   /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
@@ -252,6 +306,8 @@ export interface Post {
   };
   publishedAt?: string | null;
   authors?: (number | User)[] | null;
+  wixId?: string | null;
+  wixUpdatedAt?: string | null;
   populatedAuthors?:
     | {
         id?: string | null;
@@ -274,6 +330,7 @@ export interface Post {
 export interface Media {
   id: number;
   alt?: string | null;
+  wixSourceUrl?: string | null;
   caption?: {
     root: {
       type: string;
@@ -393,6 +450,7 @@ export interface FolderInterface {
 export interface Category {
   id: number;
   title: string;
+  wixId?: string | null;
   /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
@@ -780,6 +838,1650 @@ export interface Form {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "content-gate-submissions".
+ */
+export interface ContentGateSubmission {
+  id: number;
+  selectedCountry: string;
+  ipCountry?: string | null;
+  ipAddress?: string | null;
+  userAgent?: string | null;
+  path?: string | null;
+  submittedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-data-items".
+ */
+export interface WixDataItem {
+  id: number;
+  wixCollectionId: string;
+  wixItemId: string;
+  wixUpdatedAt?: string | null;
+  data:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-about-us-list".
+ */
+export interface WixAboutUsList {
+  id: number;
+  wixCollectionId: string;
+  wixItemId: string;
+  wixUpdatedAt?: string | null;
+  textFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  numberFields?:
+    | {
+        key: string;
+        value: number;
+        id?: string | null;
+      }[]
+    | null;
+  booleanFields?:
+    | {
+        key: string;
+        value: boolean;
+        id?: string | null;
+      }[]
+    | null;
+  dateFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  objectFields?:
+    | {
+        key: string;
+        value:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Raw Wix payload retained for traceability.
+   */
+  data:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-contact-us".
+ */
+export interface WixContactUs {
+  id: number;
+  wixCollectionId: string;
+  wixItemId: string;
+  wixUpdatedAt?: string | null;
+  textFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  numberFields?:
+    | {
+        key: string;
+        value: number;
+        id?: string | null;
+      }[]
+    | null;
+  booleanFields?:
+    | {
+        key: string;
+        value: boolean;
+        id?: string | null;
+      }[]
+    | null;
+  dateFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  objectFields?:
+    | {
+        key: string;
+        value:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Raw Wix payload retained for traceability.
+   */
+  data:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-country-selection".
+ */
+export interface WixCountrySelection {
+  id: number;
+  wixCollectionId: string;
+  wixItemId: string;
+  wixUpdatedAt?: string | null;
+  textFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  numberFields?:
+    | {
+        key: string;
+        value: number;
+        id?: string | null;
+      }[]
+    | null;
+  booleanFields?:
+    | {
+        key: string;
+        value: boolean;
+        id?: string | null;
+      }[]
+    | null;
+  dateFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  objectFields?:
+    | {
+        key: string;
+        value:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Raw Wix payload retained for traceability.
+   */
+  data:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-fund-attributes".
+ */
+export interface WixFundAttribute {
+  id: number;
+  wixCollectionId: string;
+  wixItemId: string;
+  wixUpdatedAt?: string | null;
+  textFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  numberFields?:
+    | {
+        key: string;
+        value: number;
+        id?: string | null;
+      }[]
+    | null;
+  booleanFields?:
+    | {
+        key: string;
+        value: boolean;
+        id?: string | null;
+      }[]
+    | null;
+  dateFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  objectFields?:
+    | {
+        key: string;
+        value:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Raw Wix payload retained for traceability.
+   */
+  data:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-fund-details".
+ */
+export interface WixFundDetail {
+  id: number;
+  wixCollectionId: string;
+  wixItemId: string;
+  wixUpdatedAt?: string | null;
+  textFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  numberFields?:
+    | {
+        key: string;
+        value: number;
+        id?: string | null;
+      }[]
+    | null;
+  booleanFields?:
+    | {
+        key: string;
+        value: boolean;
+        id?: string | null;
+      }[]
+    | null;
+  dateFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  objectFields?:
+    | {
+        key: string;
+        value:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Raw Wix payload retained for traceability.
+   */
+  data:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-geographic-allocations".
+ */
+export interface WixGeographicAllocation {
+  id: number;
+  wixCollectionId: string;
+  wixItemId: string;
+  wixUpdatedAt?: string | null;
+  textFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  numberFields?:
+    | {
+        key: string;
+        value: number;
+        id?: string | null;
+      }[]
+    | null;
+  booleanFields?:
+    | {
+        key: string;
+        value: boolean;
+        id?: string | null;
+      }[]
+    | null;
+  dateFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  objectFields?:
+    | {
+        key: string;
+        value:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Raw Wix payload retained for traceability.
+   */
+  data:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-homepage-links".
+ */
+export interface WixHomepageLink {
+  id: number;
+  wixCollectionId: string;
+  wixItemId: string;
+  wixUpdatedAt?: string | null;
+  textFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  numberFields?:
+    | {
+        key: string;
+        value: number;
+        id?: string | null;
+      }[]
+    | null;
+  booleanFields?:
+    | {
+        key: string;
+        value: boolean;
+        id?: string | null;
+      }[]
+    | null;
+  dateFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  objectFields?:
+    | {
+        key: string;
+        value:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Raw Wix payload retained for traceability.
+   */
+  data:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-import-usd".
+ */
+export interface WixImportUsd {
+  id: number;
+  wixCollectionId: string;
+  wixItemId: string;
+  wixUpdatedAt?: string | null;
+  textFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  numberFields?:
+    | {
+        key: string;
+        value: number;
+        id?: string | null;
+      }[]
+    | null;
+  booleanFields?:
+    | {
+        key: string;
+        value: boolean;
+        id?: string | null;
+      }[]
+    | null;
+  dateFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  objectFields?:
+    | {
+        key: string;
+        value:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Raw Wix payload retained for traceability.
+   */
+  data:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-import-chf".
+ */
+export interface WixImportChf {
+  id: number;
+  wixCollectionId: string;
+  wixItemId: string;
+  wixUpdatedAt?: string | null;
+  textFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  numberFields?:
+    | {
+        key: string;
+        value: number;
+        id?: string | null;
+      }[]
+    | null;
+  booleanFields?:
+    | {
+        key: string;
+        value: boolean;
+        id?: string | null;
+      }[]
+    | null;
+  dateFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  objectFields?:
+    | {
+        key: string;
+        value:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Raw Wix payload retained for traceability.
+   */
+  data:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-investment-process".
+ */
+export interface WixInvestmentProcess {
+  id: number;
+  wixCollectionId: string;
+  wixItemId: string;
+  wixUpdatedAt?: string | null;
+  textFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  numberFields?:
+    | {
+        key: string;
+        value: number;
+        id?: string | null;
+      }[]
+    | null;
+  booleanFields?:
+    | {
+        key: string;
+        value: boolean;
+        id?: string | null;
+      }[]
+    | null;
+  dateFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  objectFields?:
+    | {
+        key: string;
+        value:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Raw Wix payload retained for traceability.
+   */
+  data:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-legal-information".
+ */
+export interface WixLegalInformation {
+  id: number;
+  wixCollectionId: string;
+  wixItemId: string;
+  wixUpdatedAt?: string | null;
+  textFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  numberFields?:
+    | {
+        key: string;
+        value: number;
+        id?: string | null;
+      }[]
+    | null;
+  booleanFields?:
+    | {
+        key: string;
+        value: boolean;
+        id?: string | null;
+      }[]
+    | null;
+  dateFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  objectFields?:
+    | {
+        key: string;
+        value:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Raw Wix payload retained for traceability.
+   */
+  data:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-megatrend-dataset".
+ */
+export interface WixMegatrendDataset {
+  id: number;
+  wixCollectionId: string;
+  wixItemId: string;
+  wixUpdatedAt?: string | null;
+  textFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  numberFields?:
+    | {
+        key: string;
+        value: number;
+        id?: string | null;
+      }[]
+    | null;
+  booleanFields?:
+    | {
+        key: string;
+        value: boolean;
+        id?: string | null;
+      }[]
+    | null;
+  dateFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  objectFields?:
+    | {
+        key: string;
+        value:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Raw Wix payload retained for traceability.
+   */
+  data:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-megatrends-allocations".
+ */
+export interface WixMegatrendsAllocation {
+  id: number;
+  wixCollectionId: string;
+  wixItemId: string;
+  wixUpdatedAt?: string | null;
+  textFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  numberFields?:
+    | {
+        key: string;
+        value: number;
+        id?: string | null;
+      }[]
+    | null;
+  booleanFields?:
+    | {
+        key: string;
+        value: boolean;
+        id?: string | null;
+      }[]
+    | null;
+  dateFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  objectFields?:
+    | {
+        key: string;
+        value:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Raw Wix payload retained for traceability.
+   */
+  data:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-megatrends-detail".
+ */
+export interface WixMegatrendsDetail {
+  id: number;
+  wixCollectionId: string;
+  wixItemId: string;
+  wixUpdatedAt?: string | null;
+  textFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  numberFields?:
+    | {
+        key: string;
+        value: number;
+        id?: string | null;
+      }[]
+    | null;
+  booleanFields?:
+    | {
+        key: string;
+        value: boolean;
+        id?: string | null;
+      }[]
+    | null;
+  dateFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  objectFields?:
+    | {
+        key: string;
+        value:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Raw Wix payload retained for traceability.
+   */
+  data:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-members-badges".
+ */
+export interface WixMembersBadge {
+  id: number;
+  wixCollectionId: string;
+  wixItemId: string;
+  wixUpdatedAt?: string | null;
+  textFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  numberFields?:
+    | {
+        key: string;
+        value: number;
+        id?: string | null;
+      }[]
+    | null;
+  booleanFields?:
+    | {
+        key: string;
+        value: boolean;
+        id?: string | null;
+      }[]
+    | null;
+  dateFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  objectFields?:
+    | {
+        key: string;
+        value:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Raw Wix payload retained for traceability.
+   */
+  data:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-members-full-data".
+ */
+export interface WixMembersFullDatum {
+  id: number;
+  wixCollectionId: string;
+  wixItemId: string;
+  wixUpdatedAt?: string | null;
+  textFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  numberFields?:
+    | {
+        key: string;
+        value: number;
+        id?: string | null;
+      }[]
+    | null;
+  booleanFields?:
+    | {
+        key: string;
+        value: boolean;
+        id?: string | null;
+      }[]
+    | null;
+  dateFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  objectFields?:
+    | {
+        key: string;
+        value:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Raw Wix payload retained for traceability.
+   */
+  data:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-members-private-data".
+ */
+export interface WixMembersPrivateDatum {
+  id: number;
+  wixCollectionId: string;
+  wixItemId: string;
+  wixUpdatedAt?: string | null;
+  textFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  numberFields?:
+    | {
+        key: string;
+        value: number;
+        id?: string | null;
+      }[]
+    | null;
+  booleanFields?:
+    | {
+        key: string;
+        value: boolean;
+        id?: string | null;
+      }[]
+    | null;
+  dateFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  objectFields?:
+    | {
+        key: string;
+        value:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Raw Wix payload retained for traceability.
+   */
+  data:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-members-public-data".
+ */
+export interface WixMembersPublicDatum {
+  id: number;
+  wixCollectionId: string;
+  wixItemId: string;
+  wixUpdatedAt?: string | null;
+  textFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  numberFields?:
+    | {
+        key: string;
+        value: number;
+        id?: string | null;
+      }[]
+    | null;
+  booleanFields?:
+    | {
+        key: string;
+        value: boolean;
+        id?: string | null;
+      }[]
+    | null;
+  dateFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  objectFields?:
+    | {
+        key: string;
+        value:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Raw Wix payload retained for traceability.
+   */
+  data:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-menu-list".
+ */
+export interface WixMenuList {
+  id: number;
+  wixCollectionId: string;
+  wixItemId: string;
+  wixUpdatedAt?: string | null;
+  textFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  numberFields?:
+    | {
+        key: string;
+        value: number;
+        id?: string | null;
+      }[]
+    | null;
+  booleanFields?:
+    | {
+        key: string;
+        value: boolean;
+        id?: string | null;
+      }[]
+    | null;
+  dateFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  objectFields?:
+    | {
+        key: string;
+        value:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Raw Wix payload retained for traceability.
+   */
+  data:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-portfolio-strategy-process".
+ */
+export interface WixPortfolioStrategyProcess {
+  id: number;
+  wixCollectionId: string;
+  wixItemId: string;
+  wixUpdatedAt?: string | null;
+  textFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  numberFields?:
+    | {
+        key: string;
+        value: number;
+        id?: string | null;
+      }[]
+    | null;
+  booleanFields?:
+    | {
+        key: string;
+        value: boolean;
+        id?: string | null;
+      }[]
+    | null;
+  dateFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  objectFields?:
+    | {
+        key: string;
+        value:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Raw Wix payload retained for traceability.
+   */
+  data:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-privacy-policy".
+ */
+export interface WixPrivacyPolicy {
+  id: number;
+  wixCollectionId: string;
+  wixItemId: string;
+  wixUpdatedAt?: string | null;
+  textFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  numberFields?:
+    | {
+        key: string;
+        value: number;
+        id?: string | null;
+      }[]
+    | null;
+  booleanFields?:
+    | {
+        key: string;
+        value: boolean;
+        id?: string | null;
+      }[]
+    | null;
+  dateFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  objectFields?:
+    | {
+        key: string;
+        value:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Raw Wix payload retained for traceability.
+   */
+  data:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-sector-allocations".
+ */
+export interface WixSectorAllocation {
+  id: number;
+  wixCollectionId: string;
+  wixItemId: string;
+  wixUpdatedAt?: string | null;
+  textFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  numberFields?:
+    | {
+        key: string;
+        value: number;
+        id?: string | null;
+      }[]
+    | null;
+  booleanFields?:
+    | {
+        key: string;
+        value: boolean;
+        id?: string | null;
+      }[]
+    | null;
+  dateFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  objectFields?:
+    | {
+        key: string;
+        value:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Raw Wix payload retained for traceability.
+   */
+  data:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-top-holdings".
+ */
+export interface WixTopHolding {
+  id: number;
+  wixCollectionId: string;
+  wixItemId: string;
+  wixUpdatedAt?: string | null;
+  textFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  numberFields?:
+    | {
+        key: string;
+        value: number;
+        id?: string | null;
+      }[]
+    | null;
+  booleanFields?:
+    | {
+        key: string;
+        value: boolean;
+        id?: string | null;
+      }[]
+    | null;
+  dateFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  objectFields?:
+    | {
+        key: string;
+        value:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Raw Wix payload retained for traceability.
+   */
+  data:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-trust-list".
+ */
+export interface WixTrustList {
+  id: number;
+  wixCollectionId: string;
+  wixItemId: string;
+  wixUpdatedAt?: string | null;
+  textFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  numberFields?:
+    | {
+        key: string;
+        value: number;
+        id?: string | null;
+      }[]
+    | null;
+  booleanFields?:
+    | {
+        key: string;
+        value: boolean;
+        id?: string | null;
+      }[]
+    | null;
+  dateFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  objectFields?:
+    | {
+        key: string;
+        value:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Raw Wix payload retained for traceability.
+   */
+  data:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -989,6 +2691,110 @@ export interface PayloadLockedDocument {
         value: number | User;
       } | null)
     | ({
+        relationTo: 'content-gate-submissions';
+        value: number | ContentGateSubmission;
+      } | null)
+    | ({
+        relationTo: 'wix-data-items';
+        value: number | WixDataItem;
+      } | null)
+    | ({
+        relationTo: 'wix-about-us-list';
+        value: number | WixAboutUsList;
+      } | null)
+    | ({
+        relationTo: 'wix-contact-us';
+        value: number | WixContactUs;
+      } | null)
+    | ({
+        relationTo: 'wix-country-selection';
+        value: number | WixCountrySelection;
+      } | null)
+    | ({
+        relationTo: 'wix-fund-attributes';
+        value: number | WixFundAttribute;
+      } | null)
+    | ({
+        relationTo: 'wix-fund-details';
+        value: number | WixFundDetail;
+      } | null)
+    | ({
+        relationTo: 'wix-geographic-allocations';
+        value: number | WixGeographicAllocation;
+      } | null)
+    | ({
+        relationTo: 'wix-homepage-links';
+        value: number | WixHomepageLink;
+      } | null)
+    | ({
+        relationTo: 'wix-import-usd';
+        value: number | WixImportUsd;
+      } | null)
+    | ({
+        relationTo: 'wix-import-chf';
+        value: number | WixImportChf;
+      } | null)
+    | ({
+        relationTo: 'wix-investment-process';
+        value: number | WixInvestmentProcess;
+      } | null)
+    | ({
+        relationTo: 'wix-legal-information';
+        value: number | WixLegalInformation;
+      } | null)
+    | ({
+        relationTo: 'wix-megatrend-dataset';
+        value: number | WixMegatrendDataset;
+      } | null)
+    | ({
+        relationTo: 'wix-megatrends-allocations';
+        value: number | WixMegatrendsAllocation;
+      } | null)
+    | ({
+        relationTo: 'wix-megatrends-detail';
+        value: number | WixMegatrendsDetail;
+      } | null)
+    | ({
+        relationTo: 'wix-members-badges';
+        value: number | WixMembersBadge;
+      } | null)
+    | ({
+        relationTo: 'wix-members-full-data';
+        value: number | WixMembersFullDatum;
+      } | null)
+    | ({
+        relationTo: 'wix-members-private-data';
+        value: number | WixMembersPrivateDatum;
+      } | null)
+    | ({
+        relationTo: 'wix-members-public-data';
+        value: number | WixMembersPublicDatum;
+      } | null)
+    | ({
+        relationTo: 'wix-menu-list';
+        value: number | WixMenuList;
+      } | null)
+    | ({
+        relationTo: 'wix-portfolio-strategy-process';
+        value: number | WixPortfolioStrategyProcess;
+      } | null)
+    | ({
+        relationTo: 'wix-privacy-policy';
+        value: number | WixPrivacyPolicy;
+      } | null)
+    | ({
+        relationTo: 'wix-sector-allocations';
+        value: number | WixSectorAllocation;
+      } | null)
+    | ({
+        relationTo: 'wix-top-holdings';
+        value: number | WixTopHolding;
+      } | null)
+    | ({
+        relationTo: 'wix-trust-list';
+        value: number | WixTrustList;
+      } | null)
+    | ({
         relationTo: 'redirects';
         value: number | Redirect;
       } | null)
@@ -1095,6 +2901,8 @@ export interface PagesSelect<T extends boolean = true> {
         description?: T;
       };
   publishedAt?: T;
+  wixId?: T;
+  wixUpdatedAt?: T;
   generateSlug?: T;
   slug?: T;
   updatedAt?: T;
@@ -1204,6 +3012,8 @@ export interface PostsSelect<T extends boolean = true> {
       };
   publishedAt?: T;
   authors?: T;
+  wixId?: T;
+  wixUpdatedAt?: T;
   populatedAuthors?:
     | T
     | {
@@ -1222,6 +3032,7 @@ export interface PostsSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
+  wixSourceUrl?: T;
   caption?: T;
   folder?: T;
   updatedAt?: T;
@@ -1316,6 +3127,7 @@ export interface MediaSelect<T extends boolean = true> {
  */
 export interface CategoriesSelect<T extends boolean = true> {
   title?: T;
+  wixId?: T;
   generateSlug?: T;
   slug?: T;
   parent?: T;
@@ -1352,6 +3164,1160 @@ export interface UsersSelect<T extends boolean = true> {
         createdAt?: T;
         expiresAt?: T;
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "content-gate-submissions_select".
+ */
+export interface ContentGateSubmissionsSelect<T extends boolean = true> {
+  selectedCountry?: T;
+  ipCountry?: T;
+  ipAddress?: T;
+  userAgent?: T;
+  path?: T;
+  submittedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-data-items_select".
+ */
+export interface WixDataItemsSelect<T extends boolean = true> {
+  wixCollectionId?: T;
+  wixItemId?: T;
+  wixUpdatedAt?: T;
+  data?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-about-us-list_select".
+ */
+export interface WixAboutUsListSelect<T extends boolean = true> {
+  wixCollectionId?: T;
+  wixItemId?: T;
+  wixUpdatedAt?: T;
+  textFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  numberFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  booleanFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  dateFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  objectFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  data?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-contact-us_select".
+ */
+export interface WixContactUsSelect<T extends boolean = true> {
+  wixCollectionId?: T;
+  wixItemId?: T;
+  wixUpdatedAt?: T;
+  textFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  numberFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  booleanFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  dateFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  objectFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  data?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-country-selection_select".
+ */
+export interface WixCountrySelectionSelect<T extends boolean = true> {
+  wixCollectionId?: T;
+  wixItemId?: T;
+  wixUpdatedAt?: T;
+  textFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  numberFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  booleanFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  dateFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  objectFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  data?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-fund-attributes_select".
+ */
+export interface WixFundAttributesSelect<T extends boolean = true> {
+  wixCollectionId?: T;
+  wixItemId?: T;
+  wixUpdatedAt?: T;
+  textFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  numberFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  booleanFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  dateFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  objectFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  data?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-fund-details_select".
+ */
+export interface WixFundDetailsSelect<T extends boolean = true> {
+  wixCollectionId?: T;
+  wixItemId?: T;
+  wixUpdatedAt?: T;
+  textFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  numberFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  booleanFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  dateFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  objectFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  data?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-geographic-allocations_select".
+ */
+export interface WixGeographicAllocationsSelect<T extends boolean = true> {
+  wixCollectionId?: T;
+  wixItemId?: T;
+  wixUpdatedAt?: T;
+  textFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  numberFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  booleanFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  dateFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  objectFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  data?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-homepage-links_select".
+ */
+export interface WixHomepageLinksSelect<T extends boolean = true> {
+  wixCollectionId?: T;
+  wixItemId?: T;
+  wixUpdatedAt?: T;
+  textFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  numberFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  booleanFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  dateFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  objectFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  data?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-import-usd_select".
+ */
+export interface WixImportUsdSelect<T extends boolean = true> {
+  wixCollectionId?: T;
+  wixItemId?: T;
+  wixUpdatedAt?: T;
+  textFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  numberFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  booleanFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  dateFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  objectFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  data?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-import-chf_select".
+ */
+export interface WixImportChfSelect<T extends boolean = true> {
+  wixCollectionId?: T;
+  wixItemId?: T;
+  wixUpdatedAt?: T;
+  textFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  numberFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  booleanFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  dateFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  objectFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  data?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-investment-process_select".
+ */
+export interface WixInvestmentProcessSelect<T extends boolean = true> {
+  wixCollectionId?: T;
+  wixItemId?: T;
+  wixUpdatedAt?: T;
+  textFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  numberFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  booleanFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  dateFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  objectFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  data?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-legal-information_select".
+ */
+export interface WixLegalInformationSelect<T extends boolean = true> {
+  wixCollectionId?: T;
+  wixItemId?: T;
+  wixUpdatedAt?: T;
+  textFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  numberFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  booleanFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  dateFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  objectFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  data?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-megatrend-dataset_select".
+ */
+export interface WixMegatrendDatasetSelect<T extends boolean = true> {
+  wixCollectionId?: T;
+  wixItemId?: T;
+  wixUpdatedAt?: T;
+  textFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  numberFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  booleanFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  dateFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  objectFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  data?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-megatrends-allocations_select".
+ */
+export interface WixMegatrendsAllocationsSelect<T extends boolean = true> {
+  wixCollectionId?: T;
+  wixItemId?: T;
+  wixUpdatedAt?: T;
+  textFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  numberFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  booleanFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  dateFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  objectFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  data?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-megatrends-detail_select".
+ */
+export interface WixMegatrendsDetailSelect<T extends boolean = true> {
+  wixCollectionId?: T;
+  wixItemId?: T;
+  wixUpdatedAt?: T;
+  textFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  numberFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  booleanFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  dateFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  objectFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  data?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-members-badges_select".
+ */
+export interface WixMembersBadgesSelect<T extends boolean = true> {
+  wixCollectionId?: T;
+  wixItemId?: T;
+  wixUpdatedAt?: T;
+  textFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  numberFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  booleanFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  dateFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  objectFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  data?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-members-full-data_select".
+ */
+export interface WixMembersFullDataSelect<T extends boolean = true> {
+  wixCollectionId?: T;
+  wixItemId?: T;
+  wixUpdatedAt?: T;
+  textFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  numberFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  booleanFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  dateFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  objectFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  data?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-members-private-data_select".
+ */
+export interface WixMembersPrivateDataSelect<T extends boolean = true> {
+  wixCollectionId?: T;
+  wixItemId?: T;
+  wixUpdatedAt?: T;
+  textFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  numberFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  booleanFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  dateFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  objectFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  data?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-members-public-data_select".
+ */
+export interface WixMembersPublicDataSelect<T extends boolean = true> {
+  wixCollectionId?: T;
+  wixItemId?: T;
+  wixUpdatedAt?: T;
+  textFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  numberFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  booleanFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  dateFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  objectFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  data?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-menu-list_select".
+ */
+export interface WixMenuListSelect<T extends boolean = true> {
+  wixCollectionId?: T;
+  wixItemId?: T;
+  wixUpdatedAt?: T;
+  textFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  numberFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  booleanFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  dateFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  objectFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  data?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-portfolio-strategy-process_select".
+ */
+export interface WixPortfolioStrategyProcessSelect<T extends boolean = true> {
+  wixCollectionId?: T;
+  wixItemId?: T;
+  wixUpdatedAt?: T;
+  textFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  numberFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  booleanFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  dateFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  objectFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  data?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-privacy-policy_select".
+ */
+export interface WixPrivacyPolicySelect<T extends boolean = true> {
+  wixCollectionId?: T;
+  wixItemId?: T;
+  wixUpdatedAt?: T;
+  textFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  numberFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  booleanFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  dateFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  objectFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  data?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-sector-allocations_select".
+ */
+export interface WixSectorAllocationsSelect<T extends boolean = true> {
+  wixCollectionId?: T;
+  wixItemId?: T;
+  wixUpdatedAt?: T;
+  textFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  numberFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  booleanFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  dateFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  objectFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  data?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-top-holdings_select".
+ */
+export interface WixTopHoldingsSelect<T extends boolean = true> {
+  wixCollectionId?: T;
+  wixItemId?: T;
+  wixUpdatedAt?: T;
+  textFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  numberFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  booleanFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  dateFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  objectFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  data?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wix-trust-list_select".
+ */
+export interface WixTrustListSelect<T extends boolean = true> {
+  wixCollectionId?: T;
+  wixItemId?: T;
+  wixUpdatedAt?: T;
+  textFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  numberFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  booleanFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  dateFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  objectFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  data?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

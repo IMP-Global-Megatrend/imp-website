@@ -1,14 +1,18 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
+import { resendAdapter } from '@payloadcms/email-resend'
 import sharp from 'sharp'
 import path from 'path'
 import { buildConfig, PayloadRequest } from 'payload'
 import { fileURLToPath } from 'url'
 
 import { Categories } from './collections/Categories'
+import { ContentGateSubmissions } from './collections/ContentGateSubmissions'
 import { Media } from './collections/Media'
 import { Pages } from './collections/Pages'
 import { Posts } from './collections/Posts'
 import { Users } from './collections/Users'
+import { WixDataItems } from './collections/WixDataItems'
+import { WixCollections } from './collections/WixCollections'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
 import { plugins } from './plugins'
@@ -62,8 +66,22 @@ export default buildConfig({
       connectionString: process.env.DATABASE_URL,
     },
   }),
-  collections: [Pages, Posts, Media, Categories, Users],
+  collections: [
+    Pages,
+    Posts,
+    Media,
+    Categories,
+    Users,
+    ContentGateSubmissions,
+    WixDataItems,
+    ...WixCollections,
+  ],
   cors: [getServerSideURL()].filter(Boolean),
+  email: resendAdapter({
+    apiKey: process.env.RESEND_API_KEY || '',
+    defaultFromAddress: process.env.RESEND_FROM_EMAIL || 'noreply@example.com',
+    defaultFromName: process.env.RESEND_FROM_NAME || 'IMP Website',
+  }),
   globals: [Header, Footer],
   plugins,
   secret: process.env.PAYLOAD_SECRET,
