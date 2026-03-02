@@ -1,28 +1,23 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 
-type BlobConfig = {
+type Blob = {
+  cx: number
+  cy: number
+  ax: number
+  ay: number
+  ax2: number
+  ay2: number
+  sx: number
+  sy: number
+  sx2: number
+  sy2: number
   phase: number
-  speed: number
-  radius: number
-  driftX: number
-  driftY: number
-  alpha: number
+  pulse: number
+  r: number
+  a: number
   color: [number, number, number]
-  noiseSeedX: number
-  noiseSeedY: number
-  noiseSpeedX: number
-  noiseSpeedY: number
-  centerX: number
-  centerY: number
-  aspectX: number
-  aspectY: number
-  rotationPhase: number
-  rotationSpeed: number
-  morphPhase: number
-  morphSpeed: number
-  speedVariance: number
 }
 
 function clamp(value: number, min: number, max: number): number {
@@ -37,271 +32,155 @@ function createSeededRandom(seed: number): () => number {
   }
 }
 
-function fract(value: number): number {
-  return value - Math.floor(value)
-}
+function createBlobs(seed: number, width: number, height: number): Blob[] {
+  const runtimeSalt = Math.floor(Math.random() * 0xffffffff)
+  const rand = createSeededRandom((seed ^ runtimeSalt) >>> 0)
+  const palette: Array<[number, number, number]> = [
+    [0, 0, 255],
+    [0, 128, 255],
+    [128, 0, 255],
+    [255, 255, 0],
+    [0, 255, 128],
+    [0, 255, 255],
+  ]
+  const size = Math.max(width, height)
 
-// Lightweight smooth-ish value noise for organic blob motion.
-function noise1D(time: number, seed: number): number {
-  const t = time * 0.00007 + seed * 17.17
-  const i0 = Math.floor(t)
-  const i1 = i0 + 1
-  const f = t - i0
-  const smooth = f * f * (3 - 2 * f)
+  const baseBlobs = Array.from({ length: 10 }, (_, i) => ({
+    cx: width * (0.18 + rand() * 0.64),
+    cy: height * (0.18 + rand() * 0.64),
+    ax: width * (0.05 + rand() * 0.07),
+    ay: height * (0.05 + rand() * 0.07),
+    ax2: width * (0.015 + rand() * 0.02),
+    ay2: height * (0.015 + rand() * 0.02),
+    sx: 0.00034 + rand() * 0.00024,
+    sy: 0.00031 + rand() * 0.00024,
+    sx2: 0.0007 + rand() * 0.00035,
+    sy2: 0.00064 + rand() * 0.00035,
+    phase: rand() * Math.PI * 2,
+    pulse: 0.00018 + rand() * 0.00012,
+    r: size * (0.16 + rand() * 0.12),
+    a: 0.17 + rand() * 0.14,
+    color: palette[i % palette.length]!,
+  }))
 
-  const r0 = fract(Math.sin(i0 * 127.1 + seed * 311.7) * 43758.5453)
-  const r1 = fract(Math.sin(i1 * 127.1 + seed * 311.7) * 43758.5453)
-  return (r0 + (r1 - r0) * smooth) * 2 - 1
+  // Dedicated orange blob locked away from the center area.
+  const orangeOnLeft = rand() < 0.5
+  const orangeBlob: Blob = {
+    cx: width * (orangeOnLeft ? 0.08 + rand() * 0.22 : 0.7 + rand() * 0.22),
+    cy: height * (0.18 + rand() * 0.64),
+    ax: width * 0.06,
+    ay: height * 0.05,
+    ax2: width * 0.018,
+    ay2: height * 0.016,
+    sx: 0.00042,
+    sy: 0.00036,
+    sx2: 0.00082,
+    sy2: 0.00074,
+    phase: rand() * Math.PI * 2,
+    pulse: 0.00022,
+    r: size * 0.2,
+    a: 0.24,
+    color: [255, 128, 0],
+  }
+
+  return [...baseBlobs, orangeBlob]
 }
 
 export function HeroGradientCanvas({ seed = 1337 }: { seed?: number }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
-  const rafRef = useRef<number | null>(null)
-  const isVisibleRef = useRef(true)
-  const prefersReducedMotionRef = useRef(false)
-  const mouseTargetRef = useRef({ x: 0.5, y: 0.5 })
-  const mouseCurrentRef = useRef({ x: 0.5, y: 0.5 })
-  const [isCanvasVisible, setIsCanvasVisible] = useState(false)
-
-  const blobs = useMemo<BlobConfig[]>(
-    () => {
-      const rand = createSeededRandom(seed)
-      const palette: Array<[number, number, number]> = [
-        [36, 45, 255], // vivid primary blue
-        [0, 92, 255], // saturated blue
-        [92, 115, 255], // bright electric blue
-        [120, 78, 255], // saturated indigo
-        [164, 90, 255], // vivid violet
-        [208, 70, 255], // magenta-purple
-        [255, 56, 128], // hot pink
-        [255, 98, 58], // warm coral
-        [255, 138, 32], // vivid orange
-        [255, 176, 24], // warm amber
-        [255, 210, 0], // saturated yellow
-        [255, 155, 84], // peach
-        [255, 84, 64], // warm red-orange
-        [255, 108, 0], // deep orange
-        [255, 194, 64], // golden orange
-        [48, 199, 126], // emerald green
-        [112, 221, 142], // mint green
-        [18, 170, 98], // deep green
-        [0, 130, 232], // deep cyan-blue
-      ]
-
-      return Array.from({ length: 12 }, (_, i) => ({
-        phase: rand() * Math.PI * 2,
-        speed: 0.00012 + rand() * 0.00016,
-        radius: 0.16 + rand() * 0.22,
-        driftX: 0.12 + rand() * 0.26,
-        driftY: 0.12 + rand() * 0.26,
-        alpha: 0.24 + rand() * 0.24,
-        color: palette[i % palette.length]!,
-        noiseSeedX: rand() * 999,
-        noiseSeedY: rand() * 999,
-        noiseSpeedX: 0.75 + rand() * 1.05,
-        noiseSpeedY: 0.75 + rand() * 1.05,
-        centerX: 0.2 + rand() * 0.6,
-        centerY: 0.2 + rand() * 0.6,
-        aspectX: 0.75 + rand() * 0.75,
-        aspectY: 0.75 + rand() * 0.75,
-        rotationPhase: rand() * Math.PI * 2,
-        rotationSpeed: 0.00006 + rand() * 0.00008,
-        morphPhase: rand() * Math.PI * 2,
-        morphSpeed: 0.00008 + rand() * 0.0001,
-        speedVariance: 0.22 + rand() * 0.26,
-      }))
-    },
-    [seed],
-  )
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setIsCanvasVisible(true)
-    }, 40)
-
-    return () => window.clearTimeout(timer)
-  }, [])
+  const frameRef = useRef<number | null>(null)
+  const blobsRef = useRef<Blob[]>([])
+  const sizeRef = useRef({ width: 1, height: 1 })
+  const startTimeRef = useRef<number | null>(null)
 
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
 
-    const context = canvas.getContext('2d')
-    if (!context) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
 
-    let width = 0
-    let height = 0
-    let dpr = 1
+    const resize = () => {
+      const rect = canvas.parentElement?.getBoundingClientRect() ?? canvas.getBoundingClientRect()
+      const width = Math.max(1, Math.floor(rect.width))
+      const height = Math.max(1, Math.floor(rect.height))
+      const dpr = clamp(window.devicePixelRatio || 1, 1, 1.5)
 
-    const resizeCanvas = () => {
-      const parent = canvas.parentElement
-      const rect = parent?.getBoundingClientRect() ?? canvas.getBoundingClientRect()
-      width = Math.max(1, Math.floor(rect.width))
-      height = Math.max(1, Math.floor(rect.height))
-      dpr = clamp(window.devicePixelRatio || 1, 1, 2)
+      const changed = width !== sizeRef.current.width || height !== sizeRef.current.height
+      sizeRef.current = { width, height }
 
       canvas.width = Math.floor(width * dpr)
       canvas.height = Math.floor(height * dpr)
       canvas.style.width = `${width}px`
       canvas.style.height = `${height}px`
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
 
-      context.setTransform(dpr, 0, 0, dpr, 0, 0)
+      if (changed || blobsRef.current.length === 0) {
+        blobsRef.current = createBlobs(seed, width, height)
+      }
     }
 
-    const drawFrame = (timeMs: number) => {
-      context.clearRect(0, 0, width, height)
+    const render = (timeMs: number) => {
+      if (startTimeRef.current === null) {
+        startTimeRef.current = timeMs
+      }
 
-      // Ease mouse influence so gradients softly follow the cursor.
-      mouseCurrentRef.current.x += (mouseTargetRef.current.x - mouseCurrentRef.current.x) * 0.06
-      mouseCurrentRef.current.y += (mouseTargetRef.current.y - mouseCurrentRef.current.y) * 0.06
+      const { width, height } = sizeRef.current
+      ctx.clearRect(0, 0, width, height)
+      ctx.globalCompositeOperation = 'screen'
+      const fadeDuration = 1200
+      const fadeT = Math.min(1, (timeMs - startTimeRef.current) / fadeDuration)
+      const fade = 1 - Math.pow(1 - fadeT, 3)
 
-      const interactionX = (mouseCurrentRef.current.x - 0.5) * width
-      const interactionY = (mouseCurrentRef.current.y - 0.5) * height
-      const t = timeMs
-      const reducedMotion = prefersReducedMotionRef.current
-      const motionScale = reducedMotion ? 0.2 : 1
-      const followScale = reducedMotion ? 0.04 : 0.14
-
-      context.globalCompositeOperation = 'source-over'
-
-      for (const blob of blobs) {
-        const speedPulse = 1 + noise1D(t * 0.35, blob.noiseSeedX + 97.1) * blob.speedVariance
-        const driftSpeed = blob.speed * Math.max(0.45, speedPulse)
-        const rotationSpeed = blob.rotationSpeed * Math.max(0.45, speedPulse * 0.9 + 0.1)
-        const morphSpeed = blob.morphSpeed * Math.max(0.55, speedPulse * 0.85 + 0.15)
-        const baseRadiusPx = Math.max(width, height) * blob.radius
-        const randomX = noise1D(t * blob.noiseSpeedX, blob.noiseSeedX) * width * 0.14 * motionScale
-        const randomY = noise1D(t * blob.noiseSpeedY, blob.noiseSeedY) * height * 0.14 * motionScale
+      for (const blob of blobsRef.current) {
         const x =
-          width * blob.centerX +
-          Math.sin(t * driftSpeed + blob.phase) * width * blob.driftX * motionScale +
-          randomX +
-          interactionX * followScale
+          blob.cx +
+          Math.sin(timeMs * blob.sx + blob.phase) * blob.ax +
+          Math.sin(timeMs * blob.sx2 + blob.phase * 1.9) * blob.ax2
         const y =
-          height * blob.centerY +
-          Math.cos(t * driftSpeed * 1.13 + blob.phase * 1.27) * height * blob.driftY * motionScale +
-          randomY +
-          interactionY * followScale
-        const rotation =
-          Math.sin(t * rotationSpeed + blob.rotationPhase) * 0.7 +
-          noise1D(t * morphSpeed * 0.6, blob.noiseSeedX + 23.7) * 0.25
-        const morph = Math.sin(t * morphSpeed + blob.morphPhase)
-        const morphOffset = noise1D(t * morphSpeed * 1.35, blob.noiseSeedY + 71.3)
-        const aspectPulse = 1 + morph * 0.38 + morphOffset * 0.18
-        const sx = Math.max(0.45, blob.aspectX * aspectPulse)
-        const sy = Math.max(0.45, blob.aspectY * (2 - aspectPulse))
-        const radiusPx = baseRadiusPx * (0.82 + (morph + 1) * 0.22)
-
-        context.save()
-        context.translate(x, y)
-        context.rotate(rotation)
-        context.scale(sx, sy)
-
-        const highlightX = Math.cos(t * rotationSpeed + blob.phase) * radiusPx * 0.16
-        const highlightY = Math.sin(t * rotationSpeed * 1.1 + blob.phase) * radiusPx * 0.16
-        const gradient = context.createRadialGradient(
-          -highlightX * 0.35,
-          -highlightY * 0.35,
-          radiusPx * 0.05,
-          0,
-          0,
-          radiusPx * 1.08,
-        )
-        gradient.addColorStop(
-          0,
-          `rgba(${blob.color[0]}, ${blob.color[1]}, ${blob.color[2]}, ${blob.alpha * (0.92 + (morph + 1) * 0.12)})`,
-        )
-        gradient.addColorStop(
-          0.55,
-          `rgba(${blob.color[0]}, ${blob.color[1]}, ${blob.color[2]}, ${blob.alpha * 0.6})`,
-        )
+          blob.cy +
+          Math.cos(timeMs * blob.sy + blob.phase) * blob.ay +
+          Math.cos(timeMs * blob.sy2 + blob.phase * 1.6) * blob.ay2
+        const radiusScale = 0.9 + (Math.sin(timeMs * blob.pulse + blob.phase) + 1) * 0.1
+        const radius = blob.r * radiusScale
+        const alpha = blob.a * fade
+        const gradient = ctx.createRadialGradient(x, y, radius * 0.08, x, y, radius)
+        gradient.addColorStop(0, `rgba(${blob.color[0]}, ${blob.color[1]}, ${blob.color[2]}, ${alpha})`)
+        gradient.addColorStop(0.6, `rgba(${blob.color[0]}, ${blob.color[1]}, ${blob.color[2]}, ${alpha * 0.45})`)
         gradient.addColorStop(1, `rgba(${blob.color[0]}, ${blob.color[1]}, ${blob.color[2]}, 0)`)
-
-        const blurPx = Math.max(16, radiusPx * 0.26)
-        context.filter = `blur(${blurPx}px)`
-        context.fillStyle = gradient
-        context.fillRect(-radiusPx, -radiusPx, radiusPx * 2, radiusPx * 2)
-        context.filter = 'none'
-        context.restore()
+        ctx.fillStyle = gradient
+        ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2)
       }
 
-      context.globalCompositeOperation = 'source-over'
+      ctx.globalCompositeOperation = 'source-over'
+      frameRef.current = window.requestAnimationFrame(render)
     }
 
-    const tick = (timeMs: number) => {
-      if (!isVisibleRef.current) return
-      drawFrame(timeMs)
-      rafRef.current = window.requestAnimationFrame(tick)
+    resize()
+    render(performance.now())
+
+    const resizeObserver = new ResizeObserver(resize)
+    if (canvas.parentElement) {
+      resizeObserver.observe(canvas.parentElement)
+    } else {
+      resizeObserver.observe(canvas)
     }
-
-    const stopLoop = () => {
-      if (rafRef.current !== null) {
-        window.cancelAnimationFrame(rafRef.current)
-        rafRef.current = null
-      }
-    }
-
-    const startLoop = () => {
-      if (rafRef.current === null) {
-        rafRef.current = window.requestAnimationFrame(tick)
-      }
-    }
-
-    const handlePointerMove = (event: PointerEvent) => {
-      const rect = canvas.getBoundingClientRect()
-      const x = clamp((event.clientX - rect.left) / rect.width, 0, 1)
-      const y = clamp((event.clientY - rect.top) / rect.height, 0, 1)
-      mouseTargetRef.current = { x, y }
-    }
-
-    const handlePointerLeave = () => {
-      mouseTargetRef.current = { x: 0.5, y: 0.5 }
-    }
-
-    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
-    const updateReducedMotion = () => {
-      prefersReducedMotionRef.current = motionQuery.matches
-    }
-    updateReducedMotion()
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        isVisibleRef.current = Boolean(entry?.isIntersecting)
-        if (isVisibleRef.current) {
-          startLoop()
-        } else {
-          stopLoop()
-        }
-      },
-      { threshold: 0.01 },
-    )
-
-    resizeCanvas()
-    drawFrame(performance.now())
-    observer.observe(canvas)
-    startLoop()
-
-    window.addEventListener('resize', resizeCanvas, { passive: true })
-    window.addEventListener('pointermove', handlePointerMove, { passive: true })
-    window.addEventListener('pointerleave', handlePointerLeave)
-    motionQuery.addEventListener('change', updateReducedMotion)
+    window.addEventListener('resize', resize, { passive: true })
 
     return () => {
-      stopLoop()
-      observer.disconnect()
-      window.removeEventListener('resize', resizeCanvas)
-      window.removeEventListener('pointermove', handlePointerMove)
-      window.removeEventListener('pointerleave', handlePointerLeave)
-      motionQuery.removeEventListener('change', updateReducedMotion)
+      if (frameRef.current !== null) {
+        window.cancelAnimationFrame(frameRef.current)
+        frameRef.current = null
+      }
+      resizeObserver.disconnect()
+      window.removeEventListener('resize', resize)
     }
-  }, [blobs])
+  }, [seed])
 
   return (
     <canvas
       ref={canvasRef}
-      className={`row-start-1 col-start-1 h-full w-full pointer-events-none transition-opacity duration-1000 ease-out ${
-        isCanvasVisible ? 'opacity-100' : 'opacity-0'
-      }`}
+      className="row-start-1 col-start-1 h-full w-full scale-[1.06] pointer-events-none blur-[22px]"
       aria-hidden="true"
     />
   )
