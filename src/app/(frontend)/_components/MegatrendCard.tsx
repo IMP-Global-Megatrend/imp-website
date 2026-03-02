@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { AnimatedIcon } from './AnimatedIcon'
 
 interface MegatrendCardProps {
   title: string
@@ -42,11 +43,9 @@ export function MegatrendCard({ title, body, icon, image, tickers, reverse }: Me
                   size="clear"
                   className="px-5 py-2.5"
                 >
-                  <Link href="/megatrends">
+                  <Link href="/megatrends" className="group">
                     Megatrend Details
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                      <path d="M2 10L10 2M10 2H4M10 2v6" stroke="currentColor" strokeWidth="1.5" />
-                    </svg>
+                    <AnimatedIcon name="arrowUpRight" size={12} className="shrink-0 text-current" />
                   </Link>
                 </Button>
 

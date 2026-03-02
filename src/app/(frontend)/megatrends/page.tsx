@@ -1,6 +1,6 @@
-import { SiteShell } from '../_components/SiteShell'
 import { getCMSPageBySlug } from '../_components/getCMSPageBySlug'
 import { CMSPageContent } from '../_components/CMSPageContent'
+import { PageHero } from '../_components/PageHero'
 
 const megatrends = [
   {
@@ -94,19 +94,11 @@ export default async function MegatrendsPage() {
   }
 
   return (
-    <SiteShell>
-      <main className="bg-white text-[#0b1035]">
-        {/* Hero */}
-        <section className="bg-[#2b3dea] pt-32 pb-16 md:pt-40 md:pb-20">
-          <div className="container">
-            <h1 className="text-white text-[38px] md:text-[48px] leading-[1.12] tracking-tight max-w-3xl">
-              The Six Megatrends Powering Our Portfolio
-            </h1>
-            <p className="mt-4 text-white/70 text-[17px] max-w-2xl leading-[1.6]">
-              Megatrends focus on a deep, structural force reshaping the global economy. These themes are enduring, transformative, and global.
-            </p>
-          </div>
-        </section>
+    <main className="bg-white text-[#0b1035]">
+        <PageHero
+          title="The Six Megatrends Powering Our Portfolio"
+          subtitle="Megatrends focus on a deep, structural force reshaping the global economy. These themes are enduring, transformative, and global."
+        />
 
         {/* Intro */}
         <section className="container py-16 md:py-20">
@@ -167,7 +159,6 @@ export default async function MegatrendsPage() {
             </p>
           </div>
         </section>
-      </main>
-    </SiteShell>
+    </main>
   )
 }

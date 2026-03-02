@@ -1,6 +1,6 @@
-import { SiteShell } from '../_components/SiteShell'
 import { getCMSPageBySlug } from '../_components/getCMSPageBySlug'
 import { CMSPageContent } from '../_components/CMSPageContent'
+import { PageHero, PageHeroMeta } from '../_components/PageHero'
 import { PerformanceChart } from './PerformanceChart'
 
 const chfDetails = {
@@ -153,21 +153,10 @@ export default async function PerformancePage() {
   }
 
   return (
-    <SiteShell>
-      <main className="bg-white text-[#0b1035]">
-        {/* Hero */}
-        <section className="bg-[#2b3dea] pt-32 pb-16 md:pt-40 md:pb-20">
-          <div className="container">
-            <h1 className="text-white text-[38px] md:text-[48px] leading-[1.12] tracking-tight max-w-3xl">
-              Delivering Results Over the Long Term
-            </h1>
-            <div className="flex gap-4 mt-6">
-              <span className="text-white/60 text-[15px]">CHF Hedged Share Class</span>
-              <span className="text-white/40">|</span>
-              <span className="text-white/60 text-[15px]">USD Share Class</span>
-            </div>
-          </div>
-        </section>
+    <main className="bg-white text-[#0b1035]">
+        <PageHero title="Delivering Results Over the Long Term">
+          <PageHeroMeta items={['CHF Hedged Share Class', 'USD Share Class']} />
+        </PageHero>
 
         {/* Downloads */}
         <div className="container py-8">
@@ -234,7 +223,6 @@ export default async function PerformancePage() {
             <p>** Based on annualized data where applicable.</p>
           </div>
         </section>
-      </main>
-    </SiteShell>
+    </main>
   )
 }

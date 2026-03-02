@@ -1,17 +1,9 @@
 'use client'
 
 import Link from 'next/link'
-import {
-  BanknotesIcon,
-  BriefcaseIcon,
-  ChartBarIcon,
-  EnvelopeIcon,
-  GlobeAltIcon,
-  HomeIcon,
-  UsersIcon,
-} from '@heroicons/react/24/outline'
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { usePathname } from 'next/navigation'
+import { AnimatedIcon } from './AnimatedIcon'
 
 const fallbackNav = [
   { href: '/fund', label: ['The', 'Fund'] },
@@ -38,14 +30,16 @@ const desktopHeaderNav = [
   { href: '/newsletter-subscription', label: 'Subscribe', icon: 'mail' as const },
 ]
 
-function renderHeaderMenuIcon(icon: HeaderMenuIcon) {
-  if (icon === 'home') return <HomeIcon className="size-4" aria-hidden="true" />
-  if (icon === 'fund') return <BanknotesIcon className="size-4" aria-hidden="true" />
-  if (icon === 'megatrends') return <GlobeAltIcon className="size-4" aria-hidden="true" />
-  if (icon === 'portfolio') return <BriefcaseIcon className="size-4" aria-hidden="true" />
-  if (icon === 'performance') return <ChartBarIcon className="size-4" aria-hidden="true" />
-  if (icon === 'about') return <UsersIcon className="size-4" aria-hidden="true" />
-  return <EnvelopeIcon className="size-4" aria-hidden="true" />
+function renderHeaderMenuIcon(icon: HeaderMenuIcon, animate: boolean) {
+  if (icon === 'home') return <AnimatedIcon name="home" size={16} className="shrink-0" animate={animate} />
+  if (icon === 'fund')
+    return <AnimatedIcon name="circleDollar" size={16} className="shrink-0" animate={animate} />
+  if (icon === 'megatrends') return <AnimatedIcon name="earth" size={16} className="shrink-0" animate={animate} />
+  if (icon === 'portfolio') return <AnimatedIcon name="compass" size={16} className="shrink-0" animate={animate} />
+  if (icon === 'performance')
+    return <AnimatedIcon name="chartLine" size={16} className="shrink-0" animate={animate} />
+  if (icon === 'about') return <AnimatedIcon name="users" size={16} className="shrink-0" animate={animate} />
+  return <AnimatedIcon name="mailCheck" size={16} className="shrink-0" animate={animate} />
 }
 
 function splitLabel(label: string): [string, string?] {
@@ -60,6 +54,7 @@ function splitLabel(label: string): [string, string?] {
 export function SiteHeader({ navItems }: { navItems?: SiteHeaderNavItem[] }) {
   const [transparentBg, setTransparentBg] = useState(true)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [hoveredDesktopItem, setHoveredDesktopItem] = useState<string | null>(null)
   const pathname = usePathname()
   const nav = (navItems?.length
     ? navItems.map((item) => {
@@ -71,6 +66,7 @@ export function SiteHeader({ navItems }: { navItems?: SiteHeaderNavItem[] }) {
   useEffect(() => {
     setMenuOpen(false)
     setTransparentBg(true)
+    setHoveredDesktopItem(null)
   }, [pathname])
 
   useEffect(() => {
@@ -103,22 +99,30 @@ export function SiteHeader({ navItems }: { navItems?: SiteHeaderNavItem[] }) {
                     <Link
                       key={item.href}
                       href={item.href}
-                      className={`[font-family:var(--font-display-regular)] inline-flex items-center justify-center whitespace-nowrap bg-transparent px-6 py-3 text-[15px] font-semibold text-white ${
+                      className={`group [font-family:var(--font-display-regular)] inline-flex items-center justify-center whitespace-nowrap bg-transparent px-6 py-3 text-[15px] font-medium text-white border-t-[5px] transition-[border-top-width] duration-200 ${
                         index > 0 ? 'border-l border-secondary' : ''
-                      } gap-2 ${isActive ? 'border-b border-b-transparent' : 'border-b border-secondary'}`}
+                      } gap-2 ${
+                        isActive
+                          ? '!border-t-0 border-b border-b-transparent hover:!border-t-0 focus:!border-t-0 active:!border-t-0'
+                          : '!border-t-secondary border-b border-secondary hover:!border-t-0 focus:!border-t-0 active:!border-t-0'
+                      }`}
+                      onMouseEnter={() => setHoveredDesktopItem(item.href)}
+                      onMouseLeave={() => setHoveredDesktopItem((prev) => (prev === item.href ? null : prev))}
+                      onFocus={() => setHoveredDesktopItem(item.href)}
+                      onBlur={() => setHoveredDesktopItem((prev) => (prev === item.href ? null : prev))}
                     >
-                      {renderHeaderMenuIcon(item.icon)}
+                      {renderHeaderMenuIcon(item.icon, hoveredDesktopItem === item.href)}
                       <span>{item.label}</span>
                     </Link>
                   )
                 })}
               </div>
-              <div className="flex-1 bg-transparent" />
+              <div className="flex-1 bg-transparent border-t-[5px] border-b border-secondary" />
             </nav>
 
             <div className="container w-full py-3 lg:py-4 flex items-center justify-between gap-4 lg:gap-6">
               <Link href="/" className="block shrink-0">
-                <div className="hidden lg:flex items-center gap-2.5 h-[44px] mt-20">
+                <div className="hidden lg:flex items-center gap-2.5 h-[44px] mt-6">
                   <svg
                     className="size-[44px] shrink-0 overflow-visible"
                     viewBox="0 0 28 28"
@@ -174,26 +178,11 @@ export function SiteHeader({ navItems }: { navItems?: SiteHeaderNavItem[] }) {
                 aria-label={menuOpen ? 'Close menu' : 'Open menu'}
                 aria-expanded={menuOpen}
               >
-                <div className="relative w-[22px] h-[14px] flex flex-col justify-between">
-                  <span
-                    className="block h-[2px] w-full bg-white rounded-full transition-all duration-300 origin-center"
-                    style={{
-                      transform: menuOpen ? 'translateY(6px) rotate(45deg)' : 'none',
-                    }}
-                  />
-                  <span
-                    className="block h-[2px] w-full bg-white rounded-full transition-all duration-300"
-                    style={{
-                      opacity: menuOpen ? 0 : 1,
-                    }}
-                  />
-                  <span
-                    className="block h-[2px] w-full bg-white rounded-full transition-all duration-300 origin-center"
-                    style={{
-                      transform: menuOpen ? 'translateY(-6px) rotate(-45deg)' : 'none',
-                    }}
-                  />
-                </div>
+                {menuOpen ? (
+                  <AnimatedIcon name="x" size={22} className="text-white" />
+                ) : (
+                  <AnimatedIcon name="menu" size={22} className="text-white" />
+                )}
               </button>
             </div>
           </div>
@@ -207,11 +196,6 @@ export function SiteHeader({ navItems }: { navItems?: SiteHeaderNavItem[] }) {
           pointerEvents: menuOpen ? 'auto' : 'none',
         }}
       >
-        <div
-          className="absolute inset-0 bg-primary/95 backdrop-blur-sm"
-          onClick={toggleMenu}
-        />
-
         <nav
           className="container relative mt-28 flex flex-col gap-1 transition-all duration-300"
           style={{
@@ -224,37 +208,16 @@ export function SiteHeader({ navItems }: { navItems?: SiteHeaderNavItem[] }) {
               href={item.href}
               target={item.newTab ? '_blank' : undefined}
               rel={item.newTab ? 'noopener noreferrer' : undefined}
-              className="[font-family:var(--font-display-regular)] text-[20px] font-normal text-white/90 hover:text-white transition-colors py-3 border-b border-white/10"
+              className="[font-family:var(--font-display-regular)] text-[20px] font-light text-white/90 hover:text-white transition-colors py-3 border-b border-white/10"
             >
               {item.label.filter(Boolean).join(' ')}
             </Link>
           ))}
           <Link
             href="/newsletter-subscription"
-            className="font-display mt-6 inline-flex items-center justify-center gap-2.5 rounded-full bg-primary px-6 py-3.5 text-white text-[16px] font-medium hover:bg-primary/90 transition-colors"
+            className="group font-display mt-6 inline-flex items-center justify-center gap-2.5 rounded-full bg-primary px-6 py-3.5 text-white text-[16px] font-medium hover:bg-primary/90 transition-colors"
           >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              aria-hidden="true"
-            >
-              <path
-                d="M1.25 4.75A1.75 1.75 0 0 1 3 3h10a1.75 1.75 0 0 1 1.75 1.75v6.5A1.75 1.75 0 0 1 13 13H3a1.75 1.75 0 0 1-1.75-1.75z"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="m1.75 5.25 5.334 4.14a1.5 1.5 0 0 0 1.832 0l5.334-4.14"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <AnimatedIcon name="mailCheck" size={16} className="shrink-0 text-white" />
             Subscribe to Newsletter
           </Link>
         </nav>

@@ -65,9 +65,10 @@ export default async function Page({ params: paramsPromise }: Args) {
   }
 
   const { hero, layout } = page
+  const hasHero = Boolean(hero?.type && hero.type !== 'none')
 
   return (
-    <article className="pt-16 pb-24">
+    <article className="bg-white text-[#0b1035] pb-24">
       <PageClient />
       {/* Allows redirects for valid pages too */}
       <PayloadRedirects disableNotFound url={url} />
@@ -75,7 +76,9 @@ export default async function Page({ params: paramsPromise }: Args) {
       {draft && <LivePreviewListener />}
 
       <RenderHero {...hero} />
-      <RenderBlocks blocks={layout} />
+      <div className={hasHero ? undefined : 'pt-36 md:pt-40'}>
+        <RenderBlocks blocks={layout} />
+      </div>
     </article>
   )
 }

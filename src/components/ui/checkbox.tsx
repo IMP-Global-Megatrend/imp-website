@@ -2,7 +2,7 @@
 
 import { cn } from '@/utilities/ui'
 import * as CheckboxPrimitive from '@radix-ui/react-checkbox'
-import { Check } from 'lucide-react'
+import { CheckIcon } from 'lucide-animated'
 import * as React from 'react'
 
 const Checkbox: React.FC<React.ComponentProps<typeof CheckboxPrimitive.Root>> = ({
@@ -21,7 +21,7 @@ const Checkbox: React.FC<React.ComponentProps<typeof CheckboxPrimitive.Root>> = 
       data-slot="checkbox-indicator"
       className="flex items-center justify-center text-current"
     >
-      <Check className="size-3.5" />
+      <CheckIcon size={14} />
     </CheckboxPrimitive.Indicator>
   </CheckboxPrimitive.Root>
 )

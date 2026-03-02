@@ -20,7 +20,7 @@ const buttonVariants = cva(
         ghost: 'hover:bg-accent hover:text-accent-foreground',
         link: 'text-primary underline-offset-4 hover:underline',
         heroCta:
-          'items-center gap-2.5 border border-white/50 px-6 py-3 rounded-none text-[14px] font-display font-normal uppercase tracking-[0.15em] text-white hover:bg-white/10 transition-colors [&_svg]:transition-transform [&_svg]:duration-300 hover:[&_svg]:scale-x-[-1]',
+          'items-center gap-2.5 border border-white/50 px-6 py-3 rounded-none text-[14px] font-display font-normal uppercase tracking-[0.15em] text-white hover:bg-white hover:text-primary-light transition-colors',
       },
       size: {
         clear: '',

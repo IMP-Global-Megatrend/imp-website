@@ -1,7 +1,6 @@
-import Image from 'next/image'
-import { SiteShell } from '../_components/SiteShell'
 import { getCMSPageBySlug } from '../_components/getCMSPageBySlug'
 import { CMSPageContent } from '../_components/CMSPageContent'
+import { PageHero } from '../_components/PageHero'
 
 const details = [
   ['Liquidity', 'Daily and T+3 settlement'],
@@ -22,26 +21,13 @@ export default async function FundPage() {
   }
 
   return (
-    <SiteShell>
-      <main className="bg-white text-[#0b1035]">
-        {/* Hero banner */}
-        <section className="relative bg-[#2b3dea] overflow-hidden">
-          <Image
-            src="/images/hero_bg.png"
-            alt=""
-            fill
-            className="object-cover opacity-40"
-            priority
-          />
-          <div className="relative container pt-40 pb-16 md:pt-48 md:pb-20 lg:pt-[240px]">
-            <h1 className="text-white text-[38px] md:text-[48px] leading-[1.12] tracking-tight max-w-3xl">
-              The IMP Global Megatrend Umbrella Fund
-            </h1>
-            <p className="mt-4 text-white/80 text-[17px] max-w-lg leading-[1.6]">
-              Investing in the Forces That Shape Tomorrow
-            </p>
-          </div>
-        </section>
+    <main className="bg-white text-[#0b1035]">
+        <PageHero
+          title="The IMP Global Megatrend Umbrella Fund"
+          subtitle="Investing in the Forces That Shape Tomorrow"
+          subtitleClassName="text-white text-[19px] md:text-[21px] max-w-lg"
+          sectionClassName="relative overflow-hidden"
+        />
 
         <div className="container py-16 md:py-20 space-y-12">
           <section className="max-w-5xl">
@@ -122,7 +108,6 @@ export default async function FundPage() {
             ))}
           </section>
         </div>
-      </main>
-    </SiteShell>
+    </main>
   )
 }

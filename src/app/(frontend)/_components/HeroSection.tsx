@@ -1,8 +1,7 @@
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
 import { AnimatedHeroHeading } from './AnimatedHeroHeading'
 import { GradientMotionBackground } from './GradientMotionBackground'
 import { getHomeCMSContent } from './getHomeCMSContent'
+import { HeroCtaButton } from './HeroCtaButton'
 
 export async function HeroSection() {
   const cms = await getHomeCMSContent()
@@ -23,30 +22,7 @@ export async function HeroSection() {
           {subtitle.replace('megatrends ', 'megatrends\n')}
         </p>
         <div className="mt-7">
-          <Button asChild variant="heroCta" size="clear">
-            <Link href={cms.hero.ctaHref}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path
-                  d="M4 16.5L9 11.5L13 14.5L20 7.5"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M15 7.5H20V12.5"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <circle cx="4" cy="16.5" r="1.5" fill="currentColor" />
-                <circle cx="9" cy="11.5" r="1.5" fill="currentColor" />
-                <circle cx="13" cy="14.5" r="1.5" fill="currentColor" />
-              </svg>
-              {cms.hero.ctaLabel}
-            </Link>
-          </Button>
+          <HeroCtaButton href={cms.hero.ctaHref} label={cms.hero.ctaLabel} />
         </div>
       </div>
     </section>

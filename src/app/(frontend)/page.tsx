@@ -1,4 +1,3 @@
-import { SiteShell } from './_components/SiteShell'
 import { HeroSection } from './_components/HeroSection'
 import { RegulatoryStrip } from './_components/RegulatoryStrip'
 import { MegatrendCard } from './_components/MegatrendCard'
@@ -42,7 +41,7 @@ export default async function HomePage() {
   }))
 
   return (
-    <SiteShell>
+    <>
       <HeroSection />
       <RegulatoryStrip />
       <main className="bg-white">
@@ -52,6 +51,6 @@ export default async function HomePage() {
       </main>
       <BottomGrid />
       <RegulatoryNotice />
-    </SiteShell>
+    </>
   )
 }

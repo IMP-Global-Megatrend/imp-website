@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { AnimatedIcon } from './AnimatedIcon'
 import { getHomeCMSContent } from './getHomeCMSContent'
 
 export async function BottomGrid() {
@@ -21,12 +22,10 @@ export async function BottomGrid() {
             />
             <Link
               href="/performance-analysis"
-              className="inline-flex items-center gap-2 border border-[#0040ff] text-[#0040ff] px-5 py-2.5 rounded text-[13px] uppercase tracking-[0.12em] font-medium hover:bg-[#0040ff]/5 transition-colors"
+              className="group inline-flex items-center gap-2 border border-[#0040ff] text-[#0040ff] px-5 py-2.5 rounded text-[13px] uppercase tracking-[0.12em] font-medium hover:bg-[#0040ff]/5 transition-colors"
             >
               Performance Chart
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                <path d="M2 10L10 2M10 2H4M10 2v6" stroke="currentColor" strokeWidth="1.5" />
-              </svg>
+              <AnimatedIcon name="arrowUpRight" size={12} className="shrink-0 text-current" />
             </Link>
           </div>
 
@@ -44,12 +43,10 @@ export async function BottomGrid() {
             />
             <Link
               href="/contact-us"
-              className="inline-flex items-center gap-2 bg-[#0040ff] text-white px-5 py-2.5 rounded text-[13px] uppercase tracking-[0.12em] font-medium hover:bg-[#0035d9] transition-colors"
+              className="group inline-flex items-center gap-2 bg-[#0040ff] text-white px-5 py-2.5 rounded text-[13px] uppercase tracking-[0.12em] font-medium hover:bg-[#0035d9] transition-colors"
             >
               Write to us
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                <path d="M2 10L10 2M10 2H4M10 2v6" stroke="currentColor" strokeWidth="1.5" />
-              </svg>
+              <AnimatedIcon name="arrowUpRight" size={12} className="shrink-0 text-current" />
             </Link>
           </div>
 
@@ -73,22 +70,9 @@ export async function BottomGrid() {
                   href={d.href}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-3 border border-[#d9def0] rounded px-4 py-3 text-[14px] text-[#0b1035] hover:bg-[#f5f7ff] transition-colors"
+                  className="group flex items-center gap-3 border border-[#d9def0] rounded px-4 py-3 text-[14px] text-[#0b1035] hover:bg-[#f5f7ff] transition-colors"
                 >
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 14 14"
-                    fill="none"
-                    aria-hidden="true"
-                    className="shrink-0 text-[#0040ff]"
-                  >
-                    <path
-                      d="M7 1v9m0 0L3.5 6.5M7 10l3.5-3.5M1 13h12"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                    />
-                  </svg>
+                  <AnimatedIcon name="download" size={14} className="shrink-0 text-[#0040ff]" />
                   {d.label}
                 </a>
               ))}

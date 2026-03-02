@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { AnimatedIcon } from './AnimatedIcon'
 
 export function ExploreSection() {
   return (
@@ -19,11 +20,9 @@ export function ExploreSection() {
             size="clear"
             className="px-6 py-3"
           >
-            <Link href="/megatrends">
+            <Link href="/megatrends" className="group">
               Explore details
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                <path d="M2 10L10 2M10 2H4M10 2v6" stroke="currentColor" strokeWidth="1.5" />
-              </svg>
+              <AnimatedIcon name="arrowUpRight" size={12} className="shrink-0 text-current" />
             </Link>
           </Button>
         </div>

@@ -1,6 +1,6 @@
-import { SiteShell } from '../_components/SiteShell'
 import { getCMSPageBySlug } from '../_components/getCMSPageBySlug'
 import { CMSPageContent } from '../_components/CMSPageContent'
+import { PageHero } from '../_components/PageHero'
 
 export default async function ContactPage() {
   const cmsPage = await getCMSPageBySlug('contact-us')
@@ -9,16 +9,8 @@ export default async function ContactPage() {
   }
 
   return (
-    <SiteShell>
-      <main className="bg-white text-[#0b1035]">
-        {/* Hero */}
-        <section className="bg-[#2b3dea] pt-32 pb-16 md:pt-40 md:pb-20">
-          <div className="container">
-            <h1 className="text-white text-[38px] md:text-[48px] leading-[1.12] tracking-tight">
-              Get In Touch
-            </h1>
-          </div>
-        </section>
+    <main className="bg-white text-[#0b1035]">
+        <PageHero title="Get In Touch" titleClassName="max-w-none" />
 
         <div className="container py-16 md:py-20 grid lg:grid-cols-[1fr_380px] gap-12">
           {/* Form */}
@@ -150,7 +142,6 @@ export default async function ContactPage() {
             </div>
           </aside>
         </div>
-      </main>
-    </SiteShell>
+    </main>
   )
 }

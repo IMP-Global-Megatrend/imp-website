@@ -1,6 +1,6 @@
-import { SiteShell } from '../_components/SiteShell'
 import { getCMSPageBySlug } from '../_components/getCMSPageBySlug'
 import { CMSPageContent } from '../_components/CMSPageContent'
+import { PageHero } from '../_components/PageHero'
 
 const stefanCerts = [
   'Certificate Analyzing and Benchmarking Financial Information, New York Institute of Finance',
@@ -30,16 +30,8 @@ export default async function AboutUsPage() {
   }
 
   return (
-    <SiteShell>
-      <main className="bg-white text-[#0b1035]">
-        {/* Hero */}
-        <section className="bg-[#2b3dea] pt-32 pb-16 md:pt-40 md:pb-20">
-          <div className="container">
-            <h1 className="text-white text-[38px] md:text-[48px] leading-[1.12] tracking-tight max-w-3xl">
-              Meet the Team Behind the Strategy
-            </h1>
-          </div>
-        </section>
+    <main className="bg-white text-[#0b1035]">
+        <PageHero title="Meet the Team Behind the Strategy" />
 
         {/* Quote */}
         <section className="container py-16 md:py-20">
@@ -177,7 +169,6 @@ export default async function AboutUsPage() {
             </a>
           </div>
         </section>
-      </main>
-    </SiteShell>
+    </main>
   )
 }

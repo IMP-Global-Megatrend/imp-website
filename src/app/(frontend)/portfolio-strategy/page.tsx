@@ -1,6 +1,6 @@
-import { SiteShell } from '../_components/SiteShell'
 import { getCMSPageBySlug } from '../_components/getCMSPageBySlug'
 import { CMSPageContent } from '../_components/CMSPageContent'
+import { PageHero } from '../_components/PageHero'
 import { AllocationDonut } from './AllocationCharts'
 
 const strategySteps = [
@@ -108,19 +108,12 @@ export default async function PortfolioStrategyPage() {
   }
 
   return (
-    <SiteShell>
-      <main className="bg-white text-[#0b1035]">
-        {/* Hero */}
-        <section className="bg-[#2b3dea] pt-32 pb-16 md:pt-40 md:pb-20">
-          <div className="container">
-            <h1 className="text-white text-[38px] md:text-[48px] leading-[1.12] tracking-tight max-w-3xl">
-              High-Conviction<br />Global Thematic
-            </h1>
-            <p className="mt-5 text-white/70 text-[16px] max-w-3xl leading-[1.7]">
-              The investment objective aims to generate a long-term, above average return. Therefore, in principle global direct and indirect investments in securities of listed companies are made. Shares as well as Exchange Traded Funds are being employed, giving us access to all relevant markets and segments around the globe.
-            </p>
-          </div>
-        </section>
+    <main className="bg-white text-[#0b1035]">
+        <PageHero
+          title={'High-Conviction\nGlobal Thematic'}
+          subtitle="The investment objective aims to generate a long-term, above average return. Therefore, in principle global direct and indirect investments in securities of listed companies are made. Shares as well as Exchange Traded Funds are being employed, giving us access to all relevant markets and segments around the globe."
+          subtitleClassName="mt-5 text-[16px] max-w-3xl leading-[1.7]"
+        />
 
         {/* Strategy Steps */}
         <div className="container py-16 md:py-20 space-y-20">
@@ -233,7 +226,6 @@ export default async function PortfolioStrategyPage() {
             </div>
           </div>
         </section>
-      </main>
-    </SiteShell>
+    </main>
   )
 }
