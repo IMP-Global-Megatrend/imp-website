@@ -58,7 +58,7 @@ export function MegatrendDetailSection({
         </div>
 
         <div
-          className={`flex items-center justify-center ${reverse ? 'lg:border-r lg:pr-8' : 'lg:border-l lg:pl-8'} lg:border-[#d9def0]`}
+          className={`flex items-center justify-center ${reverse ? 'lg:pr-8' : 'lg:pl-8'}`}
           style={reverse ? { direction: 'ltr' } : undefined}
         >
           {trend.icon ? (

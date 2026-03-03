@@ -127,9 +127,9 @@ export default async function MegatrendsPage() {
         <section className="bg-secondary py-20 md:py-24">
           <div className="container">
             <div className="max-w-5xl space-y-6">
-              <p className="text-white font-display font-medium leading-relaxed text-[18px] md:text-[19px]">
+              <h3 className="text-white font-display font-medium leading-relaxed text-[18px] md:text-[19px]">
                 Investing at the Intersection of Innovation, Demographics, and Sustainability
-              </p>
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                 <blockquote className="border-l border-primary-light pl-8 pr-8 text-[#62A8FF] font-thin leading-relaxed text-[18px] md:text-[19px]">
                   At the heart of the IMP Global Megatrend Umbrella Fund is our deep conviction in
@@ -164,17 +164,25 @@ export default async function MegatrendsPage() {
         </div>
 
         {/* Thematic Framework */}
-        <section className="bg-[#f5f7ff] py-16 md:py-20">
-          <div className="container max-w-4xl">
-            <h2 className="text-[26px] leading-[1.3] text-[#0b1035] mb-4">
+        <section className="bg-secondary py-20 md:py-24">
+          <div className="container">
+            <div className="max-w-5xl space-y-6">
+              <h3 className="text-white font-display font-medium leading-relaxed text-[18px] md:text-[19px]">
               Our Thematic Framework in Action
-            </h2>
-            <p className="text-[#2b3045] leading-relaxed mb-4">
-              Each company in our portfolio must demonstrate direct revenue exposure to one or more of these six megatrends. Rather than following index composition, we build a high-conviction portfolio that reflects our forward-looking thematic convictions.
-            </p>
-            <p className="text-[#2b3045] leading-relaxed">
-              We believe that investing through the lens of these megatrends not only aligns capital with positive change, but also positions investors to capture asymmetric growth in a complex and rapidly evolving global economy.
-            </p>
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+                <blockquote className="border-l border-primary-light pl-8 pr-8 text-[#62A8FF] font-thin leading-relaxed text-[18px] md:text-[19px]">
+                  Each company in our portfolio must demonstrate direct revenue exposure to one or
+                  more of these six megatrends. Rather than following index composition, we build a
+                  high-conviction portfolio that reflects our forward-looking thematic convictions.
+                </blockquote>
+                <blockquote className="border-l border-primary-light pl-8 pr-8 text-[#62A8FF] font-thin leading-relaxed text-[18px] md:text-[19px]">
+                  We believe that investing through the lens of these megatrends not only aligns
+                  capital with positive change, but also positions investors to capture asymmetric
+                  growth in a complex and rapidly evolving global economy.
+                </blockquote>
+              </div>
+            </div>
           </div>
         </section>
     </main>
