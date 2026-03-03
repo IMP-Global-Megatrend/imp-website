@@ -1,7 +1,9 @@
 import { getCMSPageBySlug } from '../_components/getCMSPageBySlug'
 import { CMSPageContent } from '../_components/CMSPageContent'
 import { PageHero } from '../_components/PageHero'
-import { AllocationDonut } from './AllocationCharts'
+import { AllocationPanel } from './AllocationPanel'
+import { InvestmentProcessTimeline } from './InvestmentProcessTimeline'
+import { TopHoldingsSection } from './TopHoldingsSection'
 
 const strategySteps = [
   {
@@ -98,7 +100,7 @@ const topHoldings: Array<[string, string, string]> = [
   ['Galderma Group AG', '4.2', '#8eb8f8'],
   ['Duke Energy Corp.', '3.6', '#a8ccfa'],
   ['Intuitive Surgical Inc.', '3.6', '#c2dffc'],
-  ['Other', '46.7', '#e8eef5'],
+  ['Other', '46.7', '#dbeaff'],
 ]
 
 export default async function PortfolioStrategyPage() {
@@ -117,31 +119,48 @@ export default async function PortfolioStrategyPage() {
         />
 
         {/* Strategy Steps */}
-        <div className="container py-16 md:py-20 space-y-20">
+        <div className="pb-0">
           {strategySteps.map((step, idx) => (
-            <section key={step.title} className={`grid md:grid-cols-2 gap-10 items-start ${idx % 2 === 1 ? 'md:[direction:rtl] md:*:[direction:ltr]' : ''}`}>
-              <div className="flex justify-center">
-                <img
-                  src={step.src}
-                  alt={step.title}
-                  className="w-full max-w-[340px] h-auto"
-                />
-              </div>
-              <div>
-                <h2 className="text-[26px] leading-[1.2] text-[#0b1035] mb-6">
-                  {step.title}
-                </h2>
-                <div className="space-y-5">
-                  {step.items.map((item) => (
-                    <div key={item.heading}>
-                      <h3 className="text-[16px] font-semibold text-[#0b1035] mb-1">
-                        {item.heading}
-                      </h3>
-                      <p className="text-[#2b3045] text-[15px] leading-relaxed">
-                        {item.body}
-                      </p>
+            <section
+              key={step.title}
+              className={`${idx === 0 ? '' : 'border-t border-[#d9def0]'} ${idx === strategySteps.length - 1 ? 'border-b border-[#d9def0]' : ''} scroll-mt-24 pt-16 md:pt-20 pb-0`}
+            >
+              <div className="container">
+                <div
+                  className={`grid lg:grid-cols-2 gap-10 lg:gap-16 items-stretch ${idx % 2 === 1 ? 'lg:direction-rtl' : ''}`}
+                  style={idx % 2 === 1 ? { direction: 'rtl' } : undefined}
+                >
+                  <div className="h-full" style={idx % 2 === 1 ? { direction: 'ltr' } : undefined}>
+                    <div className="flex h-full items-stretch gap-4">
+                      <div className="hidden md:flex items-stretch gap-2 shrink-0 self-stretch">
+                        <span
+                          className="font-display text-right text-[#0b1035] text-[18px] font-medium whitespace-nowrap"
+                          style={{ writingMode: 'vertical-lr', transform: 'rotate(180deg)' }}
+                        >
+                          {step.title}
+                        </span>
+                        <span aria-hidden className="w-px self-stretch bg-[#d9def0]" />
+                      </div>
+                      <div className="flex-1 self-start pb-5 md:pb-6">
+                        <h2 className="md:hidden text-[24px] leading-[1.25] text-[#0b1035] mb-5">{step.title}</h2>
+                        <div className="space-y-5">
+                          {step.items.map((item) => (
+                            <div key={item.heading}>
+                              <h3 className="text-[16px] font-semibold text-[#0b1035] mb-1">{item.heading}</h3>
+                              <p className="text-[#2b3045] text-[15px] leading-relaxed">{item.body}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     </div>
-                  ))}
+                  </div>
+
+                  <div
+                    className={`flex items-center justify-center ${idx % 2 === 1 ? 'lg:pr-8' : 'lg:pl-8'}`}
+                    style={idx % 2 === 1 ? { direction: 'ltr' } : undefined}
+                  >
+                    <img src={step.src} alt={step.title} className="w-full h-auto object-contain" />
+                  </div>
                 </div>
               </div>
             </section>
@@ -154,22 +173,13 @@ export default async function PortfolioStrategyPage() {
             <h2 className="text-[28px] leading-[1.2] text-[#0b1035] mb-8 text-center">
               Investment Process
             </h2>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              {investmentProcess.map((item, i) => (
-                <div key={i} className="bg-white rounded-xl p-5 border border-[#d9def0]">
-                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[#0040ff] text-white text-[14px] font-semibold mb-3">
-                    {i + 1}
-                  </span>
-                  <p className="text-[#2b3045] text-[14px] leading-relaxed">{item}</p>
-                </div>
-              ))}
-            </div>
+            <InvestmentProcessTimeline items={investmentProcess} />
           </div>
         </section>
 
         {/* Portfolio Overview */}
         <section className="container py-16 md:py-20">
-          <h2 className="text-[12px] uppercase tracking-[0.15em] text-[#5f6477] mb-2">
+          <h2 className="text-center text-[24px] md:text-[28px] leading-[1.2] text-[#0b1035] mb-6">
             Portfolio Overview
           </h2>
           <div className="grid lg:grid-cols-3 gap-8">
@@ -180,51 +190,16 @@ export default async function PortfolioStrategyPage() {
                 ['Sector Allocations', allocations.sectors],
               ] as const
             ).map(([title, data]) => (
-              <div key={title}>
-                <h3 className="text-[22px] leading-[1.3] text-[#0b1035] mb-4">{title}</h3>
-                <AllocationDonut data={data as Array<[string, string, string]>} />
-                <div className="space-y-2.5 mt-4">
-                  {data.map(([name, pct, color]) => (
-                    <div key={name} className="flex items-center gap-3">
-                      <span
-                        className="w-2.5 h-2.5 rounded-full shrink-0"
-                        style={{ backgroundColor: color }}
-                      />
-                      <span className="text-[14px] text-[#2b3045] flex-1">{name}</span>
-                      <span className="text-[14px] font-semibold text-[#0b1035]">{pct}%</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <AllocationPanel key={title} title={title} data={data as Array<[string, string, string]>} />
             ))}
           </div>
         </section>
 
         {/* Top Holdings */}
-        <section className="bg-[#f5f7ff] py-16 md:py-20">
+        <section className="bg-white border-t border-[#d9def0] py-16 md:py-20">
           <div className="container">
             <h2 className="text-[28px] leading-[1.2] text-[#0b1035] mb-8">Top Holdings</h2>
-            <div className="flex flex-col lg:flex-row gap-8 items-start">
-              <div className="shrink-0">
-                <AllocationDonut data={topHoldings} size={260} />
-              </div>
-              <div className="grid sm:grid-cols-2 gap-4 flex-1">
-                {topHoldings
-                  .filter(([name]) => name !== 'Other')
-                  .map(([name, pct, color]) => (
-                    <div key={name} className="flex items-center gap-3 bg-white rounded-xl border border-[#d9def0] px-4 py-3">
-                      <span
-                        className="w-2.5 h-2.5 rounded-full shrink-0"
-                        style={{ backgroundColor: color }}
-                      />
-                      <span className="text-[14px] text-[#2b3045] flex-1">{name}</span>
-                      <span className="text-[18px] font-semibold text-[#0040ff]">
-                        {pct}<span className="text-[13px]">%</span>
-                      </span>
-                    </div>
-                  ))}
-              </div>
-            </div>
+            <TopHoldingsSection holdings={topHoldings} />
           </div>
         </section>
     </main>

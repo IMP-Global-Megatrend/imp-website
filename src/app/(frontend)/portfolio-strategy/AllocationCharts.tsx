@@ -14,8 +14,8 @@ function ChartTooltip({
   if (!active || !payload?.length) return null
   const d = payload[0]!.payload
   return (
-    <div className="rounded-lg border border-[#d9def0] bg-white px-3 py-2 text-[13px] shadow-md">
-      <p className="font-semibold text-[#0b1035]">{d.name}</p>
+    <div className="border border-[#d9def0] bg-white px-3 py-2 text-sm font-display shadow-md">
+      <p className="font-medium text-[#0b1035]">{d.name}</p>
       <p className="text-[#5f6477]">{d.value}%</p>
     </div>
   )
@@ -24,9 +24,13 @@ function ChartTooltip({
 export function AllocationDonut({
   data,
   size = 220,
+  activeIndex,
+  onActiveIndexChange,
 }: {
   data: Array<[string, string, string]>
   size?: number
+  activeIndex?: number | null
+  onActiveIndexChange?: (index: number | null) => void
 }) {
   const slices: Slice[] = data.map(([name, pct, color]) => ({
     name: name!,
@@ -35,7 +39,7 @@ export function AllocationDonut({
   }))
 
   return (
-    <div className="flex justify-center" style={{ width: size, height: size }}>
+    <div className="mx-auto flex justify-center" style={{ width: size, height: size }}>
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
@@ -47,10 +51,22 @@ export function AllocationDonut({
             dataKey="value"
             stroke="none"
             paddingAngle={1}
+            onMouseEnter={(_, index) => onActiveIndexChange?.(index)}
+            onMouseLeave={() => onActiveIndexChange?.(null)}
           >
-            {slices.map((s) => (
-              <Cell key={s.name} fill={s.color} />
-            ))}
+            {slices.map((s, index) => {
+              const isActive = activeIndex == null || activeIndex === index
+              return (
+                <Cell
+                  key={s.name}
+                  fill={s.color}
+                  style={{
+                    opacity: isActive ? 1 : 0.58,
+                    transition: 'opacity 320ms ease',
+                  }}
+                />
+              )
+            })}
           </Pie>
           <Tooltip content={<ChartTooltip />} />
         </PieChart>
