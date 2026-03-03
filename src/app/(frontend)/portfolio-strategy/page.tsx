@@ -1,4 +1,4 @@
-import { getCMSPageBySlug } from '../_components/getCMSPageBySlug'
+import { getCMSContentSectionsBySlug, getCMSPageBySlug } from '../_components/getCMSPageBySlug'
 import { CMSPageContent } from '../_components/CMSPageContent'
 import { PageHero } from '../_components/PageHero'
 import { AllocationPanel } from './AllocationPanel'
@@ -104,20 +104,38 @@ const topHoldings: Array<[string, string, string]> = [
   ['Other', '46.7', '#dbeaff'],
 ]
 
+const portfolioStrategyIntroFallback =
+  'The investment objective aims to generate a long-term, above average return. Therefore, in principle global direct and indirect investments in securities of listed companies are made. Shares as well as bonus and participation certificates are especially considered as securities. Indirect investments are particularly done via funds and ETFs. Investments will be made in the USA, Asia and Europe. At the same time, investments in other selected markets can be carried out.'
+
 export default async function PortfolioStrategyPage() {
-  const cmsPage = await getCMSPageBySlug('portfolio-strategy')
+  const [cmsPage, cmsSections] = await Promise.all([
+    getCMSPageBySlug('portfolio-strategy'),
+    getCMSContentSectionsBySlug('portfolio-strategy'),
+  ])
   if (cmsPage) {
     return <CMSPageContent page={cmsPage as never} />
   }
+
+  const portfolioStrategyIntro =
+    cmsSections.find((section) => section.toLowerCase().includes('investment objective aims')) ||
+    portfolioStrategyIntroFallback
 
   return (
     <main className="bg-white text-[#0b1035]">
         <PageHero
           title={'High-Conviction\nGlobal Thematic'}
-          subtitle="The investment objective aims to generate a long-term, above average return. Therefore, in principle global direct and indirect investments in securities of listed companies are made. Shares as well as Exchange Traded Funds are being employed, giving us access to all relevant markets and segments around the globe."
           palette={{ color1: 'oklch(0.46 0.14 40)', color2: 'oklch(0.46 0.16 24)', color3: 'oklch(0.46 0.12 62)' }}
-          subtitleClassName="mt-5 text-[16px] max-w-3xl leading-[1.7]"
         />
+
+        <section className="bg-secondary py-20 md:py-24">
+          <div className="container">
+            <div className="max-w-5xl">
+              <blockquote className="border-l border-primary-light pl-8 pr-8 text-[#62A8FF] font-thin leading-relaxed text-[18px] md:text-[19px] whitespace-pre-line">
+                {portfolioStrategyIntro}
+              </blockquote>
+            </div>
+          </div>
+        </section>
 
         {/* Strategy Steps */}
         <div className="pb-0">

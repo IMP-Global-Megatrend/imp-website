@@ -223,12 +223,13 @@ function ExportIconButton({
     <button
       type="button"
       aria-label={label}
+      title={label}
       onClick={onClick}
       disabled={disabled}
-      className="group relative inline-flex h-8 w-8 items-center justify-center border-l border-[#d9def0] bg-white text-[#0b1035] hover:bg-[#f7f8ff] disabled:cursor-not-allowed disabled:opacity-60"
+      className="group/button relative inline-flex h-8 w-8 items-center justify-center border-l border-[#d9def0] first:border-l-0 bg-white text-[#0b1035] hover:bg-[#f7f8ff] disabled:cursor-not-allowed disabled:opacity-60"
     >
       {children}
-      <span className="pointer-events-none absolute -top-8 left-1/2 hidden -translate-x-1/2 whitespace-nowrap border border-[#d9def0] bg-white px-2 py-1 text-[11px] text-[#0b1035] shadow-sm group-hover:block">
+      <span className="pointer-events-none absolute -top-8 left-1/2 hidden -translate-x-1/2 whitespace-nowrap border border-[#d9def0] bg-white px-2 py-1 text-[11px] text-[#0b1035] shadow-sm group-hover/button:block group-focus-visible/button:block">
         {label}
       </span>
     </button>
@@ -339,9 +340,10 @@ function NavPlotChart({
   }
 
   return (
-    <div className="w-full">
-      <div className="mb-2 flex justify-end">
-        <div className="inline-flex border border-[#d9def0] rounded-none">
+    <div className="group/chart w-full">
+      <div ref={chartContainerRef} className="relative w-full" style={{ height }}>
+        <div className="pointer-events-none absolute right-3 top-0 z-10 opacity-0 transition-opacity duration-150 group-hover/chart:opacity-100 group-hover/chart:pointer-events-auto group-focus-within/chart:opacity-100 group-focus-within/chart:pointer-events-auto">
+          <div className="inline-flex border border-[#d9def0] rounded-none bg-white">
           <ExportIconButton label="Export SVG" onClick={exportAsSvg} disabled={exportingType !== null}>
             {exportingType === 'svg' ? (
               <span className="text-[11px]">...</span>
@@ -365,8 +367,7 @@ function NavPlotChart({
             )}
           </ExportIconButton>
         </div>
-      </div>
-      <div ref={chartContainerRef} className="w-full" style={{ height }}>
+        </div>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={plotData} margin={{ top: 16, right: 20, left: 8, bottom: 20 }}>
           <CartesianGrid strokeDasharray="3 3" vertical stroke="#e5e7f0" />
@@ -467,7 +468,7 @@ export function PerformanceChart({
           height={300}
           exportFileName="usd-share-class-performance.svg"
         />
-        <p className="text-[11px] text-[#5f6477] mt-2 text-center">
+        <p className="text-[11px] text-[#5f6477] mt-2 pb-4 text-center">
           Net of all fees. Past performance is not indicative of future results.
         </p>
       </div>
@@ -486,7 +487,7 @@ export function PerformanceChart({
           exportFileName="chf-hedged-share-class-performance.svg"
           timelineTickCadence="monthly"
         />
-        <p className="text-[11px] text-[#5f6477] mt-2 text-center">
+        <p className="text-[11px] text-[#5f6477] mt-2 pb-4 text-center">
           Net of all fees. Past performance is not indicative of future results.
         </p>
       </div>

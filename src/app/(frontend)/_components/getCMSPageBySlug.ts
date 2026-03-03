@@ -56,6 +56,26 @@ export type PerformanceNavPoint = {
   nav: number
 }
 
+export type CMSPerformanceShareClassDetails = {
+  nav?: string
+  perfYTD?: string
+  asOf?: string
+  sharpe?: string
+  volatility?: string
+  sortino?: string
+  downsideRisk?: string
+  fundDetails?: Array<[string, string]>
+}
+
+export type CMSPerformancePageData = {
+  pageTitle?: string
+  annualPerformanceTitle?: string
+  usdLabel?: string
+  chfLabel?: string
+  usd?: CMSPerformanceShareClassDetails
+  chf?: CMSPerformanceShareClassDetails
+}
+
 function richTextToParagraphs(richText: unknown): string[] {
   const root = (richText as { root?: { children?: Array<Record<string, unknown>> } } | null)?.root
   const children = Array.isArray(root?.children) ? root.children : []
@@ -593,5 +613,150 @@ export async function getCMSPerformanceNavSeries(): Promise<{
     }
   } catch {
     return { usd: [], chf: [] }
+  }
+}
+
+function getDataString(data: Record<string, unknown>, ...keys: string[]): string | null {
+  for (const key of keys) {
+    const value = data[key]
+    if (typeof value === 'string' && value.trim()) {
+      return value.trim()
+    }
+  }
+  return null
+}
+
+function normalizePercent(value: string | null): string | undefined {
+  if (!value) return undefined
+  const trimmed = value.trim()
+  if (!trimmed) return undefined
+  if (trimmed.includes('%')) return trimmed
+  if (/^-?\d+(\.\d+)?$/.test(trimmed)) return `${trimmed}%`
+  return trimmed
+}
+
+function normalizeAsOfDate(value: string | null): string | undefined {
+  if (!value) return undefined
+  const trimmed = value.trim()
+  if (!trimmed) return undefined
+  if (/^\d{2}\.\d{2}\.\d{4}$/.test(trimmed)) return trimmed
+
+  const parsed = new Date(trimmed)
+  if (Number.isNaN(parsed.getTime())) return trimmed
+  const dd = String(parsed.getUTCDate()).padStart(2, '0')
+  const mm = String(parsed.getUTCMonth() + 1).padStart(2, '0')
+  const yyyy = String(parsed.getUTCFullYear())
+  return `${dd}.${mm}.${yyyy}`
+}
+
+function buildPerformanceFundDetails(
+  data: Record<string, unknown>,
+  variant: ShareClassIdentity,
+): Array<[string, string]> {
+  const valueSuffix = variant === 'usd' ? '' : '2'
+  const dateSuffix = variant === 'usd' ? '' : '1'
+
+  const rows: Array<{ label: string | null; value: string | null }> = [
+    { label: getDataString(data, 'liquidity1', 'Liquidity'), value: getDataString(data, `liquidity${valueSuffix}`) },
+    { label: getDataString(data, 'tradeDay1', 'Trade Day'), value: getDataString(data, `tradeDay${valueSuffix}`) },
+    { label: getDataString(data, 'settlement1', 'Settlement'), value: getDataString(data, `settlement${valueSuffix}`) },
+    {
+      label: getDataString(data, 'cutoffSubscription1', 'Cut-off Subscription & Redemption (Trade Day)'),
+      value: getDataString(data, `cutoffSubscription${valueSuffix}`),
+    },
+    { label: getDataString(data, 'allInFee1', 'All-In Fee'), value: getDataString(data, `allInFee${valueSuffix}`) },
+    {
+      label: getDataString(data, 'managementFee1', 'Management Fee'),
+      value: getDataString(data, `managementFee${valueSuffix}`),
+    },
+    {
+      label: getDataString(data, 'administrativeFees1', 'Administrative Fees'),
+      value: getDataString(data, `administrativeFees${valueSuffix}`),
+    },
+    {
+      label: getDataString(data, 'performanceFee1', 'Performance Fee'),
+      value: getDataString(data, `performanceFee${valueSuffix}`),
+    },
+    {
+      label: getDataString(data, 'crystallizationFreq1', 'Crystallization Freq.'),
+      value: getDataString(data, `crystallizationFreq${valueSuffix}`),
+    },
+    {
+      label: getDataString(data, 'subscriptionFee1', 'Subscription Fee'),
+      value: getDataString(data, `subscriptionFee${valueSuffix}`),
+    },
+    {
+      label: getDataString(data, 'redemptionFee1', 'Redemption Fee'),
+      value: getDataString(data, `redemptionFee${valueSuffix}`),
+    },
+    {
+      label: getDataString(data, 'inceptionDateTitle', 'Inception Date'),
+      value: getDataString(data, `inceptionDateValue${dateSuffix}`),
+    },
+    {
+      label: getDataString(data, 'fundCurrencyText', 'Fund Currency'),
+      value: getDataString(data, `fundCurrencyValue${dateSuffix}`),
+    },
+    {
+      label: getDataString(data, 'inceptionPriceText', 'Inception Price'),
+      value: getDataString(data, `inceptionPriceValue${dateSuffix}`),
+    },
+    {
+      label: getDataString(data, 'minInvestmentText', 'Min. Investment'),
+      value: getDataString(data, `minInvestmentValue${dateSuffix}`),
+    },
+  ]
+
+  return rows
+    .filter((row): row is { label: string; value: string } => Boolean(row.label && row.value))
+    .map((row) => [row.label, row.value])
+}
+
+function buildPerformanceShareClass(
+  data: Record<string, unknown>,
+  variant: ShareClassIdentity,
+): CMSPerformanceShareClassDetails {
+  const valueSuffix = variant === 'usd' ? '' : '2'
+  const dateSuffix = variant === 'usd' ? '' : '1'
+
+  return {
+    nav: getDataString(data, `navPerShare${valueSuffix}`) ?? undefined,
+    perfYTD: normalizePercent(getDataString(data, `performanceYtd${valueSuffix}`)),
+    asOf: normalizeAsOfDate(getDataString(data, `dateUsdNew${dateSuffix}`, `date${dateSuffix}`)),
+    sharpe: getDataString(data, `sharpeRatio${valueSuffix}`) ?? undefined,
+    volatility: getDataString(data, `volatility${valueSuffix}`) ?? undefined,
+    sortino: getDataString(data, `sortinoRatio${valueSuffix}`) ?? undefined,
+    downsideRisk: getDataString(data, `downsideRisk${valueSuffix}`) ?? undefined,
+    fundDetails: buildPerformanceFundDetails(data, variant),
+  }
+}
+
+export async function getCMSPerformancePageData(): Promise<CMSPerformancePageData | null> {
+  try {
+    const payload = await getPayload({ config: configPromise })
+    const result = await payload.find({
+      collection: 'wix-fund-details',
+      limit: 1,
+      pagination: false,
+      depth: 0,
+    })
+
+    const doc = result.docs?.[0] as { data?: Record<string, unknown> | unknown } | undefined
+    if (!doc) return null
+    const data = (doc.data && typeof doc.data === 'object' ? doc.data : {}) as Record<string, unknown>
+
+    const usd = buildPerformanceShareClass(data, 'usd')
+    const chf = buildPerformanceShareClass(data, 'chf')
+
+    return {
+      pageTitle: getDataString(data, 'pageTitle') ?? undefined,
+      annualPerformanceTitle: getDataString(data, 'annualPerformanceTitle') ?? undefined,
+      usdLabel: getDataString(data, 'usd') ?? undefined,
+      chfLabel: getDataString(data, 'chf') ?? undefined,
+      usd,
+      chf,
+    }
+  } catch {
+    return null
   }
 }

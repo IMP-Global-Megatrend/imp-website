@@ -1,15 +1,18 @@
-import { getCMSPageBySlug, getCMSPerformanceNavSeries } from '../_components/getCMSPageBySlug'
+import {
+  getCMSPageBySlug,
+  getCMSPerformanceNavSeries,
+  getCMSPerformancePageData,
+} from '../_components/getCMSPageBySlug'
 import { CMSPageContent } from '../_components/CMSPageContent'
 import { PageHero, PageHeroMeta } from '../_components/PageHero'
 import { ActionLinkButton } from '../_components/ActionLinkButton'
 import { PerformanceChart } from './PerformanceChart'
 
-const chfDetails = {
+const chfFallbackDetails = {
   nav: 'CHF 93.29',
   perfYTD: '-0.89%',
   asOf: '31.01.2026',
   sharpe: '0.06',
-  absoluteOneYear: '**',
   volatility: '19.75',
   sortino: '0.09',
   downsideRisk: '14.16',
@@ -32,12 +35,11 @@ const chfDetails = {
   ],
 }
 
-const usdDetails = {
+const usdFallbackDetails = {
   nav: 'USD 192.91',
   perfYTD: '-0.42%',
   asOf: '31.01.2026',
   sharpe: '0.06',
-  absoluteOneYear: '**',
   volatility: '19.75',
   sortino: '0.09',
   downsideRisk: '14.16',
@@ -60,12 +62,37 @@ const usdDetails = {
   ],
 }
 
-function NavUpdatesCard({ label, data }: { label: string; data: typeof chfDetails }) {
+type ShareClassDetails = typeof chfFallbackDetails
+
+function mergeShareClassDetails(
+  fallback: ShareClassDetails,
+  cms: {
+    nav?: string
+    perfYTD?: string
+    asOf?: string
+    sharpe?: string
+    volatility?: string
+    sortino?: string
+    downsideRisk?: string
+    fundDetails?: Array<[string, string]>
+  } | null | undefined,
+): ShareClassDetails {
+  return {
+    nav: cms?.nav || fallback.nav,
+    perfYTD: cms?.perfYTD || fallback.perfYTD,
+    asOf: cms?.asOf || fallback.asOf,
+    sharpe: cms?.sharpe || fallback.sharpe,
+    volatility: cms?.volatility || fallback.volatility,
+    sortino: cms?.sortino || fallback.sortino,
+    downsideRisk: cms?.downsideRisk || fallback.downsideRisk,
+    fundDetails: cms?.fundDetails?.length ? cms.fundDetails : fallback.fundDetails,
+  }
+}
+
+function NavUpdatesCard({ data }: { data: ShareClassDetails }) {
   return (
-    <div className="bg-white rounded-xl border border-[#d9def0] p-6 h-full font-display">
-      <h3 className="text-[14px] uppercase tracking-[0.12em] text-[#5f6477] mb-4">
-        NAV Updates {label}
-      </h3>
+    <div className="font-display">
+      <h3 className="text-[14px] uppercase tracking-[0.12em] text-[#5f6477] mb-4">NAV Updates</h3>
       <div className="flex items-baseline gap-2">
         <span className="text-[36px] font-semibold text-[#0b1035]">{data.nav}</span>
       </div>
@@ -74,12 +101,10 @@ function NavUpdatesCard({ label, data }: { label: string; data: typeof chfDetail
   )
 }
 
-function PerformanceMetricsCard({ label, data }: { label: string; data: typeof chfDetails }) {
+function PerformanceMetricsCard({ data }: { data: ShareClassDetails }) {
   return (
-    <div className="bg-white rounded-xl border border-[#d9def0] p-6 h-full font-display">
-      <h3 className="text-[14px] uppercase tracking-[0.12em] text-[#5f6477] mb-4">
-        Performance Metrics {label}
-      </h3>
+    <div className="font-display">
+      <h3 className="text-[14px] uppercase tracking-[0.12em] text-[#5f6477] mb-4">Performance Metrics</h3>
       <p className="text-[13px] text-[#5f6477] mb-4">* per {data.asOf}</p>
       <div className="grid grid-cols-1 gap-4">
         <div>
@@ -91,20 +116,14 @@ function PerformanceMetricsCard({ label, data }: { label: string; data: typeof c
   )
 }
 
-function RiskMetricsCard({ label, data }: { label: string; data: typeof chfDetails }) {
+function RiskMetricsCard({ data }: { data: ShareClassDetails }) {
   return (
-    <div className="bg-white rounded-xl border border-[#d9def0] p-6 h-full font-display">
-      <h3 className="text-[14px] uppercase tracking-[0.12em] text-[#5f6477] mb-4">
-        Risk Metrics {label}
-      </h3>
+    <div className="font-display">
+      <h3 className="text-[14px] uppercase tracking-[0.12em] text-[#5f6477] mb-4">Risk Metrics</h3>
       <div className="grid grid-cols-2 gap-4">
         <div>
           <p className="text-[28px] font-semibold text-[#0b1035]">{data.sharpe}</p>
           <p className="text-[13px] text-[#5f6477]">Sharpe Ratio **</p>
-        </div>
-        <div>
-          <p className="text-[28px] font-semibold text-[#0b1035]">{data.absoluteOneYear}</p>
-          <p className="text-[13px] text-[#5f6477]">Absolute (1 Year)</p>
         </div>
         <div>
           <p className="text-[28px] font-semibold text-[#0b1035]">{data.volatility}</p>
@@ -123,12 +142,10 @@ function RiskMetricsCard({ label, data }: { label: string; data: typeof chfDetai
   )
 }
 
-function FundDetailsCard({ label, data }: { label: string; data: typeof chfDetails }) {
+function FundDetailsCard({ data }: { data: ShareClassDetails }) {
   return (
     <div className="h-full font-display">
-      <h3 className="text-[14px] uppercase tracking-[0.12em] text-[#5f6477] mb-4">
-        Fund Details {label}
-      </h3>
+      <h3 className="text-[14px] uppercase tracking-[0.12em] text-[#5f6477] mb-4">Fund Details</h3>
       <div className="divide-y divide-[#d9def0]">
         {data.fundDetails.map(([k, v]) => (
           <div key={k} className="flex justify-between gap-4 py-3">
@@ -142,28 +159,34 @@ function FundDetailsCard({ label, data }: { label: string; data: typeof chfDetai
 }
 
 export default async function PerformancePage() {
-  const [cmsPage, cmsPerformanceSeries] = await Promise.all([
+  const [cmsPage, cmsPerformanceSeries, cmsPerformanceData] = await Promise.all([
     getCMSPageBySlug('performance-analysis'),
     getCMSPerformanceNavSeries(),
+    getCMSPerformancePageData(),
   ])
   if (cmsPage) {
     return <CMSPageContent page={cmsPage as never} />
   }
 
+  const chfDetails = mergeShareClassDetails(chfFallbackDetails, cmsPerformanceData?.chf)
+  const usdDetails = mergeShareClassDetails(usdFallbackDetails, cmsPerformanceData?.usd)
+  const chfTitle = cmsPerformanceData?.chfLabel || 'CHF Hedged Share Class'
+  const usdTitle = cmsPerformanceData?.usdLabel || 'USD Share Class'
+  const performanceTitle = cmsPerformanceData?.annualPerformanceTitle || 'Annual Performance Graph (2016–2025)'
+  const heroTitle = cmsPerformanceData?.pageTitle || 'Delivering Results Over the Long Term'
+
   return (
     <main className="bg-white text-[#0b1035]">
         <PageHero
-          title="Delivering Results Over the Long Term"
+          title={heroTitle}
           palette={{ color1: 'oklch(0.46 0.16 306)', color2: 'oklch(0.46 0.14 330)', color3: 'oklch(0.46 0.12 280)' }}
         >
-          <PageHeroMeta items={['CHF Hedged Share Class', 'USD Share Class']} />
+          <PageHeroMeta items={[chfTitle, usdTitle]} />
         </PageHero>
 
         {/* Performance graphs */}
         <section className="container pt-8 md:pt-10 pb-8">
-          <h2 className="text-[22px] leading-[1.3] text-[#0b1035] mb-6">
-            Annual Performance Graph (2016–2025)
-          </h2>
+          <h2 className="text-[22px] leading-[1.3] text-[#0b1035] mb-6">{performanceTitle}</h2>
           <PerformanceChart
             usdSeries={cmsPerformanceSeries.usd}
             chfSeries={cmsPerformanceSeries.chf}
@@ -171,28 +194,32 @@ export default async function PerformancePage() {
         </section>
 
         {/* Share Class Details */}
-        <div className="container pb-16 md:pb-20">
-          <div className="grid lg:grid-cols-2 gap-8 mb-8">
-            <h2 className="text-[26px] leading-[1.2] text-[#0b1035]">CHF Hedged Share Class</h2>
-            <h2 className="text-[26px] leading-[1.2] text-[#0b1035]">USD Share Class</h2>
-          </div>
-
-          <div className="space-y-8">
-            <div className="grid lg:grid-cols-2 gap-8 items-stretch">
-              <NavUpdatesCard label="CHF Hedged Share Class" data={chfDetails} />
-              <NavUpdatesCard label="USD Share Class" data={usdDetails} />
-            </div>
-            <div className="grid lg:grid-cols-2 gap-8 items-stretch">
-              <PerformanceMetricsCard label="CHF Hedged Share Class" data={chfDetails} />
-              <PerformanceMetricsCard label="USD Share Class" data={usdDetails} />
-            </div>
-            <div className="grid lg:grid-cols-2 gap-8 items-stretch">
-              <RiskMetricsCard label="CHF Hedged Share Class" data={chfDetails} />
-              <RiskMetricsCard label="USD Share Class" data={usdDetails} />
-            </div>
-            <div className="grid lg:grid-cols-2 gap-8 items-stretch">
-              <FundDetailsCard label="CHF Hedged Share Class" data={chfDetails} />
-              <FundDetailsCard label="USD Share Class" data={usdDetails} />
+        <div className="container">
+          <div className="relative">
+            <span
+              aria-hidden
+              className="pointer-events-none absolute -top-8 left-1/2 h-px w-screen -translate-x-1/2 bg-[#d9def0]"
+            />
+            <span
+              aria-hidden
+              className="pointer-events-none absolute bottom-0 left-1/2 h-px w-screen -translate-x-1/2 bg-[#d9def0]"
+            />
+            <span aria-hidden className="pointer-events-none absolute left-1/2 -top-8 bottom-0 hidden w-px -translate-x-1/2 bg-[#d9def0] lg:block" />
+            <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
+              <div className="space-y-8 pt-4 lg:pt-6 lg:pr-8">
+                <h2 className="text-[26px] leading-[1.2] text-[#0b1035]">{chfTitle}</h2>
+                <NavUpdatesCard data={chfDetails} />
+                <PerformanceMetricsCard data={chfDetails} />
+                <RiskMetricsCard data={chfDetails} />
+                <FundDetailsCard data={chfDetails} />
+              </div>
+              <div className="space-y-8 pt-4 lg:pt-6 lg:pl-8">
+                <h2 className="text-[26px] leading-[1.2] text-[#0b1035]">{usdTitle}</h2>
+                <NavUpdatesCard data={usdDetails} />
+                <PerformanceMetricsCard data={usdDetails} />
+                <RiskMetricsCard data={usdDetails} />
+                <FundDetailsCard data={usdDetails} />
+              </div>
             </div>
           </div>
         </div>
