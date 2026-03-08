@@ -2,6 +2,8 @@
 
 Built with [Next.js](https://nextjs.org), [Payload CMS](https://payloadcms.com), [Tailwind CSS 4](https://tailwindcss.com), and [React 19](https://react.dev). Deployed on [Vercel](https://vercel.com).
 
+_Deployment smoke test commit for the `develop` preview branch._
+
 ## Tech Stack
 
 - **Framework:** Next.js 15 (App Router)

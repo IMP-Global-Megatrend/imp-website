@@ -104,6 +104,9 @@ function stripHtml(value: string): string {
 
 function resolveCMSImageUrl(value: string): string {
   if (!value) return ''
+  if (value.startsWith('/api/media/file/')) {
+    return resolvePayloadApiMediaPath(value)
+  }
   if (value.startsWith('/')) return value
   if (value.startsWith('http://') || value.startsWith('https://')) {
     // Keep only already-migrated storage URLs; block other external image hosts.
@@ -534,7 +537,7 @@ function resolveMediaLikeUrl(media: unknown): string {
   const mediaRecord = media as MediaLike
   const directUrl = mediaRecord.url
   if (typeof directUrl === 'string' && directUrl.trim() !== '') {
-    return directUrl.trim()
+    return resolveCMSImageUrl(directUrl.trim())
   }
 
   const filename = mediaRecord.filename
@@ -559,12 +562,25 @@ function normalizeMediaLookupSource(source: string): string {
   return source
 }
 
+function resolvePayloadApiMediaPath(source: string): string {
+  if (!source.startsWith('/api/media/file/')) return ''
+
+  const filename = source.replace('/api/media/file/', '').split('?')[0]?.split('#')[0]?.trim() || ''
+  if (!filename) return ''
+
+  return resolveSupabasePublicMediaUrl(filename) || ''
+}
+
 async function resolveMediaUrlFromSource(
   payload: Awaited<ReturnType<typeof getPayload>>,
   source: string,
 ): Promise<string> {
   if (!source) return ''
-  if (source.startsWith('/')) return source
+  if (source.startsWith('/api/media/file/')) {
+    const resolvedApiMediaPath = resolvePayloadApiMediaPath(source)
+    if (resolvedApiMediaPath) return resolvedApiMediaPath
+  }
+  if (source.startsWith('/') && !source.startsWith('/api/media/file/')) return source
   if (
     (source.startsWith('http://') || source.startsWith('https://')) &&
     source.includes('/storage/v1/object/public/')
@@ -597,6 +613,18 @@ async function resolveMediaUrlFromSource(
     })
   }
 
+  if ((mediaBySource.docs?.length ?? 0) === 0 && source.startsWith('/api/media/file/')) {
+    mediaBySource = await payload.find({
+      collection: 'media',
+      limit: 1,
+      pagination: false,
+      depth: 0,
+      where: {
+        url: { equals: source },
+      },
+    })
+  }
+
   const mediaDoc = mediaBySource.docs?.[0] as { url?: unknown; filename?: unknown } | undefined
   const mediaFilename = mediaDoc?.filename
   if (typeof mediaFilename === 'string' && mediaFilename.trim() !== '') {
@@ -606,7 +634,7 @@ async function resolveMediaUrlFromSource(
 
   const mediaUrl = mediaDoc?.url
   if (typeof mediaUrl === 'string' && mediaUrl.trim() !== '') {
-    return mediaUrl
+    return resolveCMSImageUrl(mediaUrl.trim())
   }
 
   // Prefer predictable bucket object URL fallback for known UGD file identifiers.
