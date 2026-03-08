@@ -355,6 +355,17 @@ export const Pages: CollectionConfig<'pages'> = {
                 condition: (data) => data?.slug === 'home',
               },
             },
+            {
+              name: 'homeMegatrendCards',
+              type: 'relationship',
+              relationTo: 'home-megatrend-cards',
+              hasMany: true,
+              admin: {
+                description:
+                  'Optional explicit ordering/source for homepage megatrend cards. Kept separate from /megatrends detail blocks.',
+                condition: (data) => data?.slug === 'home',
+              },
+            },
           ],
           label: 'Home',
           admin: {

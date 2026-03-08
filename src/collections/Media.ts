@@ -29,9 +29,9 @@ function buildSupabasePublicMediaUrl(filename?: string | null): string | null {
 
 export const Media: CollectionConfig = {
   slug: 'media',
-  folders: true,
+  folders: false,
   admin: {
-    defaultColumns: ['folder', 'filename', 'alt', 'url', 'storageUrl', 'updatedAt'],
+    defaultColumns: ['filename', 'alt', 'url', 'storageUrl', 'updatedAt'],
   },
   access: {
     create: authenticated,
@@ -98,7 +98,6 @@ export const Media: CollectionConfig = {
   },
   upload: {
     disableLocalStorage: true,
-    adminThumbnail: 'thumbnail',
     focalPoint: true,
     imageSizes: [
       {

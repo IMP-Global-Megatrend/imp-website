@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url'
 import { Categories } from './collections/Categories'
 import { ContactSubmissions } from './collections/ContactSubmissions'
 import { ContentGateSubmissions } from './collections/ContentGateSubmissions'
+import { HomeMegatrendCards } from './collections/HomeMegatrendCards'
 import { MegatrendDetailBlocks } from './collections/MegatrendDetailBlocks'
 import { Media } from './collections/Media'
 import { NewsletterSubscriptions } from './collections/NewsletterSubscriptions'
@@ -87,6 +88,7 @@ export default buildConfig({
     ContentGateSubmissions,
     ContactSubmissions,
     NewsletterSubscriptions,
+    HomeMegatrendCards,
     MegatrendDetailBlocks,
     PerformanceNavPoints,
     PerformanceUsdShareClassData,

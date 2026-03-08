@@ -33,6 +33,15 @@ type MediaLike = {
   filename?: unknown
 }
 
+type HomeMegatrendCardRecord = {
+  title?: unknown
+  body?: unknown
+  tickers?: unknown
+  image?: unknown
+  imageSrc?: unknown
+  sortOrder?: unknown
+}
+
 const REQUIRED_HOME_DOWNLOADS: Array<{
   id: DownloadItem['id']
   label: string
@@ -446,6 +455,88 @@ function parseTrendItems(docs: CMSRecord[]): ParsedTrendItem[] {
     .map((item) => item)
 }
 
+function parseHomeMegatrendCards(docs: Array<Record<string, unknown>>): ParsedTrendItem[] {
+  return docs
+    .map((doc) => {
+      const card = doc as HomeMegatrendCardRecord
+      const title = typeof card.title === 'string' ? card.title.trim() : ''
+      const body = typeof card.body === 'string' ? card.body.trim() : ''
+      if (!title || !body) return null
+
+      const imageSource = typeof card.imageSrc === 'string' ? card.imageSrc.trim() : ''
+      const imageUrlFromUpload = resolveMediaLikeUrl(card.image)
+      const imageUrlFromSource = imageSource ? resolveCMSImageUrl(imageSource) : ''
+
+      const tickerRows = Array.isArray(card.tickers) ? (card.tickers as Array<Record<string, unknown>>) : []
+      const tickers = tickerRows
+        .map((row, index) => {
+          const ticker = typeof row.ticker === 'string' ? row.ticker.trim() : ''
+          const company = typeof row.company === 'string' ? row.company.trim() : ''
+          const sortOrder = typeof row.sortOrder === 'number' && Number.isFinite(row.sortOrder) ? row.sortOrder : index
+          if (!ticker || !company) return null
+          return { ticker, company, sortOrder }
+        })
+        .filter((row): row is { ticker: string; company: string; sortOrder: number } => Boolean(row))
+        .sort((a, b) => a.sortOrder - b.sortOrder)
+        .map((row) => [row.ticker, row.company] as [string, string])
+
+      const manualSort =
+        typeof card.sortOrder === 'number' && Number.isFinite(card.sortOrder)
+          ? String(card.sortOrder).padStart(6, '0')
+          : ''
+
+      return {
+        title,
+        body,
+        tickers,
+        imageUrl: imageUrlFromUpload || imageUrlFromSource || fallbackTrendImageByTitle(title),
+        imageSource,
+        mediaUpload: card.image,
+        manualSort,
+      }
+    })
+    .filter((item): item is ParsedTrendItem => item !== null)
+}
+
+async function resolveHomeMegatrendCardDocsInOrder(args: {
+  payload: Awaited<ReturnType<typeof getPayload>>
+  raw: unknown
+}): Promise<Array<Record<string, unknown>>> {
+  const { payload, raw } = args
+  if (!Array.isArray(raw)) return []
+
+  const objectEntries = raw.filter(
+    (entry): entry is Record<string, unknown> => Boolean(entry && typeof entry === 'object'),
+  )
+  if (objectEntries.length > 0) return objectEntries
+
+  const idsInOrder = raw.filter(
+    (entry): entry is number | string => typeof entry === 'number' || typeof entry === 'string',
+  )
+  if (idsInOrder.length === 0) return []
+
+  const fetched = await payload.find({
+    collection: 'home-megatrend-cards',
+    limit: idsInOrder.length,
+    pagination: false,
+    depth: 1,
+    where: {
+      id: {
+        in: idsInOrder,
+      },
+    },
+  })
+
+  const byId = new Map<string, Record<string, unknown>>()
+  for (const doc of fetched.docs || []) {
+    byId.set(String((doc as { id?: unknown }).id), doc as unknown as Record<string, unknown>)
+  }
+
+  return idsInOrder
+    .map((id) => byId.get(String(id)))
+    .filter((doc): doc is Record<string, unknown> => Boolean(doc))
+}
+
 function normalizeTrendTitle(title: string): string {
   return title.trim().toLowerCase().replace(/\s+/g, ' ')
 }
@@ -731,7 +822,7 @@ export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
       collection: 'pages',
       limit: 1,
       pagination: false,
-      depth: 1,
+      depth: 2,
       where: {
         slug: { equals: 'home' },
       },
@@ -753,14 +844,40 @@ export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
       payload.logger.warn('Regulatory strip data missing: no valid rows found in payload collection trust-list.')
     }
 
-    const trendResult = await payload.find({
-      collection: 'megatrend-dataset',
-      limit: 100,
-      pagination: false,
-      depth: 2,
+    const pageRecord = page as {
+      homeDownloads?: {
+        factsheetUsd?: unknown
+        factsheetChfHedged?: unknown
+        fundCommentary?: unknown
+        presentation?: unknown
+      }
+      homeMegatrendCards?: unknown
+    }
+
+    const linkedHomeMegatrendCards = await resolveHomeMegatrendCardDocsInOrder({
+      payload,
+      raw: pageRecord.homeMegatrendCards,
     })
-    const trendDocs = (trendResult.docs ?? []) as unknown as CMSRecord[]
-    const trendItems = parseTrendItems(trendDocs)
+
+    const relationshipTrendItems = parseHomeMegatrendCards(linkedHomeMegatrendCards)
+    const trendItems =
+      relationshipTrendItems.length > 0
+        ? relationshipTrendItems
+        : await (async () => {
+            payload.logger.warn(
+              'Home megatrend cards relationship is empty; falling back to legacy collection megatrend-dataset.',
+            )
+
+            const trendResult = await payload.find({
+              collection: 'megatrend-dataset',
+              limit: 100,
+              pagination: false,
+              depth: 2,
+            })
+            const trendDocs = (trendResult.docs ?? []) as unknown as CMSRecord[]
+            return parseTrendItems(trendDocs)
+          })()
+
     const trendsWithResolvedImages = await Promise.all(
       trendItems.map(async (trend) => {
         const mediaFieldImageUrl = resolveMediaLikeUrl(trend.mediaUpload)
@@ -786,16 +903,7 @@ export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
     }
 
     if (trendItems.length === 0) {
-      payload.logger.warn('Trend data missing: no valid rows found in payload collection megatrend-dataset.')
-    }
-
-    const pageRecord = page as {
-      homeDownloads?: {
-        factsheetUsd?: unknown
-        factsheetChfHedged?: unknown
-        fundCommentary?: unknown
-        presentation?: unknown
-      }
+      payload.logger.warn('Trend data missing: no valid rows found in home-megatrend-cards or megatrend-dataset.')
     }
 
     // Canonical source for homepage downloads is pages(home).homeDownloads.* .
