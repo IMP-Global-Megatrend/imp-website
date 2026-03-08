@@ -49,7 +49,7 @@ function upsertTextField(
 async function main() {
   const payload = await getPayload({ config })
   const result = await payload.find({
-    collection: 'wix-trust-list',
+    collection: 'trust-list',
     limit: 200,
     pagination: false,
     depth: 0,
@@ -89,7 +89,7 @@ async function main() {
     }
 
     await payload.update({
-      collection: 'wix-trust-list',
+      collection: 'trust-list',
       id: doc.id as string,
       depth: 0,
       data: {
@@ -100,7 +100,7 @@ async function main() {
   }
 
   const verify = await payload.find({
-    collection: 'wix-trust-list',
+    collection: 'trust-list',
     limit: 200,
     pagination: false,
     depth: 0,

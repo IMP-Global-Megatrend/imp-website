@@ -69,12 +69,12 @@ async function main() {
   })
 
   const [trendDataset, trendDetail, trustList, homepageLinks, fundAttrs, fundDetails] = await Promise.all([
-    payload.find({ collection: 'wix-megatrend-dataset', limit: 200, pagination: false, depth: 0 }),
-    payload.find({ collection: 'wix-megatrends-detail', limit: 200, pagination: false, depth: 0 }),
-    payload.find({ collection: 'wix-trust-list', limit: 200, pagination: false, depth: 0 }),
-    payload.find({ collection: 'wix-homepage-links', limit: 50, pagination: false, depth: 0 }),
-    payload.find({ collection: 'wix-fund-attributes', limit: 300, pagination: false, depth: 0 }),
-    payload.find({ collection: 'wix-fund-details', limit: 50, pagination: false, depth: 0 }),
+    payload.find({ collection: 'megatrend-dataset', limit: 200, pagination: false, depth: 0 }),
+    payload.find({ collection: 'megatrends-detail', limit: 200, pagination: false, depth: 0 }),
+    payload.find({ collection: 'trust-list', limit: 200, pagination: false, depth: 0 }),
+    payload.find({ collection: 'homepage-links', limit: 50, pagination: false, depth: 0 }),
+    payload.find({ collection: 'fund-attributes', limit: 300, pagination: false, depth: 0 }),
+    payload.find({ collection: 'fund-details', limit: 50, pagination: false, depth: 0 }),
   ])
 
   const summary = {

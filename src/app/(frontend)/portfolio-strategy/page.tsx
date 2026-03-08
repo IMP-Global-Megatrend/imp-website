@@ -1,5 +1,10 @@
 import type { Metadata } from 'next'
-import { getCMSContentSectionsBySlug, getCMSPageBySlug } from '../_components/getCMSPageBySlug'
+import {
+  getCMSPageBySlug,
+  getCMSPortfolioInvestmentProcessItems,
+  getCMSPortfolioStrategySteps,
+  getCMSPortfolioStrategyChartData,
+} from '../_components/getCMSPageBySlug'
 import { PageHero } from '../_components/PageHero'
 import { AllocationPanel } from './AllocationPanel'
 import { InvestmentProcessTimeline } from './InvestmentProcessTimeline'
@@ -16,15 +21,26 @@ export async function generateMetadata(): Promise<Metadata> {
   return generateStaticFallbackMeta('/portfolio-strategy', fallbacks.metadata.portfolioStrategy)
 }
 
-const strategySteps = portfolioStrategyContent.strategySteps
-const investmentProcess = portfolioStrategyContent.investmentProcess
-const allocations = portfolioStrategyContent.allocations
-const topHoldings = portfolioStrategyContent.topHoldings as Array<[string, string, string]>
 const portfolioStrategyIntroFallback = portfolioStrategyContent.introFallback || fallbacks.portfolioStrategy.intro
 
 export default async function PortfolioStrategyPage() {
-  const cmsSections = await getCMSContentSectionsBySlug('portfolio-strategy')
-  const portfolioStrategyIntro = cmsSections[0] || portfolioStrategyIntroFallback
+  const [cmsPage, cmsChartData, cmsInvestmentProcess, cmsStrategySteps] = await Promise.all([
+    getCMSPageBySlug('portfolio-strategy'),
+    getCMSPortfolioStrategyChartData(),
+    getCMSPortfolioInvestmentProcessItems(),
+    getCMSPortfolioStrategySteps(),
+  ])
+  const pageRecord = (cmsPage && typeof cmsPage === 'object' ? cmsPage : {}) as {
+    portfolioStrategyIntro?: unknown
+  }
+  const portfolioStrategyIntro =
+    (typeof pageRecord.portfolioStrategyIntro === 'string' && pageRecord.portfolioStrategyIntro.trim()) ||
+    portfolioStrategyIntroFallback
+  const strategySteps = cmsStrategySteps.length > 0 ? cmsStrategySteps : portfolioStrategyContent.strategySteps
+  const megatrendAllocations = cmsChartData.megatrends
+  const geographicAllocations = cmsChartData.geographic
+  const sectorAllocations = cmsChartData.sectors
+  const topHoldingsData = cmsChartData.topHoldings
 
   return (
     <main className="bg-white text-[#0b1035]">
@@ -56,7 +72,7 @@ export default async function PortfolioStrategyPage() {
             <h2 className="text-[28px] leading-[1.2] text-[#0b1035] mb-8 text-left md:text-center">
               {portfolioStrategyContent.sectionTitles.investmentProcess}
             </h2>
-            <InvestmentProcessTimeline items={investmentProcess} />
+            <InvestmentProcessTimeline items={cmsInvestmentProcess} />
           </div>
         </section>
 
@@ -68,9 +84,9 @@ export default async function PortfolioStrategyPage() {
           <div className="grid lg:grid-cols-3 gap-8">
             {(
               [
-                [portfolioStrategyContent.allocationPanels[0], allocations.megatrends],
-                [portfolioStrategyContent.allocationPanels[1], allocations.geographic],
-                [portfolioStrategyContent.allocationPanels[2], allocations.sectors],
+                [portfolioStrategyContent.allocationPanels[0], megatrendAllocations],
+                [portfolioStrategyContent.allocationPanels[1], geographicAllocations],
+                [portfolioStrategyContent.allocationPanels[2], sectorAllocations],
               ] as const
             ).map(([title, data]) => (
               <AllocationPanel key={title} title={title} data={data as Array<[string, string, string]>} />
@@ -84,7 +100,7 @@ export default async function PortfolioStrategyPage() {
             <h2 className="text-[28px] leading-[1.2] text-[#0b1035] mb-8">
               {portfolioStrategyContent.sectionTitles.topHoldings}
             </h2>
-            <TopHoldingsSection holdings={topHoldings} />
+            <TopHoldingsSection holdings={topHoldingsData} />
           </div>
         </section>
     </main>

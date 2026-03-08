@@ -109,8 +109,69 @@ export type CMSPerformancePageData = {
   chfLabel?: string
   exportSvgTooltip?: string
   exportCsvTooltip?: string
+  chartYearBadge?: string
+  navUpdatesTitle?: string
+  navPerShareLabel?: string
+  performanceMetricsTitle?: string
+  asOfPrefix?: string
+  performanceYtdLabel?: string
+  riskMetricsTitle?: string
+  sharpeRatioLabel?: string
+  volatilityLabel?: string
+  sortinoRatioLabel?: string
+  downsideRiskLabel?: string
+  fundDetailsTitle?: string
+  footnoteSingleAsterisk?: string
+  footnoteDoubleAsterisk?: string
+  relatedLinksHeading?: string
+  fullHistoryLabel?: string
+  fullHistoryHref?: string
+  factsheetUsdLabel?: string
+  factsheetUsdHref?: string
+  factsheetChfLabel?: string
+  factsheetChfHref?: string
+  fundCommentaryLabel?: string
+  fundCommentaryHref?: string
   usd?: CMSPerformanceShareClassDetails
   chf?: CMSPerformanceShareClassDetails
+}
+
+export type CMSPerformanceShareClassCards = {
+  usd: Required<CMSPerformanceShareClassDetails>
+  chf: Required<CMSPerformanceShareClassDetails>
+}
+export type CMSFundPageData = {
+  introPrimaryQuote?: string
+  introSecondaryQuote?: string
+  investmentObjectiveHeading?: string
+  investmentObjectiveBody?: string
+  relatedLinksHeading?: string
+  primaryLabel?: string
+  primaryHref?: string
+  secondaryLabel?: string
+  secondaryHref?: string
+  tertiaryLabel?: string
+  tertiaryHref?: string
+}
+
+type PortfolioChartTuple = [string, string, string]
+export type PortfolioStrategyStepItem = {
+  heading: string
+  body: string
+}
+
+export type PortfolioStrategyStep = {
+  title: string
+  src: string
+  items: PortfolioStrategyStepItem[]
+}
+export type MegatrendDetailBlock = {
+  anchor: string
+  icon: string
+  title: string
+  subtitle: string
+  description: string[]
+  conclusion: string
 }
 
 function richTextToParagraphs(richText: unknown): string[] {
@@ -272,8 +333,28 @@ export async function getCMSFundIntroQuotes(
 ): Promise<{ first: string; second: string | null } | null> {
   try {
     const payload = await getPayload({ config: configPromise })
+    const pageResult = await payload.find({
+      collection: 'pages',
+      limit: 1,
+      pagination: false,
+      depth: 0,
+      where: {
+        slug: { equals: 'fund' },
+      },
+    })
+    const page = pageResult.docs?.[0] as { fundIntroPrimaryQuote?: unknown; fundIntroSecondaryQuote?: unknown } | undefined
+    const pagePrimary = typeof page?.fundIntroPrimaryQuote === 'string' ? page.fundIntroPrimaryQuote.trim() : ''
+    const pageSecondary =
+      typeof page?.fundIntroSecondaryQuote === 'string' ? page.fundIntroSecondaryQuote.trim() : ''
+    if (pagePrimary) {
+      return {
+        first: pagePrimary,
+        second: pageSecondary || null,
+      }
+    }
+
     const result = await payload.find({
-      collection: 'wix-fund-details',
+      collection: 'fund-details',
       limit: 1,
       pagination: false,
       depth: 0,
@@ -318,11 +399,14 @@ export async function getCMSFundIntroQuotes(
 export async function getCMSFundShareClassMeta(): Promise<FundShareClassMeta | null> {
   try {
     const payload = await getPayload({ config: configPromise })
-    const result = await payload.find({
-      collection: 'wix-fund-attributes',
-      limit: 200,
+    const pageResult = await payload.find({
+      collection: 'pages',
+      limit: 1,
       pagination: false,
-      depth: 0,
+      depth: 2,
+      where: {
+        slug: { equals: 'fund' },
+      },
     })
 
     const initial: FundShareClassMeta = {
@@ -344,10 +428,26 @@ export async function getCMSFundShareClassMeta(): Promise<FundShareClassMeta | n
       },
     }
 
-    const docs = result.docs as Array<{
-      data?: Record<string, unknown> | unknown
-      textFields?: Array<{ key?: unknown; value?: unknown }> | null
-    }>
+    const linkedDocs = Array.isArray((pageResult.docs?.[0] as { fundAttributes?: unknown } | undefined)?.fundAttributes)
+      ? ((pageResult.docs?.[0] as { fundAttributes?: unknown }).fundAttributes as Array<{
+          data?: Record<string, unknown> | unknown
+          textFields?: Array<{ key?: unknown; value?: unknown }> | null
+        }>)
+      : []
+    const docs =
+      linkedDocs.length > 0
+        ? linkedDocs
+        : (
+            await payload.find({
+              collection: 'fund-attributes',
+              limit: 200,
+              pagination: false,
+              depth: 0,
+            })
+          ).docs as Array<{
+            data?: Record<string, unknown> | unknown
+            textFields?: Array<{ key?: unknown; value?: unknown }> | null
+          }>
 
     const getTextFieldValue = (
       textFields: Array<{ key?: unknown; value?: unknown }> | null | undefined,
@@ -427,14 +527,28 @@ function parseFundDetailIcon(value: unknown): FundDetailIcon | null {
 export async function getCMSFundDetails(): Promise<FundDetailItem[] | null> {
   try {
     const payload = await getPayload({ config: configPromise })
-    const result = await payload.find({
-      collection: 'wix-fund-attributes',
-      limit: 200,
+    const pageResult = await payload.find({
+      collection: 'pages',
+      limit: 1,
       pagination: false,
-      depth: 0,
+      depth: 2,
+      where: {
+        slug: { equals: 'fund' },
+      },
     })
 
-    const docs = result.docs as Array<{ data?: Record<string, unknown> | unknown }>
+    const linkedDocs = Array.isArray((pageResult.docs?.[0] as { fundAttributes?: unknown } | undefined)?.fundAttributes)
+      ? ((pageResult.docs?.[0] as { fundAttributes?: unknown }).fundAttributes as Array<{ data?: Record<string, unknown> | unknown }>)
+      : []
+    const docs =
+      linkedDocs.length > 0
+        ? linkedDocs
+        : (await payload.find({
+            collection: 'fund-attributes',
+            limit: 200,
+            pagination: false,
+            depth: 0,
+          })).docs as Array<{ data?: Record<string, unknown> | unknown }>
     const byLabel = new Map<string, FundDetailItem>()
 
     for (const doc of docs) {
@@ -470,6 +584,71 @@ export async function getCMSFundDetails(): Promise<FundDetailItem[] | null> {
       .filter((item): item is FundDetailItem => Boolean(item))
 
     return details.length > 0 ? details : null
+  } catch {
+    return null
+  }
+}
+
+export async function getCMSFundPageData(): Promise<CMSFundPageData | null> {
+  try {
+    const payload = await getPayload({ config: configPromise })
+    const result = await payload.find({
+      collection: 'pages',
+      limit: 1,
+      pagination: false,
+      depth: 1,
+      where: {
+        slug: { equals: 'fund' },
+      },
+    })
+    const page = result.docs?.[0] as
+      | {
+          fundInvestmentObjectiveHeading?: unknown
+          fundInvestmentObjectiveBody?: unknown
+          fundRelatedLinksHeading?: unknown
+          fundRelatedPrimaryLabel?: unknown
+          fundRelatedPrimaryHref?: unknown
+          fundRelatedPrimaryAsset?: unknown
+          fundRelatedSecondaryLabel?: unknown
+          fundRelatedSecondaryHref?: unknown
+          fundRelatedSecondaryAsset?: unknown
+          fundRelatedTertiaryLabel?: unknown
+          fundRelatedTertiaryHref?: unknown
+          fundRelatedTertiaryAsset?: unknown
+        }
+      | undefined
+    if (!page) return null
+
+    const getPageText = (value: unknown): string | undefined => {
+      if (typeof value !== 'string') return undefined
+      const trimmed = value.trim()
+      return trimmed.length > 0 ? trimmed : undefined
+    }
+    const resolveMediaHref = (value: unknown): string | undefined => {
+      if (!value || typeof value !== 'object') return undefined
+      const media = value as { url?: unknown; filename?: unknown }
+      if (typeof media.url === 'string' && media.url.trim()) {
+        const normalized = normalizeCMSMediaUrl(media.url.trim())
+        if (normalized) return normalized
+      }
+      if (typeof media.filename === 'string' && media.filename.trim()) {
+        const resolved = resolveSupabasePublicMediaUrl(media.filename.trim())
+        if (resolved) return resolved
+      }
+      return undefined
+    }
+
+    return {
+      investmentObjectiveHeading: getPageText(page.fundInvestmentObjectiveHeading),
+      investmentObjectiveBody: getPageText(page.fundInvestmentObjectiveBody),
+      relatedLinksHeading: getPageText(page.fundRelatedLinksHeading),
+      primaryLabel: getPageText(page.fundRelatedPrimaryLabel),
+      primaryHref: getPageText(page.fundRelatedPrimaryHref) ?? resolveMediaHref(page.fundRelatedPrimaryAsset),
+      secondaryLabel: getPageText(page.fundRelatedSecondaryLabel),
+      secondaryHref: getPageText(page.fundRelatedSecondaryHref) ?? resolveMediaHref(page.fundRelatedSecondaryAsset),
+      tertiaryLabel: getPageText(page.fundRelatedTertiaryLabel),
+      tertiaryHref: getPageText(page.fundRelatedTertiaryHref) ?? resolveMediaHref(page.fundRelatedTertiaryAsset),
+    }
   } catch {
     return null
   }
@@ -605,13 +784,13 @@ export async function getCMSMegatrendImageVariantsByTitle(): Promise<
     const payload = await getPayload({ config: configPromise })
     const [detailResult, datasetResult] = await Promise.all([
       payload.find({
-        collection: 'wix-megatrends-detail',
+        collection: 'megatrends-detail',
         limit: 200,
         pagination: false,
         depth: 0,
       }),
       payload.find({
-        collection: 'wix-megatrend-dataset',
+        collection: 'megatrend-dataset',
         limit: 200,
         pagination: false,
         depth: 0,
@@ -683,30 +862,27 @@ function parseCMSDateToISO(value: unknown): string | null {
   return null
 }
 
-function toPerformanceNavPoint(doc: unknown): PerformanceNavPoint | null {
+function toPerformanceNavPointFromTableDoc(doc: unknown): (PerformanceNavPoint & { shareClass: 'usd' | 'chf' }) | null {
   const record = (doc && typeof doc === 'object' ? doc : {}) as {
-    data?: Record<string, unknown> | unknown
-    numberFields?: Array<{ key?: unknown; value?: unknown }> | null
-    dateFields?: Array<{ key?: unknown; value?: unknown }> | null
+    shareClass?: unknown
+    asOf?: unknown
+    nav?: unknown
   }
 
-  const data = (record.data && typeof record.data === 'object' ? record.data : {}) as Record<string, unknown>
+  const shareClass = record.shareClass
+  if (shareClass !== 'usd' && shareClass !== 'chf') return null
 
-  const directNav = typeof data.valuation === 'number' ? data.valuation : null
-  const numberFieldNav = Array.isArray(record.numberFields)
-    ? record.numberFields.find((entry) => entry?.key === 'valuation' && typeof entry.value === 'number')
-    : null
-  const nav = directNav ?? (typeof numberFieldNav?.value === 'number' ? numberFieldNav.value : null)
+  const nav = record.nav
   if (typeof nav !== 'number' || !Number.isFinite(nav)) return null
 
-  const directDate = parseCMSDateToISO(data.date)
-  const dateFieldValue = Array.isArray(record.dateFields)
-    ? record.dateFields.find((entry) => entry?.key === 'date')?.value
-    : null
-  const dateISO = directDate ?? parseCMSDateToISO(dateFieldValue)
+  const dateISO = parseCMSDateToISO(record.asOf)
   if (!dateISO) return null
 
-  return { dateISO, nav: Math.round(nav * 100) / 100 }
+  return {
+    shareClass,
+    dateISO,
+    nav: Math.round(nav * 100) / 100,
+  }
 }
 
 export async function getCMSPerformanceNavSeries(): Promise<{
@@ -715,35 +891,325 @@ export async function getCMSPerformanceNavSeries(): Promise<{
 }> {
   try {
     const payload = await getPayload({ config: configPromise })
+    const pageResult = await payload.find({
+      collection: 'pages',
+      limit: 1,
+      pagination: false,
+      depth: 2,
+      where: {
+        slug: { equals: 'performance-analysis' },
+      },
+    })
 
-    const [usdResult, chfResult] = await Promise.all([
-      payload.find({
-        collection: 'wix-import-usd',
-        limit: 300,
-        pagination: false,
-        depth: 0,
-      }),
-      payload.find({
-        collection: 'wix-import-chf',
-        limit: 300,
-        pagination: false,
-        depth: 0,
-      }),
-    ])
+    const page = pageResult.docs?.[0] as { performanceNavPoints?: unknown } | undefined
+    const linkedNavPointDocs = Array.isArray(page?.performanceNavPoints)
+      ? (page.performanceNavPoints as unknown[])
+      : []
 
-    const parseSeries = (docs: unknown[]): PerformanceNavPoint[] => {
-      return docs
-        .map((doc) => toPerformanceNavPoint(doc))
-        .filter((item): item is PerformanceNavPoint => Boolean(item))
-        .sort((a, b) => new Date(a.dateISO).getTime() - new Date(b.dateISO).getTime())
+    const pointDocs = linkedNavPointDocs
+
+    if (pointDocs.length > 0) {
+      const normalized = pointDocs
+        .map((doc) => toPerformanceNavPointFromTableDoc(doc))
+        .filter((item): item is PerformanceNavPoint & { shareClass: 'usd' | 'chf' } => Boolean(item))
+
+      const usd = normalized
+        .filter((point) => point.shareClass === 'usd')
+        .map(({ dateISO, nav }) => ({ dateISO, nav }))
+      const chf = normalized
+        .filter((point) => point.shareClass === 'chf')
+        .map(({ dateISO, nav }) => ({ dateISO, nav }))
+
+      return {
+        usd: usd.sort((a, b) => new Date(a.dateISO).getTime() - new Date(b.dateISO).getTime()),
+        chf: chf.sort((a, b) => new Date(a.dateISO).getTime() - new Date(b.dateISO).getTime()),
+      }
     }
 
-    return {
-      usd: parseSeries(usdResult.docs as unknown[]),
-      chf: parseSeries(chfResult.docs as unknown[]),
-    }
+    return { usd: [], chf: [] }
   } catch {
     return { usd: [], chf: [] }
+  }
+}
+
+function formatPercentValue(value: number): string {
+  if (!Number.isFinite(value)) return '0'
+  const rounded = Math.round(value * 100) / 100
+  return Number.isInteger(rounded) ? String(rounded) : String(rounded)
+}
+
+function parsePortfolioChartDocs(docs: unknown[]): PortfolioChartTuple[] {
+  return docs
+    .map((doc) => {
+      const record = (doc && typeof doc === 'object' ? doc : {}) as {
+        name?: unknown
+        weight?: unknown
+        color?: unknown
+        sortOrder?: unknown
+      }
+      if (typeof record.name !== 'string' || !record.name.trim()) return null
+      if (typeof record.weight !== 'number' || !Number.isFinite(record.weight)) return null
+      if (typeof record.color !== 'string' || !record.color.trim()) return null
+      const sortOrder = typeof record.sortOrder === 'number' && Number.isFinite(record.sortOrder) ? record.sortOrder : 0
+
+      return {
+        tuple: [record.name.trim(), formatPercentValue(record.weight), record.color.trim()] as PortfolioChartTuple,
+        sortOrder,
+      }
+    })
+    .filter((item): item is { tuple: PortfolioChartTuple; sortOrder: number } => Boolean(item))
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .map((item) => item.tuple)
+}
+
+function parsePortfolioInvestmentProcessDocs(docs: unknown[]): string[] {
+  return (docs as Array<Record<string, unknown>>)
+    .map((doc) => {
+      const title = typeof doc.title === 'string' ? doc.title.trim() : ''
+      const description = typeof doc.description === 'string' ? doc.description.trim() : ''
+      if (!title && !description) return null
+      const sortOrder = typeof doc.sortOrder === 'number' && Number.isFinite(doc.sortOrder) ? doc.sortOrder : 0
+      const text = /^step\s+\d+$/i.test(title)
+        ? description || title
+        : !title
+          ? description
+          : !description
+            ? title
+            : `${title}: ${description}`
+      if (!text) return null
+      return { text, sortOrder }
+    })
+    .filter((item): item is { text: string; sortOrder: number } => Boolean(item))
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .map((item) => item.text)
+}
+
+export async function getCMSPortfolioStrategyChartData(): Promise<{
+  megatrends: PortfolioChartTuple[]
+  geographic: PortfolioChartTuple[]
+  sectors: PortfolioChartTuple[]
+  topHoldings: PortfolioChartTuple[]
+}> {
+  try {
+    const payload = await getPayload({ config: configPromise })
+    const pageResult = await payload.find({
+      collection: 'pages',
+      limit: 1,
+      pagination: false,
+      depth: 2,
+      where: {
+        slug: { equals: 'portfolio-strategy' },
+      },
+    })
+
+    const page = pageResult.docs?.[0] as
+      | {
+          portfolioMegatrendAllocations?: unknown
+          portfolioGeographicAllocations?: unknown
+          portfolioSectorAllocations?: unknown
+          portfolioTopHoldings?: unknown
+        }
+      | undefined
+
+    const fromLinkedMegatrends = Array.isArray(page?.portfolioMegatrendAllocations)
+      ? parsePortfolioChartDocs(page?.portfolioMegatrendAllocations as unknown[])
+      : []
+    const fromLinkedGeographic = Array.isArray(page?.portfolioGeographicAllocations)
+      ? parsePortfolioChartDocs(page?.portfolioGeographicAllocations as unknown[])
+      : []
+    const fromLinkedSectors = Array.isArray(page?.portfolioSectorAllocations)
+      ? parsePortfolioChartDocs(page?.portfolioSectorAllocations as unknown[])
+      : []
+    const fromLinkedTopHoldings = Array.isArray(page?.portfolioTopHoldings)
+      ? parsePortfolioChartDocs(page?.portfolioTopHoldings as unknown[])
+      : []
+
+    return {
+      megatrends: fromLinkedMegatrends,
+      geographic: fromLinkedGeographic,
+      sectors: fromLinkedSectors,
+      topHoldings: fromLinkedTopHoldings,
+    }
+  } catch {
+    return {
+      megatrends: [],
+      geographic: [],
+      sectors: [],
+      topHoldings: [],
+    }
+  }
+}
+
+export async function getCMSPortfolioInvestmentProcessItems(): Promise<string[]> {
+  try {
+    const payload = await getPayload({ config: configPromise })
+    const pageResult = await payload.find({
+      collection: 'pages',
+      limit: 1,
+      pagination: false,
+      depth: 2,
+      where: {
+        slug: { equals: 'portfolio-strategy' },
+      },
+    })
+
+    const page = pageResult.docs?.[0] as { portfolioInvestmentProcessItems?: unknown } | undefined
+    const linkedItems = Array.isArray(page?.portfolioInvestmentProcessItems)
+      ? parsePortfolioInvestmentProcessDocs(page?.portfolioInvestmentProcessItems as unknown[])
+      : []
+    return linkedItems
+  } catch {
+    return []
+  }
+}
+
+export async function getCMSPortfolioStrategySteps(): Promise<PortfolioStrategyStep[]> {
+  try {
+    const payload = await getPayload({ config: configPromise })
+    const pageResult = await payload.find({
+      collection: 'pages',
+      limit: 1,
+      pagination: false,
+      depth: 2,
+      where: {
+        slug: { equals: 'portfolio-strategy' },
+      },
+    })
+    const portfolioPage = pageResult.docs?.[0]
+    if (!portfolioPage?.id) return []
+
+    const parseStepDocs = (docs: Array<Record<string, unknown>>): PortfolioStrategyStep[] =>
+      docs
+        .map((doc) => {
+          const title = typeof doc.title === 'string' ? doc.title.trim() : ''
+          if (!title) return null
+
+          const imageDoc = (doc.image && typeof doc.image === 'object'
+            ? (doc.image as { url?: unknown; filename?: unknown })
+            : null)
+          const imageUrlFromMedia =
+            imageDoc && typeof imageDoc.url === 'string' && imageDoc.url.trim()
+              ? normalizeCMSMediaUrl(imageDoc.url.trim())
+              : ''
+          const imageUrlFromFilename =
+            imageDoc && typeof imageDoc.filename === 'string' && imageDoc.filename.trim()
+              ? resolveSupabasePublicMediaUrl(imageDoc.filename.trim()) || ''
+              : ''
+          const imageSrcText = typeof doc.imageSrc === 'string' ? normalizeCMSMediaUrl(doc.imageSrc.trim()) : ''
+          const src = imageUrlFromMedia || imageUrlFromFilename || imageSrcText
+          if (!src) return null
+
+          const items = Array.isArray(doc.items)
+            ? (doc.items as Array<Record<string, unknown>>)
+                .map((item) => {
+                  const heading = typeof item.heading === 'string' ? item.heading.trim() : ''
+                  const body = typeof item.body === 'string' ? item.body.trim() : ''
+                  const sortOrder =
+                    typeof item.sortOrder === 'number' && Number.isFinite(item.sortOrder) ? item.sortOrder : 0
+                  if (!heading || !body) return null
+                  return { heading, body, sortOrder }
+                })
+                .filter((item): item is { heading: string; body: string; sortOrder: number } => Boolean(item))
+                .sort((a, b) => a.sortOrder - b.sortOrder)
+                .map((item) => ({ heading: item.heading, body: item.body }))
+            : []
+
+          if (items.length === 0) return null
+
+          return {
+            step: { title, src, items },
+            sortOrder: typeof doc.sortOrder === 'number' && Number.isFinite(doc.sortOrder) ? doc.sortOrder : 0,
+          }
+        })
+        .filter((step): step is { step: PortfolioStrategyStep; sortOrder: number } => Boolean(step))
+        .sort((a, b) => a.sortOrder - b.sortOrder)
+        .map((item) => item.step)
+
+    const linkedStepsRaw = (portfolioPage as { portfolioStrategySteps?: unknown }).portfolioStrategySteps
+    const linkedSteps = Array.isArray(linkedStepsRaw)
+      ? parseStepDocs(
+          linkedStepsRaw.filter((entry): entry is Record<string, unknown> => Boolean(entry && typeof entry === 'object')),
+        )
+      : []
+    return linkedSteps
+  } catch {
+    return []
+  }
+}
+
+export async function getCMSMegatrendDetailBlocks(): Promise<MegatrendDetailBlock[]> {
+  try {
+    const payload = await getPayload({ config: configPromise })
+    const pageResult = await payload.find({
+      collection: 'pages',
+      limit: 1,
+      pagination: false,
+      depth: 2,
+      where: {
+        slug: { equals: 'megatrends' },
+      },
+    })
+    const page = pageResult.docs?.[0] as { megatrendDetailBlocks?: unknown } | undefined
+    const linkedBlocksRaw = Array.isArray(page?.megatrendDetailBlocks)
+      ? (page.megatrendDetailBlocks as Array<Record<string, unknown>>)
+      : []
+
+    return linkedBlocksRaw
+      .map((doc) => {
+        const anchor = typeof doc.anchor === 'string' ? doc.anchor.trim() : ''
+        const title = typeof doc.title === 'string' ? doc.title.trim() : ''
+        const subtitle = typeof doc.subtitle === 'string' ? doc.subtitle.trim() : ''
+        const conclusion = typeof doc.conclusion === 'string' ? doc.conclusion.trim() : ''
+        const sortOrder = typeof doc.sortOrder === 'number' && Number.isFinite(doc.sortOrder) ? doc.sortOrder : 0
+        if (!anchor || !title || !subtitle || !conclusion) return null
+
+        const imageDoc = (doc.image && typeof doc.image === 'object'
+          ? (doc.image as { url?: unknown; filename?: unknown })
+          : null)
+        const imageUrlFromMedia =
+          imageDoc && typeof imageDoc.url === 'string' && imageDoc.url.trim()
+            ? normalizeCMSMediaUrl(imageDoc.url.trim())
+            : ''
+        const imageUrlFromFilename =
+          imageDoc && typeof imageDoc.filename === 'string' && imageDoc.filename.trim()
+            ? resolveSupabasePublicMediaUrl(imageDoc.filename.trim()) || ''
+            : ''
+        const imageSrcText = typeof doc.imageSrc === 'string' ? normalizeCMSMediaUrl(doc.imageSrc.trim()) : ''
+        const icon = imageUrlFromMedia || imageUrlFromFilename || imageSrcText
+        if (!icon) return null
+
+        const description = Array.isArray(doc.description)
+          ? (doc.description as Array<Record<string, unknown>>)
+              .map((item) => {
+                const text = typeof item.text === 'string' ? item.text.trim() : ''
+                const sortOrder =
+                  typeof item.sortOrder === 'number' && Number.isFinite(item.sortOrder) ? item.sortOrder : 0
+                if (!text) return null
+                return { text, sortOrder }
+              })
+              .filter((item): item is { text: string; sortOrder: number } => Boolean(item))
+              .sort((a, b) => a.sortOrder - b.sortOrder)
+              .map((item) => item.text)
+          : []
+        if (description.length === 0) return null
+
+        return {
+          sortOrder,
+          block: {
+            anchor,
+            icon,
+            title,
+            subtitle,
+            description,
+            conclusion,
+          },
+        }
+      })
+      .filter((item): item is { sortOrder: number; block: MegatrendDetailBlock } => Boolean(item))
+      .sort((a, b) => a.sortOrder - b.sortOrder)
+      .map((item) => item.block)
+  } catch {
+    return []
   }
 }
 
@@ -866,46 +1332,206 @@ export async function getCMSPerformancePageData(): Promise<CMSPerformancePageDat
   try {
     const payload = await getPayload({ config: configPromise })
     const result = await payload.find({
-      collection: 'wix-fund-details',
+      collection: 'pages',
       limit: 1,
       pagination: false,
-      depth: 0,
+      depth: 1,
+      where: {
+        slug: { equals: 'performance-analysis' },
+      },
     })
 
-    const doc = result.docs?.[0] as
+    const page = result.docs?.[0] as
       | {
-          data?: Record<string, unknown> | unknown
-          textFields?: Array<{ key?: unknown; value?: unknown }> | null
+          performanceHeroTitle?: unknown
+          performanceAnnualTitle?: unknown
+          performanceUsdLabel?: unknown
+          performanceChfLabel?: unknown
+          performanceExportSvgTooltip?: unknown
+          performanceExportCsvTooltip?: unknown
+          performanceChartYearBadge?: unknown
+          performanceCardsNavUpdatesTitle?: unknown
+          performanceCardsNavPerShareLabel?: unknown
+          performanceCardsPerformanceMetricsTitle?: unknown
+          performanceCardsAsOfPrefix?: unknown
+          performanceCardsPerformanceYtdLabel?: unknown
+          performanceCardsRiskMetricsTitle?: unknown
+          performanceCardsSharpeRatioLabel?: unknown
+          performanceCardsVolatilityLabel?: unknown
+          performanceCardsSortinoRatioLabel?: unknown
+          performanceCardsDownsideRiskLabel?: unknown
+          performanceCardsFundDetailsTitle?: unknown
+          performanceFootnoteSingleAsterisk?: unknown
+          performanceFootnoteDoubleAsterisk?: unknown
+          performanceRelatedLinksHeading?: unknown
+          performanceFullHistoryLabel?: unknown
+          performanceFullHistoryHref?: unknown
+          performanceFactsheetUsdLabel?: unknown
+          performanceFactsheetUsdAsset?: unknown
+          performanceFactsheetUsdHref?: unknown
+          performanceFactsheetChfLabel?: unknown
+          performanceFactsheetChfAsset?: unknown
+          performanceFactsheetChfHref?: unknown
+          performanceFundCommentaryLabel?: unknown
+          performanceFundCommentaryAsset?: unknown
+          performanceFundCommentaryHref?: unknown
         }
       | undefined
-    if (!doc) return null
-    const data = (doc.data && typeof doc.data === 'object' ? doc.data : {}) as Record<string, unknown>
-    const getFromDataOrTextFields = (...keys: string[]): string | undefined => {
-      const fromData = getDataString(data, ...keys)
-      if (fromData) return fromData
+    if (!page) return null
 
-      for (const key of keys) {
-        const fromTextFields = getTextFieldValue(doc.textFields, key)
-        if (fromTextFields) return fromTextFields
+    const getPageText = (value: unknown): string | undefined => {
+      if (typeof value !== 'string') return undefined
+      const trimmed = value.trim()
+      return trimmed.length > 0 ? trimmed : undefined
+    }
+
+    const resolveMediaHref = (value: unknown): string | undefined => {
+      if (!value || typeof value !== 'object') return undefined
+      const media = value as { url?: unknown; filename?: unknown }
+
+      if (typeof media.url === 'string' && media.url.trim()) {
+        const normalized = normalizeCMSMediaUrl(media.url.trim())
+        if (normalized) return normalized
+      }
+
+      if (typeof media.filename === 'string' && media.filename.trim()) {
+        const resolved = resolveSupabasePublicMediaUrl(media.filename.trim())
+        if (resolved) return resolved
       }
 
       return undefined
     }
 
-    const usd = buildPerformanceShareClass(data, 'usd')
-    const chf = buildPerformanceShareClass(data, 'chf')
-
     return {
-      pageTitle: getFromDataOrTextFields('pageTitle'),
-      annualPerformanceTitle: getFromDataOrTextFields('annualPerformanceTitle'),
-      usdLabel: getFromDataOrTextFields('usd'),
-      chfLabel: getFromDataOrTextFields('chf'),
-      exportSvgTooltip: getFromDataOrTextFields('exportSvgTooltip', 'exportSvgLabel'),
-      exportCsvTooltip: getFromDataOrTextFields('exportCsvTooltip', 'exportCsvLabel'),
-      usd,
-      chf,
+      pageTitle: getPageText(page.performanceHeroTitle),
+      annualPerformanceTitle: getPageText(page.performanceAnnualTitle),
+      usdLabel: getPageText(page.performanceUsdLabel),
+      chfLabel: getPageText(page.performanceChfLabel),
+      exportSvgTooltip: getPageText(page.performanceExportSvgTooltip),
+      exportCsvTooltip: getPageText(page.performanceExportCsvTooltip),
+      chartYearBadge: getPageText(page.performanceChartYearBadge),
+      navUpdatesTitle: getPageText(page.performanceCardsNavUpdatesTitle),
+      navPerShareLabel: getPageText(page.performanceCardsNavPerShareLabel),
+      performanceMetricsTitle: getPageText(page.performanceCardsPerformanceMetricsTitle),
+      asOfPrefix: getPageText(page.performanceCardsAsOfPrefix),
+      performanceYtdLabel: getPageText(page.performanceCardsPerformanceYtdLabel),
+      riskMetricsTitle: getPageText(page.performanceCardsRiskMetricsTitle),
+      sharpeRatioLabel: getPageText(page.performanceCardsSharpeRatioLabel),
+      volatilityLabel: getPageText(page.performanceCardsVolatilityLabel),
+      sortinoRatioLabel: getPageText(page.performanceCardsSortinoRatioLabel),
+      downsideRiskLabel: getPageText(page.performanceCardsDownsideRiskLabel),
+      fundDetailsTitle: getPageText(page.performanceCardsFundDetailsTitle),
+      footnoteSingleAsterisk: getPageText(page.performanceFootnoteSingleAsterisk),
+      footnoteDoubleAsterisk: getPageText(page.performanceFootnoteDoubleAsterisk),
+      relatedLinksHeading: getPageText(page.performanceRelatedLinksHeading),
+      fullHistoryLabel: getPageText(page.performanceFullHistoryLabel),
+      fullHistoryHref: getPageText(page.performanceFullHistoryHref),
+      factsheetUsdLabel: getPageText(page.performanceFactsheetUsdLabel),
+      factsheetUsdHref: getPageText(page.performanceFactsheetUsdHref) ?? resolveMediaHref(page.performanceFactsheetUsdAsset),
+      factsheetChfLabel: getPageText(page.performanceFactsheetChfLabel),
+      factsheetChfHref: getPageText(page.performanceFactsheetChfHref) ?? resolveMediaHref(page.performanceFactsheetChfAsset),
+      fundCommentaryLabel: getPageText(page.performanceFundCommentaryLabel),
+      fundCommentaryHref:
+        getPageText(page.performanceFundCommentaryHref) ?? resolveMediaHref(page.performanceFundCommentaryAsset),
     }
   } catch {
     return null
+  }
+}
+
+function emptyPerformanceShareClassDetails(): Required<CMSPerformanceShareClassDetails> {
+  return {
+    nav: '',
+    perfYTD: '',
+    asOf: '',
+    sharpe: '',
+    volatility: '',
+    sortino: '',
+    downsideRisk: '',
+    fundDetails: [],
+  }
+}
+
+function parseShareClassCardDoc(doc: unknown): Required<CMSPerformanceShareClassDetails> {
+  const record = (doc && typeof doc === 'object' ? doc : {}) as {
+    nav?: unknown
+    perfYTD?: unknown
+    asOf?: unknown
+    sharpe?: unknown
+    volatility?: unknown
+    sortino?: unknown
+    downsideRisk?: unknown
+    fundDetails?: unknown
+  }
+
+  const parseText = (value: unknown): string => (typeof value === 'string' ? value.trim() : '')
+  const fundDetails = Array.isArray(record.fundDetails)
+    ? (record.fundDetails as Array<Record<string, unknown>>)
+        .map((row) => {
+          const label = parseText(row.label)
+          const value = parseText(row.value)
+          const sortOrder = typeof row.sortOrder === 'number' && Number.isFinite(row.sortOrder) ? row.sortOrder : 0
+          if (!label || !value) return null
+          return { label, value, sortOrder }
+        })
+        .filter((row): row is { label: string; value: string; sortOrder: number } => Boolean(row))
+        .sort((a, b) => a.sortOrder - b.sortOrder)
+        .map((row) => [row.label, row.value] as [string, string])
+    : []
+
+  return {
+    nav: parseText(record.nav),
+    perfYTD: parseText(record.perfYTD),
+    asOf: parseText(record.asOf),
+    sharpe: parseText(record.sharpe),
+    volatility: parseText(record.volatility),
+    sortino: parseText(record.sortino),
+    downsideRisk: parseText(record.downsideRisk),
+    fundDetails,
+  }
+}
+
+export async function getCMSPerformanceShareClassCards(): Promise<CMSPerformanceShareClassCards> {
+  try {
+    const payload = await getPayload({ config: configPromise })
+    const pageResult = await payload.find({
+      collection: 'pages',
+      limit: 1,
+      pagination: false,
+      depth: 2,
+      where: {
+        slug: { equals: 'performance-analysis' },
+      },
+    })
+
+    const page = pageResult.docs?.[0] as
+      | {
+          performanceUsdShareClassData?: unknown
+          performanceChfShareClassData?: unknown
+        }
+      | undefined
+
+    const linkedUsdDoc =
+      page?.performanceUsdShareClassData && typeof page.performanceUsdShareClassData === 'object'
+        ? page.performanceUsdShareClassData
+        : null
+    const linkedChfDoc =
+      page?.performanceChfShareClassData && typeof page.performanceChfShareClassData === 'object'
+        ? page.performanceChfShareClassData
+        : null
+
+    return {
+      usd: linkedUsdDoc
+        ? parseShareClassCardDoc(linkedUsdDoc)
+        : emptyPerformanceShareClassDetails(),
+      chf: linkedChfDoc
+        ? parseShareClassCardDoc(linkedChfDoc)
+        : emptyPerformanceShareClassDetails(),
+    }
+  } catch {
+    return {
+      usd: emptyPerformanceShareClassDetails(),
+      chf: emptyPerformanceShareClassDetails(),
+    }
   }
 }

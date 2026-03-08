@@ -1,6 +1,6 @@
 'use client'
 
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
+import { PieChart, Pie, Cell, Tooltip } from 'recharts'
 
 type Slice = { name: string; value: number; color: string }
 
@@ -40,37 +40,35 @@ export function AllocationDonut({
 
   return (
     <div className="mx-auto flex justify-center" style={{ width: size, height: size }}>
-      <ResponsiveContainer width="100%" height="100%">
-        <PieChart>
-          <Pie
-            data={slices}
-            cx="50%"
-            cy="50%"
-            innerRadius={size * 0.3}
-            outerRadius={size * 0.46}
-            dataKey="value"
-            stroke="none"
-            paddingAngle={1}
-            onMouseEnter={(_, index) => onActiveIndexChange?.(index)}
-            onMouseLeave={() => onActiveIndexChange?.(null)}
-          >
-            {slices.map((s, index) => {
-              const isActive = activeIndex == null || activeIndex === index
-              return (
-                <Cell
-                  key={s.name}
-                  fill={s.color}
-                  style={{
-                    opacity: isActive ? 1 : 0.58,
-                    transition: 'opacity 320ms ease',
-                  }}
-                />
-              )
-            })}
-          </Pie>
-          <Tooltip content={<ChartTooltip />} />
-        </PieChart>
-      </ResponsiveContainer>
+      <PieChart width={size} height={size}>
+        <Pie
+          data={slices}
+          cx="50%"
+          cy="50%"
+          innerRadius={size * 0.3}
+          outerRadius={size * 0.46}
+          dataKey="value"
+          stroke="none"
+          paddingAngle={1}
+          onMouseEnter={(_, index) => onActiveIndexChange?.(index)}
+          onMouseLeave={() => onActiveIndexChange?.(null)}
+        >
+          {slices.map((s, index) => {
+            const isActive = activeIndex == null || activeIndex === index
+            return (
+              <Cell
+                key={s.name}
+                fill={s.color}
+                style={{
+                  opacity: isActive ? 1 : 0.58,
+                  transition: 'opacity 320ms ease',
+                }}
+              />
+            )
+          })}
+        </Pie>
+        <Tooltip content={<ChartTooltip />} />
+      </PieChart>
     </div>
   )
 }

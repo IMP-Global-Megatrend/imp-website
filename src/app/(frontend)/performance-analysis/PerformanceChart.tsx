@@ -8,7 +8,6 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer,
   ReferenceLine,
 } from 'recharts'
 
@@ -260,6 +259,7 @@ function NavPlotChart({
   const chartContainerRef = useRef<HTMLDivElement | null>(null)
   const [exportingType, setExportingType] = useState<'svg' | 'csv' | null>(null)
   const [isMobile, setIsMobile] = useState(false)
+  const [chartWidth, setChartWidth] = useState(0)
   const dotRadius = isMobile ? 1.75 : 2.75
   const activeDotRadius = isMobile ? 2.5 : 3.5
   const dotStrokeWidth = isMobile ? 1.25 : 1.5
@@ -287,6 +287,26 @@ function NavPlotChart({
     update()
     media.addEventListener('change', update)
     return () => media.removeEventListener('change', update)
+  }, [])
+
+  useEffect(() => {
+    const container = chartContainerRef.current
+    if (!container) return
+
+    const updateWidth = (nextWidth: number) => {
+      setChartWidth(nextWidth > 0 ? Math.floor(nextWidth) : 0)
+    }
+
+    updateWidth(container.getBoundingClientRect().width)
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      const entry = entries[0]
+      if (!entry) return
+      updateWidth(entry.contentRect.width)
+    })
+
+    resizeObserver.observe(container)
+    return () => resizeObserver.disconnect()
   }, [])
 
   const downloadBlob = (blob: Blob, fileName: string) => {
@@ -355,6 +375,8 @@ function NavPlotChart({
     }
   }
 
+  const canRenderChart = chartWidth > 0 && height > 0
+
   return (
     <div className="group/chart w-full">
       <div ref={chartContainerRef} className="relative w-full overflow-visible" style={{ height }}>
@@ -384,72 +406,74 @@ function NavPlotChart({
           </ExportIconButton>
         </div>
         </div>
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={plotData} margin={{ top: 16, right: 20, left: 8, bottom: 20 }}>
-          <CartesianGrid strokeDasharray="3 3" vertical stroke="#e5e7f0" />
-          <XAxis
-            type="number"
-            dataKey="xTs"
-            scale="time"
-            domain={['dataMin', 'dataMax']}
-            tick={{ fontSize: 12, fill: '#5f6477', fontFamily: chartFontFamily }}
-            axisLine={{ stroke: '#d9def0' }}
-            tickLine={false}
-            tickFormatter={formatTimelineTick}
-            ticks={timelineTickMarkers}
-            interval={xAxisInterval}
-            minTickGap={xAxisMinTickGap}
-            tickMargin={8}
-            height={38}
-          />
-          <YAxis
-            yAxisId="nav"
-            tick={{ fontSize: 12, fill: '#5f6477', fontFamily: chartFontFamily }}
-            axisLine={false}
-            tickLine={false}
-            tickFormatter={formatTick}
-            width={74}
-          />
-          <YAxis
-            yAxisId="deviation"
-            orientation="right"
-            tick={{ fontSize: 12, fill: '#5f6477', fontFamily: chartFontFamily }}
-            axisLine={false}
-            tickLine={false}
-            tickFormatter={formatDeviationTick}
-            width={58}
-          />
-          <Tooltip content={<ChartTooltip currencyCode={currencyCode} />} cursor={{ fill: 'rgba(0,64,255,0.04)' }} />
-          {quarterlyGridMarkers.map((xValue) => (
-            <ReferenceLine
-              key={`vline-${xValue}`}
-              x={xValue}
-              stroke="#d9def0"
-              strokeDasharray="2 4"
-              strokeWidth={1}
+        {canRenderChart ? (
+          <LineChart width={chartWidth} height={height} data={plotData} margin={{ top: 16, right: 20, left: 8, bottom: 20 }}>
+            <CartesianGrid strokeDasharray="3 3" vertical stroke="#e5e7f0" />
+            <XAxis
+              type="number"
+              dataKey="xTs"
+              scale="time"
+              domain={['dataMin', 'dataMax']}
+              tick={{ fontSize: 12, fill: '#5f6477', fontFamily: chartFontFamily }}
+              axisLine={{ stroke: '#d9def0' }}
+              tickLine={false}
+              tickFormatter={formatTimelineTick}
+              ticks={timelineTickMarkers}
+              interval={xAxisInterval}
+              minTickGap={xAxisMinTickGap}
+              tickMargin={8}
+              height={38}
             />
-          ))}
-          <Line
-            yAxisId="nav"
-            type="monotone"
-            dataKey="nav"
-            stroke={accentColor}
-            strokeWidth={2}
-            dot={{ r: dotRadius, stroke: accentColor, strokeWidth: dotStrokeWidth, fill: '#ffffff' }}
-            activeDot={{ r: activeDotRadius, stroke: accentColor, strokeWidth: dotStrokeWidth, fill: '#ffffff' }}
-          />
-          <Line
-            yAxisId="deviation"
-            type="monotone"
-            dataKey="deviationPct"
-            stroke="#7f8db8"
-            strokeWidth={1.5}
-            strokeDasharray="5 5"
-            dot={false}
-            activeDot={false}
-          />
+            <YAxis
+              yAxisId="nav"
+              tick={{ fontSize: 12, fill: '#5f6477', fontFamily: chartFontFamily }}
+              axisLine={false}
+              tickLine={false}
+              tickFormatter={formatTick}
+              width={74}
+            />
+            <YAxis
+              yAxisId="deviation"
+              orientation="right"
+              tick={{ fontSize: 12, fill: '#5f6477', fontFamily: chartFontFamily }}
+              axisLine={false}
+              tickLine={false}
+              tickFormatter={formatDeviationTick}
+              width={58}
+            />
+            <Tooltip content={<ChartTooltip currencyCode={currencyCode} />} cursor={{ fill: 'rgba(0,64,255,0.04)' }} />
+            {quarterlyGridMarkers.map((xValue) => (
+              <ReferenceLine
+                key={`vline-${xValue}`}
+                x={xValue}
+                stroke="#d9def0"
+                strokeDasharray="2 4"
+                strokeWidth={1}
+              />
+            ))}
+            <Line
+              yAxisId="nav"
+              type="monotone"
+              dataKey="nav"
+              stroke={accentColor}
+              strokeWidth={2}
+              dot={{ r: dotRadius, stroke: accentColor, strokeWidth: dotStrokeWidth, fill: '#ffffff' }}
+              activeDot={{ r: activeDotRadius, stroke: accentColor, strokeWidth: dotStrokeWidth, fill: '#ffffff' }}
+            />
+            <Line
+              yAxisId="deviation"
+              type="monotone"
+              dataKey="deviationPct"
+              stroke="#7f8db8"
+              strokeWidth={1.5}
+              strokeDasharray="5 5"
+              dot={false}
+              activeDot={false}
+            />
           </LineChart>
-        </ResponsiveContainer>
+        ) : (
+          <div className="h-full w-full" aria-hidden="true" />
+        )}
       </div>
     </div>
   )

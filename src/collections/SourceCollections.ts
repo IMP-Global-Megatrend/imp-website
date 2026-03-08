@@ -7,82 +7,176 @@ export interface WixCollectionDefinition {
   label: string
 }
 
+interface WixCollectionAdminOverride {
+  defaultColumns?: string[]
+  derivedTextFields?: string[]
+  includeTitleField?: boolean
+  useAsTitle?: string
+}
+
+function formatAdminFieldLabel(fieldName: string): string {
+  const noSuffix = fieldName.replace(/_fld$/u, '')
+  return noSuffix
+    .split('_')
+    .filter(Boolean)
+    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+    .join(' ')
+}
+
 export const wixCollectionDefinitions: WixCollectionDefinition[] = [
-  { sourceCollectionId: 'AboutUsList', slug: 'wix-about-us-list', label: 'Wix About Us List' },
-  { sourceCollectionId: 'ContactUs', slug: 'wix-contact-us', label: 'Wix Contact Us' },
+  { sourceCollectionId: 'AboutUsList', slug: 'about-us-list', label: 'About Us List' },
+  { sourceCollectionId: 'ContactUs', slug: 'contact-us', label: 'Contact Us' },
   {
     sourceCollectionId: 'CountrySelection',
-    slug: 'wix-country-selection',
-    label: 'Wix Country Selection',
+    slug: 'country-selection',
+    label: 'Country Selection',
   },
-  { sourceCollectionId: 'FundAttributes', slug: 'wix-fund-attributes', label: 'Wix Fund Attributes' },
-  { sourceCollectionId: 'FundDetails', slug: 'wix-fund-details', label: 'Wix Fund Details' },
+  { sourceCollectionId: 'FundAttributes', slug: 'fund-attributes', label: 'Fund Attributes' },
+  { sourceCollectionId: 'FundDetails', slug: 'fund-details', label: 'Fund Details' },
   {
     sourceCollectionId: 'GeographicAllocations',
-    slug: 'wix-geographic-allocations',
-    label: 'Wix Geographic Allocations',
+    slug: 'geographic-allocations',
+    label: 'Geographic Allocations',
   },
-  { sourceCollectionId: 'Homepagelinks', slug: 'wix-homepage-links', label: 'Wix Homepage Links' },
-  { sourceCollectionId: 'Import1', slug: 'wix-import-usd', label: 'Wix Import USD' },
-  { sourceCollectionId: 'ImportCHF', slug: 'wix-import-chf', label: 'Wix Import CHF' },
+  { sourceCollectionId: 'Homepagelinks', slug: 'homepage-links', label: 'Homepage Links' },
+  { sourceCollectionId: 'Import1', slug: 'import-usd', label: 'Import USD' },
+  { sourceCollectionId: 'ImportCHF', slug: 'import-chf', label: 'Import CHF' },
   {
     sourceCollectionId: 'InvestmentProcess',
-    slug: 'wix-investment-process',
-    label: 'Wix Investment Process',
+    slug: 'investment-process',
+    label: 'Investment Process',
   },
   {
     sourceCollectionId: 'LegalInformmation',
-    slug: 'wix-legal-information',
-    label: 'Wix Legal Information',
+    slug: 'legal-information',
+    label: 'Legal Information',
   },
   {
     sourceCollectionId: 'MegatrendDataset',
-    slug: 'wix-megatrend-dataset',
-    label: 'Wix Megatrend Dataset',
+    slug: 'megatrend-dataset',
+    label: 'Megatrend Dataset',
   },
   {
     sourceCollectionId: 'MegatrendsAllocations',
-    slug: 'wix-megatrends-allocations',
-    label: 'Wix Megatrends Allocations',
+    slug: 'megatrends-allocations',
+    label: 'Megatrends Allocations',
   },
   {
     sourceCollectionId: 'MegatrendsDetail',
-    slug: 'wix-megatrends-detail',
-    label: 'Wix Megatrends Detail',
+    slug: 'megatrends-detail',
+    label: 'Megatrends Detail',
   },
-  { sourceCollectionId: 'Members/Badges', slug: 'wix-members-badges', label: 'Wix Members Badges' },
+  { sourceCollectionId: 'Members/Badges', slug: 'members-badges', label: 'Members Badges' },
   {
     sourceCollectionId: 'Members/FullData',
-    slug: 'wix-members-full-data',
-    label: 'Wix Members Full Data',
+    slug: 'members-full-data',
+    label: 'Members Full Data',
   },
   {
     sourceCollectionId: 'Members/PrivateMembersData',
-    slug: 'wix-members-private-data',
-    label: 'Wix Members Private Data',
+    slug: 'members-private-data',
+    label: 'Members Private Data',
   },
   {
     sourceCollectionId: 'Members/PublicData',
-    slug: 'wix-members-public-data',
-    label: 'Wix Members Public Data',
+    slug: 'members-public-data',
+    label: 'Members Public Data',
   },
-  { sourceCollectionId: 'MenuList', slug: 'wix-menu-list', label: 'Wix Menu List' },
+  { sourceCollectionId: 'MenuList', slug: 'menu-list', label: 'Menu List' },
   {
     sourceCollectionId: 'PortfolioStrategyProcess',
-    slug: 'wix-portfolio-strategy-process',
-    label: 'Wix Portfolio Strategy Process',
+    slug: 'portfolio-strategy-process',
+    label: 'Portfolio Strategy Process',
   },
-  { sourceCollectionId: 'PrivacyPolicy', slug: 'wix-privacy-policy', label: 'Wix Privacy Policy' },
+  { sourceCollectionId: 'PrivacyPolicy', slug: 'privacy-policy', label: 'Privacy Policy' },
   {
     sourceCollectionId: 'SectorAllocations',
-    slug: 'wix-sector-allocations',
-    label: 'Wix Sector Allocations',
+    slug: 'sector-allocations',
+    label: 'Sector Allocations',
   },
-  { sourceCollectionId: 'TopHoldings', slug: 'wix-top-holdings', label: 'Wix Top Holdings' },
-  { sourceCollectionId: 'TrustList', slug: 'wix-trust-list', label: 'Wix Trust List' },
+  { sourceCollectionId: 'TopHoldings', slug: 'top-holdings', label: 'Top Holdings' },
+  { sourceCollectionId: 'TrustList', slug: 'trust-list', label: 'Trust List' },
 ]
 
+const wixCollectionAdminOverrides: Record<string, WixCollectionAdminOverride> = {
+  'fund-attributes': {
+    defaultColumns: ['title_fld', 'description_fld', 'icon_fld', 'sourceItemId', 'updatedAt'],
+    derivedTextFields: ['description_fld', 'icon_fld'],
+    includeTitleField: true,
+    useAsTitle: 'description_fld',
+  },
+}
+
+function getTextFieldValue(
+  fields: unknown,
+  key: string,
+): string | null {
+  if (!Array.isArray(fields)) return null
+  const match = fields.find((entry) => {
+    const entryRecord = entry as { key?: unknown; value?: unknown }
+    return entryRecord?.key === key && typeof entryRecord.value === 'string' && entryRecord.value.trim().length > 0
+  }) as { value?: unknown } | undefined
+
+  return typeof match?.value === 'string' ? match.value.trim() : null
+}
+
+function resolveWixDocTitle(data: unknown, fallback?: string): string {
+  if (!data || typeof data !== 'object') return fallback || ''
+
+  const record = data as {
+    title_fld?: unknown
+    data?: unknown
+    textFields?: unknown
+  }
+
+  if (typeof record.title_fld === 'string' && record.title_fld.trim().length > 0) {
+    return record.title_fld.trim()
+  }
+
+  const nestedData = record.data && typeof record.data === 'object' ? (record.data as Record<string, unknown>) : null
+  const fromData = nestedData?.title_fld
+  if (typeof fromData === 'string' && fromData.trim().length > 0) {
+    return fromData.trim()
+  }
+
+  const fromTextFields = getTextFieldValue(record.textFields, 'title_fld')
+  if (fromTextFields) return fromTextFields
+
+  return fallback || ''
+}
+
+function resolveWixFieldValue(data: unknown, key: string, fallback?: string): string {
+  if (!data || typeof data !== 'object') return fallback || ''
+
+  const record = data as {
+    [key: string]: unknown
+    data?: unknown
+    textFields?: unknown
+  }
+
+  const rootValue = record[key]
+  if (typeof rootValue === 'string' && rootValue.trim().length > 0) {
+    return rootValue.trim()
+  }
+
+  const nestedData = record.data && typeof record.data === 'object' ? (record.data as Record<string, unknown>) : null
+  const nestedValue = nestedData?.[key]
+  if (typeof nestedValue === 'string' && nestedValue.trim().length > 0) {
+    return nestedValue.trim()
+  }
+
+  const fromTextFields = getTextFieldValue(record.textFields, key)
+  if (fromTextFields) return fromTextFields
+
+  return fallback || ''
+}
+
 function buildWixCollection(def: WixCollectionDefinition): CollectionConfig {
+  const adminOverride = wixCollectionAdminOverrides[def.slug]
+  const derivedTextFields = adminOverride?.derivedTextFields ?? []
+  const includeTitleField = adminOverride?.includeTitleField ?? true
+  const useAsTitle = adminOverride?.useAsTitle ?? (includeTitleField ? 'title_fld' : 'sourceItemId')
+
   return {
     slug: def.slug,
     labels: {
@@ -96,8 +190,8 @@ function buildWixCollection(def: WixCollectionDefinition): CollectionConfig {
       update: authenticated,
     },
     admin: {
-      useAsTitle: 'sourceItemId',
-      defaultColumns: ['sourceItemId', 'updatedAt'],
+      useAsTitle,
+      defaultColumns: adminOverride?.defaultColumns ?? ['title_fld', 'sourceItemId', 'updatedAt'],
       group: 'Wix',
     },
     fields: [
@@ -117,6 +211,29 @@ function buildWixCollection(def: WixCollectionDefinition): CollectionConfig {
         required: true,
         index: true,
       },
+      ...(includeTitleField
+        ? [
+            {
+              name: 'title_fld',
+              type: 'text' as const,
+              index: true,
+              admin: {
+                readOnly: true,
+                description: 'Derived from source data for easier admin list browsing.',
+              },
+            },
+          ]
+        : []),
+      ...derivedTextFields.map((fieldName) => ({
+        name: fieldName,
+        label: formatAdminFieldLabel(fieldName),
+        type: 'text' as const,
+        index: true,
+        admin: {
+          readOnly: true,
+          description: `Derived from source text field "${fieldName}" for easier table browsing.`,
+        },
+      })),
       {
         name: 'sourceUpdatedAt',
         type: 'date',
@@ -177,6 +294,23 @@ function buildWixCollection(def: WixCollectionDefinition): CollectionConfig {
         ],
       },
       {
+        name: 'mediaFields',
+        type: 'array',
+        admin: {
+          initCollapsed: true,
+          description: 'Optional media links keyed by source field name.',
+        },
+        fields: [
+          { name: 'key', type: 'text', required: true },
+          {
+            name: 'value',
+            type: 'upload',
+            relationTo: 'media',
+            required: true,
+          },
+        ],
+      },
+      {
         name: 'data',
         type: 'json',
         required: true,
@@ -191,6 +325,63 @@ function buildWixCollection(def: WixCollectionDefinition): CollectionConfig {
         unique: true,
       },
     ],
+    hooks: {
+      afterRead: [
+        ({ doc }) => {
+          if (!doc || typeof doc !== 'object' || derivedTextFields.length === 0) {
+            return doc
+          }
+
+          const nextDoc = { ...(doc as Record<string, unknown>) }
+          for (const fieldName of derivedTextFields) {
+            const existingValue = typeof nextDoc[fieldName] === 'string' ? String(nextDoc[fieldName] ?? '') : ''
+            const derivedValue = resolveWixFieldValue(nextDoc, fieldName, existingValue)
+            if (derivedValue) {
+              nextDoc[fieldName] = derivedValue
+            }
+          }
+
+          if (!includeTitleField && 'title_fld' in nextDoc) {
+            delete nextDoc.title_fld
+          }
+
+          return nextDoc
+        },
+      ],
+      beforeValidate: [
+        ({ data, originalDoc }) => {
+          const docData = data || {}
+          const nextData: Record<string, unknown> = { ...docData }
+
+          if (includeTitleField) {
+            const existingTitle =
+              typeof (originalDoc as { title_fld?: unknown } | undefined)?.title_fld === 'string'
+                ? ((originalDoc as { title_fld?: string }).title_fld ?? '')
+                : ''
+            const resolvedTitle = resolveWixDocTitle(docData, existingTitle)
+
+            if (resolvedTitle) {
+              nextData.title_fld = resolvedTitle
+            }
+          } else if ('title_fld' in nextData) {
+            delete nextData.title_fld
+          }
+
+          for (const fieldName of derivedTextFields) {
+            const existingValue =
+              typeof (originalDoc as Record<string, unknown> | undefined)?.[fieldName] === 'string'
+                ? String((originalDoc as Record<string, unknown>)[fieldName] ?? '')
+                : ''
+            const derivedValue = resolveWixFieldValue(docData, fieldName, existingValue)
+            if (derivedValue) {
+              nextData[fieldName] = derivedValue
+            }
+          }
+
+          return nextData
+        },
+      ],
+    },
   }
 }
 

@@ -28,6 +28,9 @@ export function NewsletterSubscriptionForm({ consentText, submitLabel }: Newslet
   const [consent, setConsent] = useState(false)
   const [errors, setErrors] = useState<FieldErrors>({})
   const [touched, setTouched] = useState<Partial<Record<FieldName | 'consent', boolean>>>({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
+  const [submitSuccess, setSubmitSuccess] = useState(false)
 
   const validateField = (field: FieldName, value: string): string | undefined => {
     const trimmed = value.trim()
@@ -68,7 +71,7 @@ export function NewsletterSubscriptionForm({ consentText, submitLabel }: Newslet
     return nextErrors
   }
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     setTouched({
@@ -78,7 +81,45 @@ export function NewsletterSubscriptionForm({ consentText, submitLabel }: Newslet
       consent: true,
     })
 
-    setErrors(validateAll())
+    const nextErrors = validateAll()
+    setErrors(nextErrors)
+    setSubmitError(null)
+    setSubmitSuccess(false)
+
+    if (Object.keys(nextErrors).length > 0) return
+
+    setIsSubmitting(true)
+    try {
+      const response = await fetch('/api/newsletter-subscription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          firstName: values.firstName.trim(),
+          lastName: values.lastName.trim(),
+          email: values.email.trim(),
+          consentAccepted: consent,
+          path: '/newsletter-subscription',
+        }),
+      })
+
+      const data = (await response.json().catch(() => ({}))) as { error?: string }
+      if (!response.ok) {
+        setSubmitError(data.error || 'Unable to submit your subscription right now. Please try again.')
+        return
+      }
+
+      setSubmitSuccess(true)
+      setValues(initialValues)
+      setConsent(false)
+      setErrors({})
+      setTouched({})
+    } catch {
+      setSubmitError('Unable to submit your subscription right now. Please try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -200,13 +241,21 @@ export function NewsletterSubscriptionForm({ consentText, submitLabel }: Newslet
         ) : null}
       </div>
 
+      {submitError ? <p className="text-[14px] text-red-600">{submitError}</p> : null}
+      {submitSuccess ? (
+        <p className="text-[14px] text-green-700">
+          Thanks for subscribing. Your details were saved successfully.
+        </p>
+      ) : null}
+
       <Button
         type="submit"
         variant="default"
         size="clear"
-        className="cursor-pointer px-5 py-2.5 rounded-none font-display bg-[#0040ff] text-white hover:bg-[#0035d9]"
+        disabled={isSubmitting}
+        className="cursor-pointer px-5 py-2.5 rounded-none font-display bg-[#0040ff] text-white hover:bg-[#0035d9] disabled:cursor-not-allowed disabled:opacity-70"
       >
-        {submitLabel}
+        {isSubmitting ? 'Submitting...' : submitLabel}
       </Button>
     </form>
   )

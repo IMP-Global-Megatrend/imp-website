@@ -1,13 +1,36 @@
+import type { Metadata } from 'next'
 import { HeroSection } from './_components/HeroSection'
 import { RegulatoryStrip } from './_components/RegulatoryStrip'
 import { MegatrendCard } from './_components/MegatrendCard'
 import { BottomGrid, ExploreMegatrendsCard } from './_components/BottomGrid'
+import { getCMSPageBySlug } from './_components/getCMSPageBySlug'
 import { getHomeCMSContent } from './_components/getHomeCMSContent'
+import fallbacks from '@/constants/fallbacks.json'
 import megatrendsContent from '@/constants/megatrends-content.json'
+import { generateMeta, generateStaticFallbackMeta } from '@/utilities/generateMeta'
 
 const megatrendAnchorsByTitle = Object.fromEntries(
   megatrendsContent.megatrends.map((trend) => [trend.title, trend.anchor]),
 ) as Record<string, string>
+
+export async function generateMetadata(): Promise<Metadata> {
+  const cmsPage = await getCMSPageBySlug('home')
+  const homeFallback = fallbacks.metadata.home
+  if (cmsPage) {
+    return generateMeta({
+      doc: {
+        ...cmsPage,
+        meta: {
+          ...cmsPage.meta,
+          title: cmsPage.meta?.title || homeFallback.title,
+          description: cmsPage.meta?.description || homeFallback.description,
+        },
+      },
+    })
+  }
+
+  return generateStaticFallbackMeta('/', homeFallback)
+}
 
 export default async function HomePage() {
   const cms = await getHomeCMSContent()

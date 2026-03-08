@@ -145,13 +145,13 @@ async function main() {
   const summary = {
     megatrendDataset: await cleanupCollectionByNormalizedTitle(
       payload,
-      'wix-megatrend-dataset',
+      'megatrend-dataset',
       'title_fld',
     ),
-    trustList: await cleanupCollectionByNormalizedTitle(payload, 'wix-trust-list', 'title_fld'),
-    fundAttributes: await cleanupCollectionByNormalizedTitle(payload, 'wix-fund-attributes', 'title_fld'),
-    homepageLinks: await cleanupCollectionToSingleBest(payload, 'wix-homepage-links'),
-    fundDetails: await cleanupCollectionToSingleBest(payload, 'wix-fund-details'),
+    trustList: await cleanupCollectionByNormalizedTitle(payload, 'trust-list', 'title_fld'),
+    fundAttributes: await cleanupCollectionByNormalizedTitle(payload, 'fund-attributes', 'title_fld'),
+    homepageLinks: await cleanupCollectionToSingleBest(payload, 'homepage-links'),
+    fundDetails: await cleanupCollectionToSingleBest(payload, 'fund-details'),
   }
   payload.logger.info({ summary }, 'CMS duplicate cleanup completed')
   console.log(JSON.stringify(summary, null, 2))

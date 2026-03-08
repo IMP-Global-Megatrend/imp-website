@@ -2,94 +2,102 @@ import { mkdir } from 'node:fs/promises'
 import path from 'node:path'
 import opentype from 'opentype.js'
 import sharp from 'sharp'
+import aboutUsContent from '../src/constants/about-us-content.json' with { type: 'json' }
+import fallbacks from '../src/constants/fallbacks.json' with { type: 'json' }
+import megatrendsContent from '../src/constants/megatrends-content.json' with { type: 'json' }
+import portfolioStrategyContent from '../src/constants/portfolio-strategy-content.json' with { type: 'json' }
+import postsContent from '../src/constants/posts-content.json' with { type: 'json' }
+import searchContent from '../src/constants/search-content.json' with { type: 'json' }
 
 const WIDTH = 1200
 const HEIGHT = 630
 
 const outputDir = path.resolve('public/images/og')
+const homeHero = fallbacks.home.hero
+const performanceLabels = fallbacks.performance.labels
 
 const pages = [
   {
     filename: 'home-hero-og.png',
-    title: 'Investing in the World of Tomorrow',
-    subtitle: 'IMP Global Megatrend Umbrella Fund',
+    title: homeHero.heading,
+    subtitle: homeHero.subtitle,
     colorA: '#1f3bff',
     colorB: '#5f2eff',
   },
   {
     filename: 'fund-og.png',
     title: 'The Fund',
-    subtitle: 'Structure, objective, and share classes',
+    subtitle: '',
     colorA: '#2b3dea',
     colorB: '#0ea5e9',
   },
   {
     filename: 'megatrends-og.png',
-    title: 'Our Megatrends',
-    subtitle: 'Six structural trends shaping long-term growth',
+    title: megatrendsContent.hero.title,
+    subtitle: megatrendsContent.hero.subtitle,
     colorA: '#2563eb',
     colorB: '#16a34a',
   },
   {
     filename: 'portfolio-strategy-og.png',
-    title: 'Portfolio Strategy',
-    subtitle: 'High-conviction thematic approach',
+    title: portfolioStrategyContent.heroTitle.replace('\n', ' '),
+    subtitle: portfolioStrategyContent.introFallback || '',
     colorA: '#1d4ed8',
     colorB: '#9333ea',
   },
   {
     filename: 'performance-analysis-og.png',
-    title: 'Performance Analysis',
-    subtitle: 'Charts, metrics, and share class details',
+    title: performanceLabels.heroTitle,
+    subtitle: `${performanceLabels.chfTitle} & ${performanceLabels.usdTitle}`,
     colorA: '#0040ff',
     colorB: '#e11d48',
   },
   {
     filename: 'about-us-og.png',
-    title: 'About Us',
-    subtitle: 'Meet the team behind the strategy',
+    title: aboutUsContent.hero.title,
+    subtitle: '',
     colorA: '#4338ca',
     colorB: '#0f766e',
   },
   {
     filename: 'contact-us-og.png',
     title: 'Contact Us',
-    subtitle: 'Get in touch with MRB Fund Partners AG',
+    subtitle: '',
     colorA: '#1d4ed8',
     colorB: '#0f766e',
   },
   {
     filename: 'newsletter-subscription-og.png',
     title: 'Newsletter Subscription',
-    subtitle: 'Updates on markets, fund news, and megatrends',
+    subtitle: '',
     colorA: '#1e3a8a',
     colorB: '#7c3aed',
   },
   {
     filename: 'privacy-policy-og.png',
-    title: 'Privacy Policy',
-    subtitle: 'Data protection statement and privacy notice',
+    title: fallbacks.pageTitles.privacyPolicy,
+    subtitle: fallbacks.pageTitles.privacyPolicySubtitle,
     colorA: '#334155',
     colorB: '#1d4ed8',
   },
   {
     filename: 'legal-information-og.png',
-    title: 'Legal Information',
-    subtitle: 'Regulatory and legal disclosures',
+    title: fallbacks.pageTitles.legalInformation,
+    subtitle: '',
     colorA: '#0f172a',
     colorB: '#2563eb',
   },
   {
     filename: 'posts-og.png',
-    title: 'Posts',
-    subtitle: 'Insights and updates from IMP Global Megatrend',
+    title: postsContent.heading,
+    subtitle: '',
     colorA: '#1e40af',
     colorB: '#0f766e',
   },
   {
     filename: 'search-og.png',
-    title: 'Search',
-    subtitle: 'Find articles, updates, and insights',
+    title: searchContent.heading,
+    subtitle: '',
     colorA: '#1e3a8a',
     colorB: '#0891b2',
     useSolidPrimaryBackground: true,

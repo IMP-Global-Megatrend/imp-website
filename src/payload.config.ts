@@ -6,12 +6,28 @@ import { buildConfig, PayloadRequest } from 'payload'
 import { fileURLToPath } from 'url'
 
 import { Categories } from './collections/Categories'
+import { ContactSubmissions } from './collections/ContactSubmissions'
 import { ContentGateSubmissions } from './collections/ContentGateSubmissions'
+import { HomeMegatrendCards } from './collections/HomeMegatrendCards'
+import { MegatrendDetailBlocks } from './collections/MegatrendDetailBlocks'
 import { Media } from './collections/Media'
+import { NewsletterSubscriptions } from './collections/NewsletterSubscriptions'
 import { Pages } from './collections/Pages'
+import {
+  PortfolioGeographicAllocations,
+  PortfolioMegatrendAllocations,
+  PortfolioSectorAllocations,
+  PortfolioTopHoldings,
+} from './collections/PortfolioStrategyChartCollections'
+import { PortfolioInvestmentProcessItems } from './collections/PortfolioInvestmentProcessItems'
+import { PortfolioStrategySteps } from './collections/PortfolioStrategySteps'
+import { PerformanceNavPoints } from './collections/PerformanceNavPoints'
+import {
+  PerformanceChfShareClassData,
+  PerformanceUsdShareClassData,
+} from './collections/PerformanceShareClassCollections'
 import { Posts } from './collections/Posts'
 import { Users } from './collections/Users'
-import { WixDataItems } from './collections/SourceDataItems'
 import { WixCollections } from './collections/SourceCollections'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
@@ -28,9 +44,6 @@ export default buildConfig({
       // The `BeforeLogin` component renders a message that you see while logging into your admin panel.
       // Feel free to delete this at any time. Simply remove the line below.
       beforeLogin: ['@/components/BeforeLogin'],
-      // The `BeforeDashboard` component renders the 'welcome' block that you see after logging into your admin panel.
-      // Feel free to delete this at any time. Simply remove the line below.
-      beforeDashboard: ['@/components/BeforeDashboard'],
     },
     importMap: {
       baseDir: path.resolve(dirname),
@@ -73,7 +86,19 @@ export default buildConfig({
     Categories,
     Users,
     ContentGateSubmissions,
-    WixDataItems,
+    ContactSubmissions,
+    NewsletterSubscriptions,
+    HomeMegatrendCards,
+    MegatrendDetailBlocks,
+    PerformanceNavPoints,
+    PerformanceUsdShareClassData,
+    PerformanceChfShareClassData,
+    PortfolioMegatrendAllocations,
+    PortfolioGeographicAllocations,
+    PortfolioSectorAllocations,
+    PortfolioTopHoldings,
+    PortfolioInvestmentProcessItems,
+    PortfolioStrategySteps,
     ...WixCollections,
   ],
   cors: [getServerSideURL()].filter(Boolean),

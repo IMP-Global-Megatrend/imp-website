@@ -3,6 +3,9 @@ import type { ReactNode } from 'react'
 import { ActionLinkButton } from './ActionLinkButton'
 import { getHomeCMSContent } from './getHomeCMSContent'
 
+const staticCtaHoverClass =
+  '!hover:bg-transparent !hover:border-[#d9def0] !hover:text-[#0b1035] !focus-visible:bg-transparent'
+
 function BottomGridColumn({
   title,
   children,
@@ -66,6 +69,7 @@ export async function BottomGrid() {
               icon="chartLine"
               iconBefore
               buttonVariant="outlineMuted"
+              className={staticCtaHoverClass}
             />
           </BottomGridColumn>
 
@@ -84,6 +88,7 @@ export async function BottomGrid() {
               icon="mailCheck"
               iconBefore
               buttonVariant="outlineMuted"
+              className={staticCtaHoverClass}
             />
           </BottomGridColumn>
 
@@ -107,7 +112,7 @@ export async function BottomGrid() {
                     external
                     iconBefore
                     buttonVariant="outlineMuted"
-                    className="justify-center px-3 py-2.5 text-[11px] sm:px-4 sm:text-[12px] md:px-5 md:text-[13px]"
+                    className={`${staticCtaHoverClass} justify-center px-3 py-2.5 text-[11px] sm:px-4 sm:text-[12px] md:px-5 md:text-[13px]`}
                   />
                 </div>
               ))}

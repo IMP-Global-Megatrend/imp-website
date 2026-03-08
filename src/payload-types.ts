@@ -73,47 +73,54 @@ export interface Config {
     categories: Category;
     users: User;
     'content-gate-submissions': ContentGateSubmission;
-    'wix-data-items': WixDataItem;
-    'wix-about-us-list': WixAboutUsList;
-    'wix-contact-us': WixContactUs;
-    'wix-country-selection': WixCountrySelection;
-    'wix-fund-attributes': WixFundAttribute;
-    'wix-fund-details': WixFundDetail;
-    'wix-geographic-allocations': WixGeographicAllocation;
-    'wix-homepage-links': WixHomepageLink;
-    'wix-import-usd': WixImportUsd;
-    'wix-import-chf': WixImportChf;
-    'wix-investment-process': WixInvestmentProcess;
-    'wix-legal-information': WixLegalInformation;
-    'wix-megatrend-dataset': WixMegatrendDataset;
-    'wix-megatrends-allocations': WixMegatrendsAllocation;
-    'wix-megatrends-detail': WixMegatrendsDetail;
-    'wix-members-badges': WixMembersBadge;
-    'wix-members-full-data': WixMembersFullDatum;
-    'wix-members-private-data': WixMembersPrivateDatum;
-    'wix-members-public-data': WixMembersPublicDatum;
-    'wix-menu-list': WixMenuList;
-    'wix-portfolio-strategy-process': WixPortfolioStrategyProcess;
-    'wix-privacy-policy': WixPrivacyPolicy;
-    'wix-sector-allocations': WixSectorAllocation;
-    'wix-top-holdings': WixTopHolding;
-    'wix-trust-list': WixTrustList;
+    'contact-submissions': ContactSubmission;
+    'newsletter-subscriptions': NewsletterSubscription;
+    'home-megatrend-cards': HomeMegatrendCard;
+    'megatrend-detail-blocks': MegatrendDetailBlock;
+    'performance-nav-points': PerformanceNavPoint;
+    'performance-usd-share-class-data': PerformanceUsdShareClassDatum;
+    'performance-chf-share-class-data': PerformanceChfShareClassDatum;
+    'portfolio-megatrend-allocations': PortfolioMegatrendAllocation;
+    'portfolio-geographic-allocations': PortfolioGeographicAllocation;
+    'portfolio-sector-allocations': PortfolioSectorAllocation;
+    'portfolio-top-holdings': PortfolioTopHolding;
+    'portfolio-investment-process-items': PortfolioInvestmentProcessItem;
+    'portfolio-strategy-steps': PortfolioStrategyStep;
+    'about-us-list': AboutUsList;
+    'contact-us': ContactUs;
+    'country-selection': CountrySelection;
+    'fund-attributes': FundAttribute;
+    'fund-details': FundDetail;
+    'geographic-allocations': GeographicAllocation;
+    'homepage-links': HomepageLink;
+    'import-usd': ImportUsd;
+    'import-chf': ImportChf;
+    'investment-process': InvestmentProcess;
+    'legal-information': LegalInformation;
+    'megatrend-dataset': MegatrendDataset;
+    'megatrends-allocations': MegatrendsAllocation;
+    'megatrends-detail': MegatrendsDetail;
+    'members-badges': MembersBadge;
+    'members-full-data': MembersFullDatum;
+    'members-private-data': MembersPrivateDatum;
+    'members-public-data': MembersPublicDatum;
+    'menu-list': MenuList;
+    'portfolio-strategy-process': PortfolioStrategyProcess;
+    'privacy-policy': PrivacyPolicy;
+    'sector-allocations': SectorAllocation;
+    'top-holdings': TopHolding;
+    'trust-list': TrustList;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
     search: Search;
     'payload-kv': PayloadKv;
     'payload-jobs': PayloadJob;
-    'payload-folders': FolderInterface;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
-  collectionsJoins: {
-    'payload-folders': {
-      documentsAndFolders: 'payload-folders' | 'media';
-    };
-  };
+  collectionsJoins: {};
   collectionsSelect: {
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
@@ -121,38 +128,49 @@ export interface Config {
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'content-gate-submissions': ContentGateSubmissionsSelect<false> | ContentGateSubmissionsSelect<true>;
-    'wix-data-items': WixDataItemsSelect<false> | WixDataItemsSelect<true>;
-    'wix-about-us-list': WixAboutUsListSelect<false> | WixAboutUsListSelect<true>;
-    'wix-contact-us': WixContactUsSelect<false> | WixContactUsSelect<true>;
-    'wix-country-selection': WixCountrySelectionSelect<false> | WixCountrySelectionSelect<true>;
-    'wix-fund-attributes': WixFundAttributesSelect<false> | WixFundAttributesSelect<true>;
-    'wix-fund-details': WixFundDetailsSelect<false> | WixFundDetailsSelect<true>;
-    'wix-geographic-allocations': WixGeographicAllocationsSelect<false> | WixGeographicAllocationsSelect<true>;
-    'wix-homepage-links': WixHomepageLinksSelect<false> | WixHomepageLinksSelect<true>;
-    'wix-import-usd': WixImportUsdSelect<false> | WixImportUsdSelect<true>;
-    'wix-import-chf': WixImportChfSelect<false> | WixImportChfSelect<true>;
-    'wix-investment-process': WixInvestmentProcessSelect<false> | WixInvestmentProcessSelect<true>;
-    'wix-legal-information': WixLegalInformationSelect<false> | WixLegalInformationSelect<true>;
-    'wix-megatrend-dataset': WixMegatrendDatasetSelect<false> | WixMegatrendDatasetSelect<true>;
-    'wix-megatrends-allocations': WixMegatrendsAllocationsSelect<false> | WixMegatrendsAllocationsSelect<true>;
-    'wix-megatrends-detail': WixMegatrendsDetailSelect<false> | WixMegatrendsDetailSelect<true>;
-    'wix-members-badges': WixMembersBadgesSelect<false> | WixMembersBadgesSelect<true>;
-    'wix-members-full-data': WixMembersFullDataSelect<false> | WixMembersFullDataSelect<true>;
-    'wix-members-private-data': WixMembersPrivateDataSelect<false> | WixMembersPrivateDataSelect<true>;
-    'wix-members-public-data': WixMembersPublicDataSelect<false> | WixMembersPublicDataSelect<true>;
-    'wix-menu-list': WixMenuListSelect<false> | WixMenuListSelect<true>;
-    'wix-portfolio-strategy-process': WixPortfolioStrategyProcessSelect<false> | WixPortfolioStrategyProcessSelect<true>;
-    'wix-privacy-policy': WixPrivacyPolicySelect<false> | WixPrivacyPolicySelect<true>;
-    'wix-sector-allocations': WixSectorAllocationsSelect<false> | WixSectorAllocationsSelect<true>;
-    'wix-top-holdings': WixTopHoldingsSelect<false> | WixTopHoldingsSelect<true>;
-    'wix-trust-list': WixTrustListSelect<false> | WixTrustListSelect<true>;
+    'contact-submissions': ContactSubmissionsSelect<false> | ContactSubmissionsSelect<true>;
+    'newsletter-subscriptions': NewsletterSubscriptionsSelect<false> | NewsletterSubscriptionsSelect<true>;
+    'home-megatrend-cards': HomeMegatrendCardsSelect<false> | HomeMegatrendCardsSelect<true>;
+    'megatrend-detail-blocks': MegatrendDetailBlocksSelect<false> | MegatrendDetailBlocksSelect<true>;
+    'performance-nav-points': PerformanceNavPointsSelect<false> | PerformanceNavPointsSelect<true>;
+    'performance-usd-share-class-data': PerformanceUsdShareClassDataSelect<false> | PerformanceUsdShareClassDataSelect<true>;
+    'performance-chf-share-class-data': PerformanceChfShareClassDataSelect<false> | PerformanceChfShareClassDataSelect<true>;
+    'portfolio-megatrend-allocations': PortfolioMegatrendAllocationsSelect<false> | PortfolioMegatrendAllocationsSelect<true>;
+    'portfolio-geographic-allocations': PortfolioGeographicAllocationsSelect<false> | PortfolioGeographicAllocationsSelect<true>;
+    'portfolio-sector-allocations': PortfolioSectorAllocationsSelect<false> | PortfolioSectorAllocationsSelect<true>;
+    'portfolio-top-holdings': PortfolioTopHoldingsSelect<false> | PortfolioTopHoldingsSelect<true>;
+    'portfolio-investment-process-items': PortfolioInvestmentProcessItemsSelect<false> | PortfolioInvestmentProcessItemsSelect<true>;
+    'portfolio-strategy-steps': PortfolioStrategyStepsSelect<false> | PortfolioStrategyStepsSelect<true>;
+    'about-us-list': AboutUsListSelect<false> | AboutUsListSelect<true>;
+    'contact-us': ContactUsSelect<false> | ContactUsSelect<true>;
+    'country-selection': CountrySelectionSelect<false> | CountrySelectionSelect<true>;
+    'fund-attributes': FundAttributesSelect<false> | FundAttributesSelect<true>;
+    'fund-details': FundDetailsSelect<false> | FundDetailsSelect<true>;
+    'geographic-allocations': GeographicAllocationsSelect<false> | GeographicAllocationsSelect<true>;
+    'homepage-links': HomepageLinksSelect<false> | HomepageLinksSelect<true>;
+    'import-usd': ImportUsdSelect<false> | ImportUsdSelect<true>;
+    'import-chf': ImportChfSelect<false> | ImportChfSelect<true>;
+    'investment-process': InvestmentProcessSelect<false> | InvestmentProcessSelect<true>;
+    'legal-information': LegalInformationSelect<false> | LegalInformationSelect<true>;
+    'megatrend-dataset': MegatrendDatasetSelect<false> | MegatrendDatasetSelect<true>;
+    'megatrends-allocations': MegatrendsAllocationsSelect<false> | MegatrendsAllocationsSelect<true>;
+    'megatrends-detail': MegatrendsDetailSelect<false> | MegatrendsDetailSelect<true>;
+    'members-badges': MembersBadgesSelect<false> | MembersBadgesSelect<true>;
+    'members-full-data': MembersFullDataSelect<false> | MembersFullDataSelect<true>;
+    'members-private-data': MembersPrivateDataSelect<false> | MembersPrivateDataSelect<true>;
+    'members-public-data': MembersPublicDataSelect<false> | MembersPublicDataSelect<true>;
+    'menu-list': MenuListSelect<false> | MenuListSelect<true>;
+    'portfolio-strategy-process': PortfolioStrategyProcessSelect<false> | PortfolioStrategyProcessSelect<true>;
+    'privacy-policy': PrivacyPolicySelect<false> | PrivacyPolicySelect<true>;
+    'sector-allocations': SectorAllocationsSelect<false> | SectorAllocationsSelect<true>;
+    'top-holdings': TopHoldingsSelect<false> | TopHoldingsSelect<true>;
+    'trust-list': TrustListSelect<false> | TrustListSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
     search: SearchSelect<false> | SearchSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
-    'payload-folders': PayloadFoldersSelect<false> | PayloadFoldersSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -207,8 +225,8 @@ export interface UserAuthOperations {
 export interface Page {
   id: number;
   title: string;
-  hero: {
-    type: 'none' | 'highImpact' | 'mediumImpact' | 'lowImpact';
+  hero?: {
+    type?: ('none' | 'highImpact' | 'mediumImpact' | 'lowImpact') | null;
     richText?: {
       root: {
         type: string;
@@ -250,11 +268,59 @@ export interface Page {
       | null;
     media?: (number | null) | Media;
   };
-  layout: (CallToActionBlock | ContentBlock | MediaBlock | ArchiveBlock | FormBlock)[];
+  layout?: (CallToActionBlock | ContentBlock | MediaBlock | ArchiveBlock | FormBlock)[] | null;
   /**
    * Optional video file from Media Library for /about-us.
    */
   aboutUsVideo?: (number | null) | Media;
+  /**
+   * Hero title on /about-us.
+   */
+  aboutUsHeroTitle?: string | null;
+  /**
+   * Video accessibility label on /about-us.
+   */
+  aboutUsVideoAriaLabel?: string | null;
+  /**
+   * Main quote text displayed below the hero.
+   */
+  aboutUsQuoteText?: string | null;
+  aboutUsQuoteAttributionPrimary?: string | null;
+  aboutUsQuoteAttributionSecondary?: string | null;
+  /**
+   * Profile blocks shown in the About Us team section.
+   */
+  aboutUsProfiles?:
+    | {
+        name: string;
+        paragraphs: {
+          text: string;
+          id?: string | null;
+        }[];
+        certifications: {
+          title: string;
+          institution: string;
+          id?: string | null;
+        }[];
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Bottom highlight strip items on /about-us.
+   */
+  aboutUsHighlights?:
+    | {
+        id: string;
+        text: string;
+        line1?: string | null;
+        line2?: string | null;
+      }[]
+    | null;
+  aboutUsRequestCallLabel?: string | null;
+  aboutUsRequestCallHref?: string | null;
+  aboutUsLinkedinLabel?: string | null;
+  aboutUsLinkedinHref?: string | null;
+  aboutUsLinkedinAriaLabel?: string | null;
   /**
    * Homepage CTA label used in the hero section.
    */
@@ -281,6 +347,10 @@ export interface Page {
      */
     presentation?: (number | null) | Media;
   };
+  /**
+   * Optional explicit ordering/source for homepage megatrend cards. Kept separate from /megatrends detail blocks.
+   */
+  homeMegatrendCards?: (number | HomeMegatrendCard)[] | null;
   contactCompanyName?: string | null;
   contactAddress?: string | null;
   contactPhone?: string | null;
@@ -291,6 +361,169 @@ export interface Page {
   newsletterIntroBody?: string | null;
   newsletterConsentText?: string | null;
   newsletterSubmitLabel?: string | null;
+  fundIntroPrimaryQuote?: string | null;
+  fundIntroSecondaryQuote?: string | null;
+  fundInvestmentObjectiveHeading?: string | null;
+  fundInvestmentObjectiveBody?: string | null;
+  fundRelatedLinksHeading?: string | null;
+  fundRelatedPrimaryLabel?: string | null;
+  fundRelatedPrimaryHref?: string | null;
+  fundRelatedPrimaryAsset?: (number | null) | Media;
+  fundRelatedSecondaryLabel?: string | null;
+  fundRelatedSecondaryHref?: string | null;
+  fundRelatedSecondaryAsset?: (number | null) | Media;
+  fundRelatedTertiaryLabel?: string | null;
+  fundRelatedTertiaryHref?: string | null;
+  fundRelatedTertiaryAsset?: (number | null) | Media;
+  /**
+   * Optional explicit ordering/source for fund details and share-class metadata on /fund.
+   */
+  fundAttributes?: (number | FundAttribute)[] | null;
+  megatrendsHeroTitle?: string | null;
+  megatrendsHeroSubtitle?: string | null;
+  megatrendsIntroHeading?: string | null;
+  megatrendsIntroLeftQuote?: string | null;
+  megatrendsIntroRightQuote?: string | null;
+  /**
+   * Megatrend detail sections shown on /megatrends.
+   */
+  megatrendDetailBlocks?: (number | MegatrendDetailBlock)[] | null;
+  megatrendsRelatedLinksHeading?: string | null;
+  megatrendsRelatedPrimaryLabel?: string | null;
+  /**
+   * Optional URL for primary related link button.
+   */
+  megatrendsRelatedPrimaryHref?: string | null;
+  /**
+   * Optional file asset linked to primary related link button.
+   */
+  megatrendsRelatedPrimaryAsset?: (number | null) | Media;
+  megatrendsRelatedSecondaryLabel?: string | null;
+  /**
+   * Optional URL for secondary related link button.
+   */
+  megatrendsRelatedSecondaryHref?: string | null;
+  /**
+   * Optional file asset linked to secondary related link button.
+   */
+  megatrendsRelatedSecondaryAsset?: (number | null) | Media;
+  megatrendsThematicFrameworkHeading?: string | null;
+  megatrendsThematicFrameworkLeftQuote?: string | null;
+  megatrendsThematicFrameworkRightQuote?: string | null;
+  /**
+   * Intro quote text shown below hero on /portfolio-strategy.
+   */
+  portfolioStrategyIntro?: string | null;
+  /**
+   * Optional explicit ordering of step sections for /portfolio-strategy. If empty, steps are loaded from the collection by sortOrder.
+   */
+  portfolioStrategySteps?: (number | PortfolioStrategyStep)[] | null;
+  /**
+   * Optional explicit ordering for Investment Process items on /portfolio-strategy.
+   */
+  portfolioInvestmentProcessItems?: (number | PortfolioInvestmentProcessItem)[] | null;
+  /**
+   * Optional explicit ordering for Megatrend Allocations chart rows.
+   */
+  portfolioMegatrendAllocations?: (number | PortfolioMegatrendAllocation)[] | null;
+  /**
+   * Optional explicit ordering for Geographic Allocations chart rows.
+   */
+  portfolioGeographicAllocations?: (number | PortfolioGeographicAllocation)[] | null;
+  /**
+   * Optional explicit ordering for Sector Allocations chart rows.
+   */
+  portfolioSectorAllocations?: (number | PortfolioSectorAllocation)[] | null;
+  /**
+   * Optional explicit ordering for Top Holdings chart rows.
+   */
+  portfolioTopHoldings?: (number | PortfolioTopHolding)[] | null;
+  /**
+   * Hero title for /performance-analysis.
+   */
+  performanceHeroTitle?: string | null;
+  /**
+   * Main chart heading on /performance-analysis.
+   */
+  performanceAnnualTitle?: string | null;
+  /**
+   * USD share class label on /performance-analysis.
+   */
+  performanceUsdLabel?: string | null;
+  /**
+   * CHF share class label on /performance-analysis.
+   */
+  performanceChfLabel?: string | null;
+  /**
+   * Tooltip text for chart SVG export action.
+   */
+  performanceExportSvgTooltip?: string | null;
+  /**
+   * Tooltip text for chart CSV export action.
+   */
+  performanceExportCsvTooltip?: string | null;
+  /**
+   * Optional explicit ordering/source for performance NAV points.
+   */
+  performanceNavPoints?: (number | PerformanceNavPoint)[] | null;
+  /**
+   * Primary USD share class card dataset for /performance-analysis.
+   */
+  performanceUsdShareClassData?: (number | null) | PerformanceUsdShareClassDatum;
+  /**
+   * Primary CHF share class card dataset for /performance-analysis.
+   */
+  performanceChfShareClassData?: (number | null) | PerformanceChfShareClassDatum;
+  /**
+   * Year badge text above the chart.
+   */
+  performanceChartYearBadge?: string | null;
+  performanceCardsNavUpdatesTitle?: string | null;
+  performanceCardsNavPerShareLabel?: string | null;
+  performanceCardsPerformanceMetricsTitle?: string | null;
+  performanceCardsAsOfPrefix?: string | null;
+  performanceCardsPerformanceYtdLabel?: string | null;
+  performanceCardsRiskMetricsTitle?: string | null;
+  performanceCardsSharpeRatioLabel?: string | null;
+  performanceCardsVolatilityLabel?: string | null;
+  performanceCardsSortinoRatioLabel?: string | null;
+  performanceCardsDownsideRiskLabel?: string | null;
+  performanceCardsFundDetailsTitle?: string | null;
+  performanceFootnoteSingleAsterisk?: string | null;
+  performanceFootnoteDoubleAsterisk?: string | null;
+  performanceRelatedLinksHeading?: string | null;
+  performanceFullHistoryLabel?: string | null;
+  /**
+   * URL for the Full Performance History button.
+   */
+  performanceFullHistoryHref?: string | null;
+  performanceFactsheetUsdLabel?: string | null;
+  /**
+   * Media asset linked to Factsheet USD button.
+   */
+  performanceFactsheetUsdAsset?: (number | null) | Media;
+  /**
+   * Optional explicit URL override for Factsheet USD button.
+   */
+  performanceFactsheetUsdHref?: string | null;
+  performanceFactsheetChfLabel?: string | null;
+  /**
+   * Media asset linked to Factsheet CHF Hedged button.
+   */
+  performanceFactsheetChfAsset?: (number | null) | Media;
+  /**
+   * Optional explicit URL override for Factsheet CHF Hedged button.
+   */
+  performanceFactsheetChfHref?: string | null;
+  performanceFundCommentaryLabel?: string | null;
+  /**
+   * Media asset linked to Latest Fund Commentary button.
+   */
+  performanceFundCommentaryAsset?: (number | null) | Media;
+  /**
+   * Optional explicit URL override for Latest Fund Commentary button.
+   */
+  performanceFundCommentaryHref?: string | null;
   meta?: {
     title?: string | null;
     /**
@@ -374,6 +607,10 @@ export interface Media {
    */
   alt: string;
   sourceUrl?: string | null;
+  /**
+   * Direct Supabase public object URL for this asset.
+   */
+  storageUrl?: string | null;
   caption?: {
     root: {
       type: string;
@@ -389,7 +626,6 @@ export interface Media {
     };
     [k: string]: unknown;
   } | null;
-  folder?: (number | null) | FolderInterface;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -459,32 +695,6 @@ export interface Media {
       filename?: string | null;
     };
   };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "payload-folders".
- */
-export interface FolderInterface {
-  id: number;
-  name: string;
-  folder?: (number | null) | FolderInterface;
-  documentsAndFolders?: {
-    docs?: (
-      | {
-          relationTo?: 'payload-folders';
-          value: number | FolderInterface;
-        }
-      | {
-          relationTo?: 'media';
-          value: number | Media;
-        }
-    )[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  folderType?: 'media'[] | null;
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -881,6 +1091,348 @@ export interface Form {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home-megatrend-cards".
+ */
+export interface HomeMegatrendCard {
+  id: number;
+  /**
+   * Page this card belongs to (use home).
+   */
+  page: number | Page;
+  title: string;
+  body: string;
+  tickers?:
+    | {
+        ticker: string;
+        company: string;
+        sortOrder?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Preferred card image from Media Library.
+   */
+  image?: (number | null) | Media;
+  /**
+   * Optional image source fallback when no media relation is set.
+   */
+  imageSrc?: string | null;
+  sortOrder: number;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "fund-attributes".
+ */
+export interface FundAttribute {
+  id: number;
+  sourceCollectionId: string;
+  sourceItemId: string;
+  /**
+   * Derived from source data for easier admin list browsing.
+   */
+  title_fld?: string | null;
+  /**
+   * Derived from source text field "description_fld" for easier table browsing.
+   */
+  description_fld?: string | null;
+  /**
+   * Derived from source text field "icon_fld" for easier table browsing.
+   */
+  icon_fld?: string | null;
+  sourceUpdatedAt?: string | null;
+  textFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  numberFields?:
+    | {
+        key: string;
+        value: number;
+        id?: string | null;
+      }[]
+    | null;
+  booleanFields?:
+    | {
+        key: string;
+        value: boolean;
+        id?: string | null;
+      }[]
+    | null;
+  dateFields?:
+    | {
+        key: string;
+        value: string;
+        id?: string | null;
+      }[]
+    | null;
+  objectFields?:
+    | {
+        key: string;
+        value:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Optional media links keyed by source field name.
+   */
+  mediaFields?:
+    | {
+        key: string;
+        value: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Raw Wix payload retained for traceability.
+   */
+  data:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "megatrend-detail-blocks".
+ */
+export interface MegatrendDetailBlock {
+  id: number;
+  /**
+   * Page this megatrend block belongs to (use megatrends).
+   */
+  page: number | Page;
+  anchor: string;
+  title: string;
+  subtitle: string;
+  description: {
+    text: string;
+    sortOrder: number;
+    id?: string | null;
+  }[];
+  conclusion: string;
+  /**
+   * Megatrend illustration image.
+   */
+  image?: (number | null) | Media;
+  /**
+   * Optional image URL/path fallback when no media relation is selected.
+   */
+  imageSrc?: string | null;
+  sortOrder: number;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "portfolio-strategy-steps".
+ */
+export interface PortfolioStrategyStep {
+  id: number;
+  /**
+   * Page this step belongs to (use portfolio-strategy).
+   */
+  page: number | Page;
+  title: string;
+  /**
+   * Step illustration image.
+   */
+  image?: (number | null) | Media;
+  /**
+   * Optional image URL/path fallback when no media relation is selected.
+   */
+  imageSrc?: string | null;
+  /**
+   * Content blocks shown inside this strategy step section.
+   */
+  items: {
+    heading: string;
+    body: string;
+    sortOrder: number;
+    id?: string | null;
+  }[];
+  sortOrder: number;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "portfolio-investment-process-items".
+ */
+export interface PortfolioInvestmentProcessItem {
+  id: number;
+  title: string;
+  description: string;
+  sortOrder: number;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "portfolio-megatrend-allocations".
+ */
+export interface PortfolioMegatrendAllocation {
+  id: number;
+  name: string;
+  /**
+   * Allocation percentage value (e.g. 24.2).
+   */
+  weight: number;
+  /**
+   * Hex color used in the chart legend and donut slice.
+   */
+  color: string;
+  sortOrder: number;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "portfolio-geographic-allocations".
+ */
+export interface PortfolioGeographicAllocation {
+  id: number;
+  name: string;
+  /**
+   * Allocation percentage value (e.g. 24.2).
+   */
+  weight: number;
+  /**
+   * Hex color used in the chart legend and donut slice.
+   */
+  color: string;
+  sortOrder: number;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "portfolio-sector-allocations".
+ */
+export interface PortfolioSectorAllocation {
+  id: number;
+  name: string;
+  /**
+   * Allocation percentage value (e.g. 24.2).
+   */
+  weight: number;
+  /**
+   * Hex color used in the chart legend and donut slice.
+   */
+  color: string;
+  sortOrder: number;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "portfolio-top-holdings".
+ */
+export interface PortfolioTopHolding {
+  id: number;
+  name: string;
+  /**
+   * Allocation percentage value (e.g. 24.2).
+   */
+  weight: number;
+  /**
+   * Hex color used in the chart legend and donut slice.
+   */
+  color: string;
+  sortOrder: number;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "performance-nav-points".
+ */
+export interface PerformanceNavPoint {
+  id: number;
+  shareClass: 'usd' | 'chf';
+  asOf: string;
+  nav: number;
+  sourceCollection?: string | null;
+  sourceItemId?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "performance-usd-share-class-data".
+ */
+export interface PerformanceUsdShareClassDatum {
+  id: number;
+  /**
+   * Display name for this share class dataset.
+   */
+  name: string;
+  nav: string;
+  perfYTD: string;
+  asOf: string;
+  sharpe: string;
+  volatility: string;
+  sortino: string;
+  downsideRisk: string;
+  fundDetails?:
+    | {
+        label: string;
+        value: string;
+        sortOrder: number;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "performance-chf-share-class-data".
+ */
+export interface PerformanceChfShareClassDatum {
+  id: number;
+  /**
+   * Display name for this share class dataset.
+   */
+  name: string;
+  nav: string;
+  perfYTD: string;
+  asOf: string;
+  sharpe: string;
+  volatility: string;
+  sortino: string;
+  downsideRisk: string;
+  fundDetails?:
+    | {
+        label: string;
+        value: string;
+        sortOrder: number;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "content-gate-submissions".
  */
 export interface ContentGateSubmission {
@@ -896,33 +1448,58 @@ export interface ContentGateSubmission {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-data-items".
+ * via the `definition` "contact-submissions".
  */
-export interface WixDataItem {
+export interface ContactSubmission {
   id: number;
-  sourceCollectionId: string;
-  sourceItemId: string;
-  sourceUpdatedAt?: string | null;
-  data:
+  firstName: string;
+  lastName: string;
+  phone?: string | null;
+  email: string;
+  message: string;
+  inquiryTypes?:
     | {
-        [k: string]: unknown;
-      }
-    | unknown[]
-    | string
-    | number
-    | boolean
+        label: string;
+        id?: string | null;
+      }[]
     | null;
+  consentAccepted: boolean;
+  ipAddress?: string | null;
+  userAgent?: string | null;
+  path?: string | null;
+  submittedAt?: string | null;
   updatedAt: string;
   createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-about-us-list".
+ * via the `definition` "newsletter-subscriptions".
  */
-export interface WixAboutUsList {
+export interface NewsletterSubscription {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  consentAccepted: boolean;
+  ipAddress?: string | null;
+  userAgent?: string | null;
+  path?: string | null;
+  submittedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about-us-list".
+ */
+export interface AboutUsList {
   id: number;
   sourceCollectionId: string;
   sourceItemId: string;
+  /**
+   * Derived from source data for easier admin list browsing.
+   */
+  title_fld?: string | null;
   sourceUpdatedAt?: string | null;
   textFields?:
     | {
@@ -968,6 +1545,16 @@ export interface WixAboutUsList {
       }[]
     | null;
   /**
+   * Optional media links keyed by source field name.
+   */
+  mediaFields?:
+    | {
+        key: string;
+        value: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * Raw Wix payload retained for traceability.
    */
   data:
@@ -984,12 +1571,16 @@ export interface WixAboutUsList {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-contact-us".
+ * via the `definition` "contact-us".
  */
-export interface WixContactUs {
+export interface ContactUs {
   id: number;
   sourceCollectionId: string;
   sourceItemId: string;
+  /**
+   * Derived from source data for easier admin list browsing.
+   */
+  title_fld?: string | null;
   sourceUpdatedAt?: string | null;
   textFields?:
     | {
@@ -1035,6 +1626,16 @@ export interface WixContactUs {
       }[]
     | null;
   /**
+   * Optional media links keyed by source field name.
+   */
+  mediaFields?:
+    | {
+        key: string;
+        value: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * Raw Wix payload retained for traceability.
    */
   data:
@@ -1051,12 +1652,16 @@ export interface WixContactUs {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-country-selection".
+ * via the `definition` "country-selection".
  */
-export interface WixCountrySelection {
+export interface CountrySelection {
   id: number;
   sourceCollectionId: string;
   sourceItemId: string;
+  /**
+   * Derived from source data for easier admin list browsing.
+   */
+  title_fld?: string | null;
   sourceUpdatedAt?: string | null;
   textFields?:
     | {
@@ -1102,6 +1707,16 @@ export interface WixCountrySelection {
       }[]
     | null;
   /**
+   * Optional media links keyed by source field name.
+   */
+  mediaFields?:
+    | {
+        key: string;
+        value: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * Raw Wix payload retained for traceability.
    */
   data:
@@ -1118,12 +1733,16 @@ export interface WixCountrySelection {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-fund-attributes".
+ * via the `definition` "fund-details".
  */
-export interface WixFundAttribute {
+export interface FundDetail {
   id: number;
   sourceCollectionId: string;
   sourceItemId: string;
+  /**
+   * Derived from source data for easier admin list browsing.
+   */
+  title_fld?: string | null;
   sourceUpdatedAt?: string | null;
   textFields?:
     | {
@@ -1169,6 +1788,16 @@ export interface WixFundAttribute {
       }[]
     | null;
   /**
+   * Optional media links keyed by source field name.
+   */
+  mediaFields?:
+    | {
+        key: string;
+        value: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * Raw Wix payload retained for traceability.
    */
   data:
@@ -1185,12 +1814,16 @@ export interface WixFundAttribute {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-fund-details".
+ * via the `definition` "geographic-allocations".
  */
-export interface WixFundDetail {
+export interface GeographicAllocation {
   id: number;
   sourceCollectionId: string;
   sourceItemId: string;
+  /**
+   * Derived from source data for easier admin list browsing.
+   */
+  title_fld?: string | null;
   sourceUpdatedAt?: string | null;
   textFields?:
     | {
@@ -1236,6 +1869,16 @@ export interface WixFundDetail {
       }[]
     | null;
   /**
+   * Optional media links keyed by source field name.
+   */
+  mediaFields?:
+    | {
+        key: string;
+        value: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * Raw Wix payload retained for traceability.
    */
   data:
@@ -1252,12 +1895,16 @@ export interface WixFundDetail {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-geographic-allocations".
+ * via the `definition` "homepage-links".
  */
-export interface WixGeographicAllocation {
+export interface HomepageLink {
   id: number;
   sourceCollectionId: string;
   sourceItemId: string;
+  /**
+   * Derived from source data for easier admin list browsing.
+   */
+  title_fld?: string | null;
   sourceUpdatedAt?: string | null;
   textFields?:
     | {
@@ -1303,6 +1950,16 @@ export interface WixGeographicAllocation {
       }[]
     | null;
   /**
+   * Optional media links keyed by source field name.
+   */
+  mediaFields?:
+    | {
+        key: string;
+        value: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * Raw Wix payload retained for traceability.
    */
   data:
@@ -1319,12 +1976,16 @@ export interface WixGeographicAllocation {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-homepage-links".
+ * via the `definition` "import-usd".
  */
-export interface WixHomepageLink {
+export interface ImportUsd {
   id: number;
   sourceCollectionId: string;
   sourceItemId: string;
+  /**
+   * Derived from source data for easier admin list browsing.
+   */
+  title_fld?: string | null;
   sourceUpdatedAt?: string | null;
   textFields?:
     | {
@@ -1370,6 +2031,16 @@ export interface WixHomepageLink {
       }[]
     | null;
   /**
+   * Optional media links keyed by source field name.
+   */
+  mediaFields?:
+    | {
+        key: string;
+        value: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * Raw Wix payload retained for traceability.
    */
   data:
@@ -1386,12 +2057,16 @@ export interface WixHomepageLink {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-import-usd".
+ * via the `definition` "import-chf".
  */
-export interface WixImportUsd {
+export interface ImportChf {
   id: number;
   sourceCollectionId: string;
   sourceItemId: string;
+  /**
+   * Derived from source data for easier admin list browsing.
+   */
+  title_fld?: string | null;
   sourceUpdatedAt?: string | null;
   textFields?:
     | {
@@ -1437,6 +2112,16 @@ export interface WixImportUsd {
       }[]
     | null;
   /**
+   * Optional media links keyed by source field name.
+   */
+  mediaFields?:
+    | {
+        key: string;
+        value: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * Raw Wix payload retained for traceability.
    */
   data:
@@ -1453,12 +2138,16 @@ export interface WixImportUsd {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-import-chf".
+ * via the `definition` "investment-process".
  */
-export interface WixImportChf {
+export interface InvestmentProcess {
   id: number;
   sourceCollectionId: string;
   sourceItemId: string;
+  /**
+   * Derived from source data for easier admin list browsing.
+   */
+  title_fld?: string | null;
   sourceUpdatedAt?: string | null;
   textFields?:
     | {
@@ -1504,6 +2193,16 @@ export interface WixImportChf {
       }[]
     | null;
   /**
+   * Optional media links keyed by source field name.
+   */
+  mediaFields?:
+    | {
+        key: string;
+        value: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * Raw Wix payload retained for traceability.
    */
   data:
@@ -1520,12 +2219,16 @@ export interface WixImportChf {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-investment-process".
+ * via the `definition` "legal-information".
  */
-export interface WixInvestmentProcess {
+export interface LegalInformation {
   id: number;
   sourceCollectionId: string;
   sourceItemId: string;
+  /**
+   * Derived from source data for easier admin list browsing.
+   */
+  title_fld?: string | null;
   sourceUpdatedAt?: string | null;
   textFields?:
     | {
@@ -1571,6 +2274,16 @@ export interface WixInvestmentProcess {
       }[]
     | null;
   /**
+   * Optional media links keyed by source field name.
+   */
+  mediaFields?:
+    | {
+        key: string;
+        value: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * Raw Wix payload retained for traceability.
    */
   data:
@@ -1587,12 +2300,16 @@ export interface WixInvestmentProcess {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-legal-information".
+ * via the `definition` "megatrend-dataset".
  */
-export interface WixLegalInformation {
+export interface MegatrendDataset {
   id: number;
   sourceCollectionId: string;
   sourceItemId: string;
+  /**
+   * Derived from source data for easier admin list browsing.
+   */
+  title_fld?: string | null;
   sourceUpdatedAt?: string | null;
   textFields?:
     | {
@@ -1638,6 +2355,16 @@ export interface WixLegalInformation {
       }[]
     | null;
   /**
+   * Optional media links keyed by source field name.
+   */
+  mediaFields?:
+    | {
+        key: string;
+        value: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * Raw Wix payload retained for traceability.
    */
   data:
@@ -1654,12 +2381,16 @@ export interface WixLegalInformation {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-megatrend-dataset".
+ * via the `definition` "megatrends-allocations".
  */
-export interface WixMegatrendDataset {
+export interface MegatrendsAllocation {
   id: number;
   sourceCollectionId: string;
   sourceItemId: string;
+  /**
+   * Derived from source data for easier admin list browsing.
+   */
+  title_fld?: string | null;
   sourceUpdatedAt?: string | null;
   textFields?:
     | {
@@ -1705,6 +2436,16 @@ export interface WixMegatrendDataset {
       }[]
     | null;
   /**
+   * Optional media links keyed by source field name.
+   */
+  mediaFields?:
+    | {
+        key: string;
+        value: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * Raw Wix payload retained for traceability.
    */
   data:
@@ -1721,12 +2462,16 @@ export interface WixMegatrendDataset {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-megatrends-allocations".
+ * via the `definition` "megatrends-detail".
  */
-export interface WixMegatrendsAllocation {
+export interface MegatrendsDetail {
   id: number;
   sourceCollectionId: string;
   sourceItemId: string;
+  /**
+   * Derived from source data for easier admin list browsing.
+   */
+  title_fld?: string | null;
   sourceUpdatedAt?: string | null;
   textFields?:
     | {
@@ -1772,6 +2517,16 @@ export interface WixMegatrendsAllocation {
       }[]
     | null;
   /**
+   * Optional media links keyed by source field name.
+   */
+  mediaFields?:
+    | {
+        key: string;
+        value: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * Raw Wix payload retained for traceability.
    */
   data:
@@ -1788,12 +2543,16 @@ export interface WixMegatrendsAllocation {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-megatrends-detail".
+ * via the `definition` "members-badges".
  */
-export interface WixMegatrendsDetail {
+export interface MembersBadge {
   id: number;
   sourceCollectionId: string;
   sourceItemId: string;
+  /**
+   * Derived from source data for easier admin list browsing.
+   */
+  title_fld?: string | null;
   sourceUpdatedAt?: string | null;
   textFields?:
     | {
@@ -1839,6 +2598,16 @@ export interface WixMegatrendsDetail {
       }[]
     | null;
   /**
+   * Optional media links keyed by source field name.
+   */
+  mediaFields?:
+    | {
+        key: string;
+        value: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * Raw Wix payload retained for traceability.
    */
   data:
@@ -1855,12 +2624,16 @@ export interface WixMegatrendsDetail {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-members-badges".
+ * via the `definition` "members-full-data".
  */
-export interface WixMembersBadge {
+export interface MembersFullDatum {
   id: number;
   sourceCollectionId: string;
   sourceItemId: string;
+  /**
+   * Derived from source data for easier admin list browsing.
+   */
+  title_fld?: string | null;
   sourceUpdatedAt?: string | null;
   textFields?:
     | {
@@ -1906,6 +2679,16 @@ export interface WixMembersBadge {
       }[]
     | null;
   /**
+   * Optional media links keyed by source field name.
+   */
+  mediaFields?:
+    | {
+        key: string;
+        value: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * Raw Wix payload retained for traceability.
    */
   data:
@@ -1922,12 +2705,16 @@ export interface WixMembersBadge {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-members-full-data".
+ * via the `definition` "members-private-data".
  */
-export interface WixMembersFullDatum {
+export interface MembersPrivateDatum {
   id: number;
   sourceCollectionId: string;
   sourceItemId: string;
+  /**
+   * Derived from source data for easier admin list browsing.
+   */
+  title_fld?: string | null;
   sourceUpdatedAt?: string | null;
   textFields?:
     | {
@@ -1973,6 +2760,16 @@ export interface WixMembersFullDatum {
       }[]
     | null;
   /**
+   * Optional media links keyed by source field name.
+   */
+  mediaFields?:
+    | {
+        key: string;
+        value: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * Raw Wix payload retained for traceability.
    */
   data:
@@ -1989,12 +2786,16 @@ export interface WixMembersFullDatum {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-members-private-data".
+ * via the `definition` "members-public-data".
  */
-export interface WixMembersPrivateDatum {
+export interface MembersPublicDatum {
   id: number;
   sourceCollectionId: string;
   sourceItemId: string;
+  /**
+   * Derived from source data for easier admin list browsing.
+   */
+  title_fld?: string | null;
   sourceUpdatedAt?: string | null;
   textFields?:
     | {
@@ -2040,6 +2841,16 @@ export interface WixMembersPrivateDatum {
       }[]
     | null;
   /**
+   * Optional media links keyed by source field name.
+   */
+  mediaFields?:
+    | {
+        key: string;
+        value: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * Raw Wix payload retained for traceability.
    */
   data:
@@ -2056,12 +2867,16 @@ export interface WixMembersPrivateDatum {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-members-public-data".
+ * via the `definition` "menu-list".
  */
-export interface WixMembersPublicDatum {
+export interface MenuList {
   id: number;
   sourceCollectionId: string;
   sourceItemId: string;
+  /**
+   * Derived from source data for easier admin list browsing.
+   */
+  title_fld?: string | null;
   sourceUpdatedAt?: string | null;
   textFields?:
     | {
@@ -2107,6 +2922,16 @@ export interface WixMembersPublicDatum {
       }[]
     | null;
   /**
+   * Optional media links keyed by source field name.
+   */
+  mediaFields?:
+    | {
+        key: string;
+        value: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * Raw Wix payload retained for traceability.
    */
   data:
@@ -2123,12 +2948,16 @@ export interface WixMembersPublicDatum {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-menu-list".
+ * via the `definition` "portfolio-strategy-process".
  */
-export interface WixMenuList {
+export interface PortfolioStrategyProcess {
   id: number;
   sourceCollectionId: string;
   sourceItemId: string;
+  /**
+   * Derived from source data for easier admin list browsing.
+   */
+  title_fld?: string | null;
   sourceUpdatedAt?: string | null;
   textFields?:
     | {
@@ -2174,6 +3003,16 @@ export interface WixMenuList {
       }[]
     | null;
   /**
+   * Optional media links keyed by source field name.
+   */
+  mediaFields?:
+    | {
+        key: string;
+        value: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * Raw Wix payload retained for traceability.
    */
   data:
@@ -2190,12 +3029,16 @@ export interface WixMenuList {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-portfolio-strategy-process".
+ * via the `definition` "privacy-policy".
  */
-export interface WixPortfolioStrategyProcess {
+export interface PrivacyPolicy {
   id: number;
   sourceCollectionId: string;
   sourceItemId: string;
+  /**
+   * Derived from source data for easier admin list browsing.
+   */
+  title_fld?: string | null;
   sourceUpdatedAt?: string | null;
   textFields?:
     | {
@@ -2241,6 +3084,16 @@ export interface WixPortfolioStrategyProcess {
       }[]
     | null;
   /**
+   * Optional media links keyed by source field name.
+   */
+  mediaFields?:
+    | {
+        key: string;
+        value: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * Raw Wix payload retained for traceability.
    */
   data:
@@ -2257,12 +3110,16 @@ export interface WixPortfolioStrategyProcess {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-privacy-policy".
+ * via the `definition` "sector-allocations".
  */
-export interface WixPrivacyPolicy {
+export interface SectorAllocation {
   id: number;
   sourceCollectionId: string;
   sourceItemId: string;
+  /**
+   * Derived from source data for easier admin list browsing.
+   */
+  title_fld?: string | null;
   sourceUpdatedAt?: string | null;
   textFields?:
     | {
@@ -2308,6 +3165,16 @@ export interface WixPrivacyPolicy {
       }[]
     | null;
   /**
+   * Optional media links keyed by source field name.
+   */
+  mediaFields?:
+    | {
+        key: string;
+        value: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * Raw Wix payload retained for traceability.
    */
   data:
@@ -2324,12 +3191,16 @@ export interface WixPrivacyPolicy {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-sector-allocations".
+ * via the `definition` "top-holdings".
  */
-export interface WixSectorAllocation {
+export interface TopHolding {
   id: number;
   sourceCollectionId: string;
   sourceItemId: string;
+  /**
+   * Derived from source data for easier admin list browsing.
+   */
+  title_fld?: string | null;
   sourceUpdatedAt?: string | null;
   textFields?:
     | {
@@ -2375,6 +3246,16 @@ export interface WixSectorAllocation {
       }[]
     | null;
   /**
+   * Optional media links keyed by source field name.
+   */
+  mediaFields?:
+    | {
+        key: string;
+        value: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * Raw Wix payload retained for traceability.
    */
   data:
@@ -2391,12 +3272,16 @@ export interface WixSectorAllocation {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-top-holdings".
+ * via the `definition` "trust-list".
  */
-export interface WixTopHolding {
+export interface TrustList {
   id: number;
   sourceCollectionId: string;
   sourceItemId: string;
+  /**
+   * Derived from source data for easier admin list browsing.
+   */
+  title_fld?: string | null;
   sourceUpdatedAt?: string | null;
   textFields?:
     | {
@@ -2442,69 +3327,12 @@ export interface WixTopHolding {
       }[]
     | null;
   /**
-   * Raw Wix payload retained for traceability.
+   * Optional media links keyed by source field name.
    */
-  data:
-    | {
-        [k: string]: unknown;
-      }
-    | unknown[]
-    | string
-    | number
-    | boolean
-    | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-trust-list".
- */
-export interface WixTrustList {
-  id: number;
-  sourceCollectionId: string;
-  sourceItemId: string;
-  sourceUpdatedAt?: string | null;
-  textFields?:
+  mediaFields?:
     | {
         key: string;
-        value: string;
-        id?: string | null;
-      }[]
-    | null;
-  numberFields?:
-    | {
-        key: string;
-        value: number;
-        id?: string | null;
-      }[]
-    | null;
-  booleanFields?:
-    | {
-        key: string;
-        value: boolean;
-        id?: string | null;
-      }[]
-    | null;
-  dateFields?:
-    | {
-        key: string;
-        value: string;
-        id?: string | null;
-      }[]
-    | null;
-  objectFields?:
-    | {
-        key: string;
-        value:
-          | {
-              [k: string]: unknown;
-            }
-          | unknown[]
-          | string
-          | number
-          | boolean
-          | null;
+        value: number | Media;
         id?: string | null;
       }[]
     | null;
@@ -2738,104 +3566,152 @@ export interface PayloadLockedDocument {
         value: number | ContentGateSubmission;
       } | null)
     | ({
-        relationTo: 'wix-data-items';
-        value: number | WixDataItem;
+        relationTo: 'contact-submissions';
+        value: number | ContactSubmission;
       } | null)
     | ({
-        relationTo: 'wix-about-us-list';
-        value: number | WixAboutUsList;
+        relationTo: 'newsletter-subscriptions';
+        value: number | NewsletterSubscription;
       } | null)
     | ({
-        relationTo: 'wix-contact-us';
-        value: number | WixContactUs;
+        relationTo: 'home-megatrend-cards';
+        value: number | HomeMegatrendCard;
       } | null)
     | ({
-        relationTo: 'wix-country-selection';
-        value: number | WixCountrySelection;
+        relationTo: 'megatrend-detail-blocks';
+        value: number | MegatrendDetailBlock;
       } | null)
     | ({
-        relationTo: 'wix-fund-attributes';
-        value: number | WixFundAttribute;
+        relationTo: 'performance-nav-points';
+        value: number | PerformanceNavPoint;
       } | null)
     | ({
-        relationTo: 'wix-fund-details';
-        value: number | WixFundDetail;
+        relationTo: 'performance-usd-share-class-data';
+        value: number | PerformanceUsdShareClassDatum;
       } | null)
     | ({
-        relationTo: 'wix-geographic-allocations';
-        value: number | WixGeographicAllocation;
+        relationTo: 'performance-chf-share-class-data';
+        value: number | PerformanceChfShareClassDatum;
       } | null)
     | ({
-        relationTo: 'wix-homepage-links';
-        value: number | WixHomepageLink;
+        relationTo: 'portfolio-megatrend-allocations';
+        value: number | PortfolioMegatrendAllocation;
       } | null)
     | ({
-        relationTo: 'wix-import-usd';
-        value: number | WixImportUsd;
+        relationTo: 'portfolio-geographic-allocations';
+        value: number | PortfolioGeographicAllocation;
       } | null)
     | ({
-        relationTo: 'wix-import-chf';
-        value: number | WixImportChf;
+        relationTo: 'portfolio-sector-allocations';
+        value: number | PortfolioSectorAllocation;
       } | null)
     | ({
-        relationTo: 'wix-investment-process';
-        value: number | WixInvestmentProcess;
+        relationTo: 'portfolio-top-holdings';
+        value: number | PortfolioTopHolding;
       } | null)
     | ({
-        relationTo: 'wix-legal-information';
-        value: number | WixLegalInformation;
+        relationTo: 'portfolio-investment-process-items';
+        value: number | PortfolioInvestmentProcessItem;
       } | null)
     | ({
-        relationTo: 'wix-megatrend-dataset';
-        value: number | WixMegatrendDataset;
+        relationTo: 'portfolio-strategy-steps';
+        value: number | PortfolioStrategyStep;
       } | null)
     | ({
-        relationTo: 'wix-megatrends-allocations';
-        value: number | WixMegatrendsAllocation;
+        relationTo: 'about-us-list';
+        value: number | AboutUsList;
       } | null)
     | ({
-        relationTo: 'wix-megatrends-detail';
-        value: number | WixMegatrendsDetail;
+        relationTo: 'contact-us';
+        value: number | ContactUs;
       } | null)
     | ({
-        relationTo: 'wix-members-badges';
-        value: number | WixMembersBadge;
+        relationTo: 'country-selection';
+        value: number | CountrySelection;
       } | null)
     | ({
-        relationTo: 'wix-members-full-data';
-        value: number | WixMembersFullDatum;
+        relationTo: 'fund-attributes';
+        value: number | FundAttribute;
       } | null)
     | ({
-        relationTo: 'wix-members-private-data';
-        value: number | WixMembersPrivateDatum;
+        relationTo: 'fund-details';
+        value: number | FundDetail;
       } | null)
     | ({
-        relationTo: 'wix-members-public-data';
-        value: number | WixMembersPublicDatum;
+        relationTo: 'geographic-allocations';
+        value: number | GeographicAllocation;
       } | null)
     | ({
-        relationTo: 'wix-menu-list';
-        value: number | WixMenuList;
+        relationTo: 'homepage-links';
+        value: number | HomepageLink;
       } | null)
     | ({
-        relationTo: 'wix-portfolio-strategy-process';
-        value: number | WixPortfolioStrategyProcess;
+        relationTo: 'import-usd';
+        value: number | ImportUsd;
       } | null)
     | ({
-        relationTo: 'wix-privacy-policy';
-        value: number | WixPrivacyPolicy;
+        relationTo: 'import-chf';
+        value: number | ImportChf;
       } | null)
     | ({
-        relationTo: 'wix-sector-allocations';
-        value: number | WixSectorAllocation;
+        relationTo: 'investment-process';
+        value: number | InvestmentProcess;
       } | null)
     | ({
-        relationTo: 'wix-top-holdings';
-        value: number | WixTopHolding;
+        relationTo: 'legal-information';
+        value: number | LegalInformation;
       } | null)
     | ({
-        relationTo: 'wix-trust-list';
-        value: number | WixTrustList;
+        relationTo: 'megatrend-dataset';
+        value: number | MegatrendDataset;
+      } | null)
+    | ({
+        relationTo: 'megatrends-allocations';
+        value: number | MegatrendsAllocation;
+      } | null)
+    | ({
+        relationTo: 'megatrends-detail';
+        value: number | MegatrendsDetail;
+      } | null)
+    | ({
+        relationTo: 'members-badges';
+        value: number | MembersBadge;
+      } | null)
+    | ({
+        relationTo: 'members-full-data';
+        value: number | MembersFullDatum;
+      } | null)
+    | ({
+        relationTo: 'members-private-data';
+        value: number | MembersPrivateDatum;
+      } | null)
+    | ({
+        relationTo: 'members-public-data';
+        value: number | MembersPublicDatum;
+      } | null)
+    | ({
+        relationTo: 'menu-list';
+        value: number | MenuList;
+      } | null)
+    | ({
+        relationTo: 'portfolio-strategy-process';
+        value: number | PortfolioStrategyProcess;
+      } | null)
+    | ({
+        relationTo: 'privacy-policy';
+        value: number | PrivacyPolicy;
+      } | null)
+    | ({
+        relationTo: 'sector-allocations';
+        value: number | SectorAllocation;
+      } | null)
+    | ({
+        relationTo: 'top-holdings';
+        value: number | TopHolding;
+      } | null)
+    | ({
+        relationTo: 'trust-list';
+        value: number | TrustList;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -2852,10 +3728,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'search';
         value: number | Search;
-      } | null)
-    | ({
-        relationTo: 'payload-folders';
-        value: number | FolderInterface;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -2937,6 +3809,43 @@ export interface PagesSelect<T extends boolean = true> {
         formBlock?: T | FormBlockSelect<T>;
       };
   aboutUsVideo?: T;
+  aboutUsHeroTitle?: T;
+  aboutUsVideoAriaLabel?: T;
+  aboutUsQuoteText?: T;
+  aboutUsQuoteAttributionPrimary?: T;
+  aboutUsQuoteAttributionSecondary?: T;
+  aboutUsProfiles?:
+    | T
+    | {
+        name?: T;
+        paragraphs?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
+        certifications?:
+          | T
+          | {
+              title?: T;
+              institution?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  aboutUsHighlights?:
+    | T
+    | {
+        id?: T;
+        text?: T;
+        line1?: T;
+        line2?: T;
+      };
+  aboutUsRequestCallLabel?: T;
+  aboutUsRequestCallHref?: T;
+  aboutUsLinkedinLabel?: T;
+  aboutUsLinkedinHref?: T;
+  aboutUsLinkedinAriaLabel?: T;
   heroCtaLabel?: T;
   heroCtaHref?: T;
   homeDownloads?:
@@ -2947,6 +3856,7 @@ export interface PagesSelect<T extends boolean = true> {
         fundCommentary?: T;
         presentation?: T;
       };
+  homeMegatrendCards?: T;
   contactCompanyName?: T;
   contactAddress?: T;
   contactPhone?: T;
@@ -2957,6 +3867,79 @@ export interface PagesSelect<T extends boolean = true> {
   newsletterIntroBody?: T;
   newsletterConsentText?: T;
   newsletterSubmitLabel?: T;
+  fundIntroPrimaryQuote?: T;
+  fundIntroSecondaryQuote?: T;
+  fundInvestmentObjectiveHeading?: T;
+  fundInvestmentObjectiveBody?: T;
+  fundRelatedLinksHeading?: T;
+  fundRelatedPrimaryLabel?: T;
+  fundRelatedPrimaryHref?: T;
+  fundRelatedPrimaryAsset?: T;
+  fundRelatedSecondaryLabel?: T;
+  fundRelatedSecondaryHref?: T;
+  fundRelatedSecondaryAsset?: T;
+  fundRelatedTertiaryLabel?: T;
+  fundRelatedTertiaryHref?: T;
+  fundRelatedTertiaryAsset?: T;
+  fundAttributes?: T;
+  megatrendsHeroTitle?: T;
+  megatrendsHeroSubtitle?: T;
+  megatrendsIntroHeading?: T;
+  megatrendsIntroLeftQuote?: T;
+  megatrendsIntroRightQuote?: T;
+  megatrendDetailBlocks?: T;
+  megatrendsRelatedLinksHeading?: T;
+  megatrendsRelatedPrimaryLabel?: T;
+  megatrendsRelatedPrimaryHref?: T;
+  megatrendsRelatedPrimaryAsset?: T;
+  megatrendsRelatedSecondaryLabel?: T;
+  megatrendsRelatedSecondaryHref?: T;
+  megatrendsRelatedSecondaryAsset?: T;
+  megatrendsThematicFrameworkHeading?: T;
+  megatrendsThematicFrameworkLeftQuote?: T;
+  megatrendsThematicFrameworkRightQuote?: T;
+  portfolioStrategyIntro?: T;
+  portfolioStrategySteps?: T;
+  portfolioInvestmentProcessItems?: T;
+  portfolioMegatrendAllocations?: T;
+  portfolioGeographicAllocations?: T;
+  portfolioSectorAllocations?: T;
+  portfolioTopHoldings?: T;
+  performanceHeroTitle?: T;
+  performanceAnnualTitle?: T;
+  performanceUsdLabel?: T;
+  performanceChfLabel?: T;
+  performanceExportSvgTooltip?: T;
+  performanceExportCsvTooltip?: T;
+  performanceNavPoints?: T;
+  performanceUsdShareClassData?: T;
+  performanceChfShareClassData?: T;
+  performanceChartYearBadge?: T;
+  performanceCardsNavUpdatesTitle?: T;
+  performanceCardsNavPerShareLabel?: T;
+  performanceCardsPerformanceMetricsTitle?: T;
+  performanceCardsAsOfPrefix?: T;
+  performanceCardsPerformanceYtdLabel?: T;
+  performanceCardsRiskMetricsTitle?: T;
+  performanceCardsSharpeRatioLabel?: T;
+  performanceCardsVolatilityLabel?: T;
+  performanceCardsSortinoRatioLabel?: T;
+  performanceCardsDownsideRiskLabel?: T;
+  performanceCardsFundDetailsTitle?: T;
+  performanceFootnoteSingleAsterisk?: T;
+  performanceFootnoteDoubleAsterisk?: T;
+  performanceRelatedLinksHeading?: T;
+  performanceFullHistoryLabel?: T;
+  performanceFullHistoryHref?: T;
+  performanceFactsheetUsdLabel?: T;
+  performanceFactsheetUsdAsset?: T;
+  performanceFactsheetUsdHref?: T;
+  performanceFactsheetChfLabel?: T;
+  performanceFactsheetChfAsset?: T;
+  performanceFactsheetChfHref?: T;
+  performanceFundCommentaryLabel?: T;
+  performanceFundCommentaryAsset?: T;
+  performanceFundCommentaryHref?: T;
   meta?:
     | T
     | {
@@ -3097,8 +4080,8 @@ export interface PostsSelect<T extends boolean = true> {
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   sourceUrl?: T;
+  storageUrl?: T;
   caption?: T;
-  folder?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -3245,23 +4228,238 @@ export interface ContentGateSubmissionsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-data-items_select".
+ * via the `definition` "contact-submissions_select".
  */
-export interface WixDataItemsSelect<T extends boolean = true> {
-  sourceCollectionId?: T;
-  sourceItemId?: T;
-  sourceUpdatedAt?: T;
-  data?: T;
+export interface ContactSubmissionsSelect<T extends boolean = true> {
+  firstName?: T;
+  lastName?: T;
+  phone?: T;
+  email?: T;
+  message?: T;
+  inquiryTypes?:
+    | T
+    | {
+        label?: T;
+        id?: T;
+      };
+  consentAccepted?: T;
+  ipAddress?: T;
+  userAgent?: T;
+  path?: T;
+  submittedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-about-us-list_select".
+ * via the `definition` "newsletter-subscriptions_select".
  */
-export interface WixAboutUsListSelect<T extends boolean = true> {
+export interface NewsletterSubscriptionsSelect<T extends boolean = true> {
+  firstName?: T;
+  lastName?: T;
+  email?: T;
+  consentAccepted?: T;
+  ipAddress?: T;
+  userAgent?: T;
+  path?: T;
+  submittedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "home-megatrend-cards_select".
+ */
+export interface HomeMegatrendCardsSelect<T extends boolean = true> {
+  page?: T;
+  title?: T;
+  body?: T;
+  tickers?:
+    | T
+    | {
+        ticker?: T;
+        company?: T;
+        sortOrder?: T;
+        id?: T;
+      };
+  image?: T;
+  imageSrc?: T;
+  sortOrder?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "megatrend-detail-blocks_select".
+ */
+export interface MegatrendDetailBlocksSelect<T extends boolean = true> {
+  page?: T;
+  anchor?: T;
+  title?: T;
+  subtitle?: T;
+  description?:
+    | T
+    | {
+        text?: T;
+        sortOrder?: T;
+        id?: T;
+      };
+  conclusion?: T;
+  image?: T;
+  imageSrc?: T;
+  sortOrder?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "performance-nav-points_select".
+ */
+export interface PerformanceNavPointsSelect<T extends boolean = true> {
+  shareClass?: T;
+  asOf?: T;
+  nav?: T;
+  sourceCollection?: T;
+  sourceItemId?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "performance-usd-share-class-data_select".
+ */
+export interface PerformanceUsdShareClassDataSelect<T extends boolean = true> {
+  name?: T;
+  nav?: T;
+  perfYTD?: T;
+  asOf?: T;
+  sharpe?: T;
+  volatility?: T;
+  sortino?: T;
+  downsideRisk?: T;
+  fundDetails?:
+    | T
+    | {
+        label?: T;
+        value?: T;
+        sortOrder?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "performance-chf-share-class-data_select".
+ */
+export interface PerformanceChfShareClassDataSelect<T extends boolean = true> {
+  name?: T;
+  nav?: T;
+  perfYTD?: T;
+  asOf?: T;
+  sharpe?: T;
+  volatility?: T;
+  sortino?: T;
+  downsideRisk?: T;
+  fundDetails?:
+    | T
+    | {
+        label?: T;
+        value?: T;
+        sortOrder?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "portfolio-megatrend-allocations_select".
+ */
+export interface PortfolioMegatrendAllocationsSelect<T extends boolean = true> {
+  name?: T;
+  weight?: T;
+  color?: T;
+  sortOrder?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "portfolio-geographic-allocations_select".
+ */
+export interface PortfolioGeographicAllocationsSelect<T extends boolean = true> {
+  name?: T;
+  weight?: T;
+  color?: T;
+  sortOrder?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "portfolio-sector-allocations_select".
+ */
+export interface PortfolioSectorAllocationsSelect<T extends boolean = true> {
+  name?: T;
+  weight?: T;
+  color?: T;
+  sortOrder?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "portfolio-top-holdings_select".
+ */
+export interface PortfolioTopHoldingsSelect<T extends boolean = true> {
+  name?: T;
+  weight?: T;
+  color?: T;
+  sortOrder?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "portfolio-investment-process-items_select".
+ */
+export interface PortfolioInvestmentProcessItemsSelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
+  sortOrder?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "portfolio-strategy-steps_select".
+ */
+export interface PortfolioStrategyStepsSelect<T extends boolean = true> {
+  page?: T;
+  title?: T;
+  image?: T;
+  imageSrc?: T;
+  items?:
+    | T
+    | {
+        heading?: T;
+        body?: T;
+        sortOrder?: T;
+        id?: T;
+      };
+  sortOrder?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about-us-list_select".
+ */
+export interface AboutUsListSelect<T extends boolean = true> {
   sourceCollectionId?: T;
   sourceItemId?: T;
+  title_fld?: T;
   sourceUpdatedAt?: T;
   textFields?:
     | T
@@ -3298,17 +4496,25 @@ export interface WixAboutUsListSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
+  mediaFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
   data?: T;
   updatedAt?: T;
   createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-contact-us_select".
+ * via the `definition` "contact-us_select".
  */
-export interface WixContactUsSelect<T extends boolean = true> {
+export interface ContactUsSelect<T extends boolean = true> {
   sourceCollectionId?: T;
   sourceItemId?: T;
+  title_fld?: T;
   sourceUpdatedAt?: T;
   textFields?:
     | T
@@ -3345,17 +4551,25 @@ export interface WixContactUsSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
+  mediaFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
   data?: T;
   updatedAt?: T;
   createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-country-selection_select".
+ * via the `definition` "country-selection_select".
  */
-export interface WixCountrySelectionSelect<T extends boolean = true> {
+export interface CountrySelectionSelect<T extends boolean = true> {
   sourceCollectionId?: T;
   sourceItemId?: T;
+  title_fld?: T;
   sourceUpdatedAt?: T;
   textFields?:
     | T
@@ -3392,17 +4606,27 @@ export interface WixCountrySelectionSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
+  mediaFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
   data?: T;
   updatedAt?: T;
   createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-fund-attributes_select".
+ * via the `definition` "fund-attributes_select".
  */
-export interface WixFundAttributesSelect<T extends boolean = true> {
+export interface FundAttributesSelect<T extends boolean = true> {
   sourceCollectionId?: T;
   sourceItemId?: T;
+  title_fld?: T;
+  description_fld?: T;
+  icon_fld?: T;
   sourceUpdatedAt?: T;
   textFields?:
     | T
@@ -3439,17 +4663,25 @@ export interface WixFundAttributesSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
+  mediaFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
   data?: T;
   updatedAt?: T;
   createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-fund-details_select".
+ * via the `definition` "fund-details_select".
  */
-export interface WixFundDetailsSelect<T extends boolean = true> {
+export interface FundDetailsSelect<T extends boolean = true> {
   sourceCollectionId?: T;
   sourceItemId?: T;
+  title_fld?: T;
   sourceUpdatedAt?: T;
   textFields?:
     | T
@@ -3486,17 +4718,25 @@ export interface WixFundDetailsSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
+  mediaFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
   data?: T;
   updatedAt?: T;
   createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-geographic-allocations_select".
+ * via the `definition` "geographic-allocations_select".
  */
-export interface WixGeographicAllocationsSelect<T extends boolean = true> {
+export interface GeographicAllocationsSelect<T extends boolean = true> {
   sourceCollectionId?: T;
   sourceItemId?: T;
+  title_fld?: T;
   sourceUpdatedAt?: T;
   textFields?:
     | T
@@ -3533,17 +4773,25 @@ export interface WixGeographicAllocationsSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
+  mediaFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
   data?: T;
   updatedAt?: T;
   createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-homepage-links_select".
+ * via the `definition` "homepage-links_select".
  */
-export interface WixHomepageLinksSelect<T extends boolean = true> {
+export interface HomepageLinksSelect<T extends boolean = true> {
   sourceCollectionId?: T;
   sourceItemId?: T;
+  title_fld?: T;
   sourceUpdatedAt?: T;
   textFields?:
     | T
@@ -3580,17 +4828,25 @@ export interface WixHomepageLinksSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
+  mediaFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
   data?: T;
   updatedAt?: T;
   createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-import-usd_select".
+ * via the `definition` "import-usd_select".
  */
-export interface WixImportUsdSelect<T extends boolean = true> {
+export interface ImportUsdSelect<T extends boolean = true> {
   sourceCollectionId?: T;
   sourceItemId?: T;
+  title_fld?: T;
   sourceUpdatedAt?: T;
   textFields?:
     | T
@@ -3627,17 +4883,25 @@ export interface WixImportUsdSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
+  mediaFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
   data?: T;
   updatedAt?: T;
   createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-import-chf_select".
+ * via the `definition` "import-chf_select".
  */
-export interface WixImportChfSelect<T extends boolean = true> {
+export interface ImportChfSelect<T extends boolean = true> {
   sourceCollectionId?: T;
   sourceItemId?: T;
+  title_fld?: T;
   sourceUpdatedAt?: T;
   textFields?:
     | T
@@ -3674,17 +4938,25 @@ export interface WixImportChfSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
+  mediaFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
   data?: T;
   updatedAt?: T;
   createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-investment-process_select".
+ * via the `definition` "investment-process_select".
  */
-export interface WixInvestmentProcessSelect<T extends boolean = true> {
+export interface InvestmentProcessSelect<T extends boolean = true> {
   sourceCollectionId?: T;
   sourceItemId?: T;
+  title_fld?: T;
   sourceUpdatedAt?: T;
   textFields?:
     | T
@@ -3721,17 +4993,25 @@ export interface WixInvestmentProcessSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
+  mediaFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
   data?: T;
   updatedAt?: T;
   createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-legal-information_select".
+ * via the `definition` "legal-information_select".
  */
-export interface WixLegalInformationSelect<T extends boolean = true> {
+export interface LegalInformationSelect<T extends boolean = true> {
   sourceCollectionId?: T;
   sourceItemId?: T;
+  title_fld?: T;
   sourceUpdatedAt?: T;
   textFields?:
     | T
@@ -3768,17 +5048,25 @@ export interface WixLegalInformationSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
+  mediaFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
   data?: T;
   updatedAt?: T;
   createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-megatrend-dataset_select".
+ * via the `definition` "megatrend-dataset_select".
  */
-export interface WixMegatrendDatasetSelect<T extends boolean = true> {
+export interface MegatrendDatasetSelect<T extends boolean = true> {
   sourceCollectionId?: T;
   sourceItemId?: T;
+  title_fld?: T;
   sourceUpdatedAt?: T;
   textFields?:
     | T
@@ -3815,17 +5103,25 @@ export interface WixMegatrendDatasetSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
+  mediaFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
   data?: T;
   updatedAt?: T;
   createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-megatrends-allocations_select".
+ * via the `definition` "megatrends-allocations_select".
  */
-export interface WixMegatrendsAllocationsSelect<T extends boolean = true> {
+export interface MegatrendsAllocationsSelect<T extends boolean = true> {
   sourceCollectionId?: T;
   sourceItemId?: T;
+  title_fld?: T;
   sourceUpdatedAt?: T;
   textFields?:
     | T
@@ -3862,17 +5158,25 @@ export interface WixMegatrendsAllocationsSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
+  mediaFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
   data?: T;
   updatedAt?: T;
   createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-megatrends-detail_select".
+ * via the `definition` "megatrends-detail_select".
  */
-export interface WixMegatrendsDetailSelect<T extends boolean = true> {
+export interface MegatrendsDetailSelect<T extends boolean = true> {
   sourceCollectionId?: T;
   sourceItemId?: T;
+  title_fld?: T;
   sourceUpdatedAt?: T;
   textFields?:
     | T
@@ -3909,17 +5213,25 @@ export interface WixMegatrendsDetailSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
+  mediaFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
   data?: T;
   updatedAt?: T;
   createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-members-badges_select".
+ * via the `definition` "members-badges_select".
  */
-export interface WixMembersBadgesSelect<T extends boolean = true> {
+export interface MembersBadgesSelect<T extends boolean = true> {
   sourceCollectionId?: T;
   sourceItemId?: T;
+  title_fld?: T;
   sourceUpdatedAt?: T;
   textFields?:
     | T
@@ -3956,17 +5268,25 @@ export interface WixMembersBadgesSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
+  mediaFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
   data?: T;
   updatedAt?: T;
   createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-members-full-data_select".
+ * via the `definition` "members-full-data_select".
  */
-export interface WixMembersFullDataSelect<T extends boolean = true> {
+export interface MembersFullDataSelect<T extends boolean = true> {
   sourceCollectionId?: T;
   sourceItemId?: T;
+  title_fld?: T;
   sourceUpdatedAt?: T;
   textFields?:
     | T
@@ -4003,17 +5323,25 @@ export interface WixMembersFullDataSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
+  mediaFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
   data?: T;
   updatedAt?: T;
   createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-members-private-data_select".
+ * via the `definition` "members-private-data_select".
  */
-export interface WixMembersPrivateDataSelect<T extends boolean = true> {
+export interface MembersPrivateDataSelect<T extends boolean = true> {
   sourceCollectionId?: T;
   sourceItemId?: T;
+  title_fld?: T;
   sourceUpdatedAt?: T;
   textFields?:
     | T
@@ -4050,17 +5378,25 @@ export interface WixMembersPrivateDataSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
+  mediaFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
   data?: T;
   updatedAt?: T;
   createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-members-public-data_select".
+ * via the `definition` "members-public-data_select".
  */
-export interface WixMembersPublicDataSelect<T extends boolean = true> {
+export interface MembersPublicDataSelect<T extends boolean = true> {
   sourceCollectionId?: T;
   sourceItemId?: T;
+  title_fld?: T;
   sourceUpdatedAt?: T;
   textFields?:
     | T
@@ -4097,17 +5433,25 @@ export interface WixMembersPublicDataSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
+  mediaFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
   data?: T;
   updatedAt?: T;
   createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-menu-list_select".
+ * via the `definition` "menu-list_select".
  */
-export interface WixMenuListSelect<T extends boolean = true> {
+export interface MenuListSelect<T extends boolean = true> {
   sourceCollectionId?: T;
   sourceItemId?: T;
+  title_fld?: T;
   sourceUpdatedAt?: T;
   textFields?:
     | T
@@ -4144,17 +5488,25 @@ export interface WixMenuListSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
+  mediaFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
   data?: T;
   updatedAt?: T;
   createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-portfolio-strategy-process_select".
+ * via the `definition` "portfolio-strategy-process_select".
  */
-export interface WixPortfolioStrategyProcessSelect<T extends boolean = true> {
+export interface PortfolioStrategyProcessSelect<T extends boolean = true> {
   sourceCollectionId?: T;
   sourceItemId?: T;
+  title_fld?: T;
   sourceUpdatedAt?: T;
   textFields?:
     | T
@@ -4191,17 +5543,25 @@ export interface WixPortfolioStrategyProcessSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
+  mediaFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
   data?: T;
   updatedAt?: T;
   createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-privacy-policy_select".
+ * via the `definition` "privacy-policy_select".
  */
-export interface WixPrivacyPolicySelect<T extends boolean = true> {
+export interface PrivacyPolicySelect<T extends boolean = true> {
   sourceCollectionId?: T;
   sourceItemId?: T;
+  title_fld?: T;
   sourceUpdatedAt?: T;
   textFields?:
     | T
@@ -4238,17 +5598,25 @@ export interface WixPrivacyPolicySelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
+  mediaFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
   data?: T;
   updatedAt?: T;
   createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-sector-allocations_select".
+ * via the `definition` "sector-allocations_select".
  */
-export interface WixSectorAllocationsSelect<T extends boolean = true> {
+export interface SectorAllocationsSelect<T extends boolean = true> {
   sourceCollectionId?: T;
   sourceItemId?: T;
+  title_fld?: T;
   sourceUpdatedAt?: T;
   textFields?:
     | T
@@ -4285,17 +5653,25 @@ export interface WixSectorAllocationsSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
+  mediaFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
   data?: T;
   updatedAt?: T;
   createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-top-holdings_select".
+ * via the `definition` "top-holdings_select".
  */
-export interface WixTopHoldingsSelect<T extends boolean = true> {
+export interface TopHoldingsSelect<T extends boolean = true> {
   sourceCollectionId?: T;
   sourceItemId?: T;
+  title_fld?: T;
   sourceUpdatedAt?: T;
   textFields?:
     | T
@@ -4332,17 +5708,25 @@ export interface WixTopHoldingsSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
+  mediaFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
   data?: T;
   updatedAt?: T;
   createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "wix-trust-list_select".
+ * via the `definition` "trust-list_select".
  */
-export interface WixTrustListSelect<T extends boolean = true> {
+export interface TrustListSelect<T extends boolean = true> {
   sourceCollectionId?: T;
   sourceItemId?: T;
+  title_fld?: T;
   sourceUpdatedAt?: T;
   textFields?:
     | T
@@ -4373,6 +5757,13 @@ export interface WixTrustListSelect<T extends boolean = true> {
         id?: T;
       };
   objectFields?:
+    | T
+    | {
+        key?: T;
+        value?: T;
+        id?: T;
+      };
+  mediaFields?:
     | T
     | {
         key?: T;
@@ -4611,18 +6002,6 @@ export interface PayloadJobsSelect<T extends boolean = true> {
   queue?: T;
   waitUntil?: T;
   processing?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "payload-folders_select".
- */
-export interface PayloadFoldersSelect<T extends boolean = true> {
-  name?: T;
-  folder?: T;
-  documentsAndFolders?: T;
-  folderType?: T;
   updatedAt?: T;
   createdAt?: T;
 }

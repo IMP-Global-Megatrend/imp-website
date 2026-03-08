@@ -110,6 +110,7 @@ export function AnimatedIcon({
   const Icon = icons[name] as unknown as ForwardRefExoticComponent<any>
   const wrapperRef = useRef<HTMLSpanElement | null>(null)
   const iconRef = useRef<{ startAnimation: () => void; stopAnimation: () => void } | null>(null)
+  const hasStartedAnimationRef = useRef(false)
   const [isHovered, setIsHovered] = useState(false)
   const shouldAnimate = animateOnHover ? isHovered : animate
 
@@ -136,8 +137,10 @@ export function AnimatedIcon({
     if (shouldAnimate === undefined) return
     if (shouldAnimate) {
       iconRef.current?.startAnimation?.()
+      hasStartedAnimationRef.current = true
       return
     }
+    if (!hasStartedAnimationRef.current) return
     iconRef.current?.stopAnimation?.()
   }, [shouldAnimate])
 

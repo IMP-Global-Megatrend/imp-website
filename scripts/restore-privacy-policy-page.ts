@@ -42,14 +42,14 @@ async function main() {
   const payload = await getPayload({ config })
 
   const sourceResult = await payload.find({
-    collection: 'wix-privacy-policy',
+    collection: 'privacy-policy',
     limit: 1,
     pagination: false,
     depth: 0,
   })
   const sourceDoc = sourceResult.docs?.[0] as { data?: CMSRecord } | undefined
   if (!sourceDoc?.data) {
-    throw new Error('No source document found in wix-privacy-policy.')
+    throw new Error('No source document found in privacy-policy.')
   }
 
   const data = sourceDoc.data

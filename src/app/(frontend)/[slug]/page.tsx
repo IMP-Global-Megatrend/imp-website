@@ -74,7 +74,7 @@ export default async function Page({ params: paramsPromise }: Args) {
 
       <RenderHero {...hero} />
       <div className={hasHero ? undefined : 'pt-36 md:pt-40'}>
-        <RenderBlocks blocks={layout} />
+        <RenderBlocks blocks={layout ?? []} />
       </div>
     </article>
   )

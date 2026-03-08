@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { getCMSMegatrendImageVariantsByTitle, getCMSPageBySlug } from '../_components/getCMSPageBySlug'
+import { getCMSMegatrendDetailBlocks, getCMSPageBySlug } from '../_components/getCMSPageBySlug'
 import { PageHero } from '../_components/PageHero'
 import { MegatrendDetailSection } from '../_components/MegatrendDetailSection'
 import { ActionLinkButton } from '../_components/ActionLinkButton'
@@ -17,13 +17,55 @@ export async function generateMetadata(): Promise<Metadata> {
 const megatrends = megatrendsContent.megatrends
 
 export default async function MegatrendsPage() {
-  const trendImageVariantsByTitle = await getCMSMegatrendImageVariantsByTitle()
+  const [cmsPage, cmsMegatrendBlocks] = await Promise.all([
+    getCMSPageBySlug('megatrends'),
+    getCMSMegatrendDetailBlocks(),
+  ])
+  const page = (cmsPage && typeof cmsPage === 'object' ? cmsPage : {}) as Record<string, unknown>
+  const megatrendBlocks = cmsMegatrendBlocks.length > 0 ? cmsMegatrendBlocks : megatrends
+
+  const getText = (value: unknown): string | null => {
+    if (typeof value !== 'string') return null
+    const trimmed = value.trim()
+    return trimmed.length > 0 ? trimmed : null
+  }
+  const getAssetHref = (value: unknown): string | null => {
+    if (!value || typeof value !== 'object') return null
+    const media = value as { url?: unknown }
+    return getText(media.url)
+  }
+
+  const heroTitle = getText(page.megatrendsHeroTitle) || megatrendsContent.hero.title
+  const heroSubtitle = getText(page.megatrendsHeroSubtitle) || megatrendsContent.hero.subtitle
+  const introHeading = getText(page.megatrendsIntroHeading) || megatrendsContent.intro.heading
+  const introLeftQuote = getText(page.megatrendsIntroLeftQuote) || megatrendsContent.intro.leftQuote
+  const introRightQuote = getText(page.megatrendsIntroRightQuote) || megatrendsContent.intro.rightQuote
+  const relatedLinksHeading =
+    getText(page.megatrendsRelatedLinksHeading) || megatrendsContent.relatedLinks.heading
+  const relatedPrimaryLabel =
+    getText(page.megatrendsRelatedPrimaryLabel) || megatrendsContent.relatedLinks.primaryLabel
+  const relatedPrimaryHref =
+    getText(page.megatrendsRelatedPrimaryHref) ||
+    getAssetHref(page.megatrendsRelatedPrimaryAsset) ||
+    '/portfolio-strategy'
+  const relatedSecondaryLabel =
+    getText(page.megatrendsRelatedSecondaryLabel) || megatrendsContent.relatedLinks.secondaryLabel
+  const relatedSecondaryHref =
+    getText(page.megatrendsRelatedSecondaryHref) ||
+    getAssetHref(page.megatrendsRelatedSecondaryAsset) ||
+    '/portfolio-strategy'
+  const thematicFrameworkHeading =
+    getText(page.megatrendsThematicFrameworkHeading) || megatrendsContent.thematicFramework.heading
+  const thematicFrameworkLeftQuote =
+    getText(page.megatrendsThematicFrameworkLeftQuote) || megatrendsContent.thematicFramework.leftQuote
+  const thematicFrameworkRightQuote =
+    getText(page.megatrendsThematicFrameworkRightQuote) || megatrendsContent.thematicFramework.rightQuote
 
   return (
     <main className="bg-white text-[#0b1035]">
         <PageHero
-          title={megatrendsContent.hero.title}
-          subtitle={megatrendsContent.hero.subtitle}
+          title={heroTitle}
+          subtitle={heroSubtitle}
           palette={{ color1: '#2b3dea', color2: 'oklch(0.47 0.12 174)', color3: 'oklch(0.47 0.10 136)' }}
         />
 
@@ -32,14 +74,14 @@ export default async function MegatrendsPage() {
           <div className="container">
             <div className="max-w-5xl space-y-6">
               <h3 className="text-white font-display font-medium leading-relaxed text-[18px] md:text-[19px]">
-                {megatrendsContent.intro.heading}
+                {introHeading}
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-6 md:gap-8">
                 <blockquote className="border-l border-primary-light pl-8 pr-8 text-[#62A8FF] font-thin leading-relaxed text-[18px] md:text-[19px]">
-                  {megatrendsContent.intro.leftQuote}
+                  {introLeftQuote}
                 </blockquote>
                 <blockquote className="border-l border-primary-light pl-8 pr-8 text-[#62A8FF] font-thin leading-relaxed text-[18px] md:text-[19px]">
-                  {megatrendsContent.intro.rightQuote}
+                  {introRightQuote}
                 </blockquote>
               </div>
             </div>
@@ -48,19 +90,12 @@ export default async function MegatrendsPage() {
 
         {/* Megatrend sections */}
         <div className="pb-16 md:pb-20">
-          {megatrends.map((trend, idx) => (
+          {megatrendBlocks.map((trend, idx) => (
             <MegatrendDetailSection
               id={trend.anchor}
               key={trend.title}
               index={idx}
-              trend={{
-                ...trend,
-                icon:
-                  trendImageVariantsByTitle[trend.title]?.blue ||
-                  trendImageVariantsByTitle[trend.title]?.white ||
-                  trend.icon ||
-                  '',
-              }}
+              trend={trend}
               reverse={idx % 2 === 1}
               noTopBorder={idx === 0}
             />
@@ -69,20 +104,22 @@ export default async function MegatrendsPage() {
           <section className="border-t border-[#d9def0] pt-10 pb-0 md:pt-12 md:pb-0">
             <div className="container">
               <h3 className="mb-5 text-center text-[20px] md:text-[22px] text-[#0b1035]">
-                {megatrendsContent.relatedLinks.heading}
+                {relatedLinksHeading}
               </h3>
               <div className="flex flex-wrap items-center justify-center gap-4">
                 <ActionLinkButton
-                  href="/portfolio-strategy"
-                  label={megatrendsContent.relatedLinks.primaryLabel}
+                  href={relatedPrimaryHref}
+                  label={relatedPrimaryLabel}
                   icon="trendingUp"
                   buttonVariant="outlineMuted"
+                  external={relatedPrimaryHref.startsWith('http://') || relatedPrimaryHref.startsWith('https://')}
                 />
                 <ActionLinkButton
-                  href="/portfolio-strategy"
-                  label={megatrendsContent.relatedLinks.secondaryLabel}
+                  href={relatedSecondaryHref}
+                  label={relatedSecondaryLabel}
                   icon="chartLine"
                   buttonVariant="outlineMuted"
+                  external={relatedSecondaryHref.startsWith('http://') || relatedSecondaryHref.startsWith('https://')}
                 />
               </div>
             </div>
@@ -94,14 +131,14 @@ export default async function MegatrendsPage() {
           <div className="container">
             <div className="max-w-5xl space-y-6">
               <h3 className="text-white font-display font-medium leading-relaxed text-[18px] md:text-[19px]">
-                {megatrendsContent.thematicFramework.heading}
+                {thematicFrameworkHeading}
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                 <blockquote className="border-l border-primary-light pl-8 pr-8 text-[#62A8FF] font-thin leading-relaxed text-[18px] md:text-[19px]">
-                  {megatrendsContent.thematicFramework.leftQuote}
+                  {thematicFrameworkLeftQuote}
                 </blockquote>
                 <blockquote className="border-l border-primary-light pl-8 pr-8 text-[#62A8FF] font-thin leading-relaxed text-[18px] md:text-[19px]">
-                  {megatrendsContent.thematicFramework.rightQuote}
+                  {thematicFrameworkRightQuote}
                 </blockquote>
               </div>
             </div>
