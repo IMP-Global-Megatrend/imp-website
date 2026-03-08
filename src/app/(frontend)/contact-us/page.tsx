@@ -3,9 +3,7 @@ import { getCMSPageBySlug } from '../_components/getCMSPageBySlug'
 import { PageHero } from '../_components/PageHero'
 import { AnimatedIcon } from '../_components/AnimatedIcon'
 import { ContactLocationMap } from '../_components/ContactLocationMap'
-import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
-import contactUsContent from '@/constants/contact-us-content.json'
+import { ContactForm } from './ContactForm'
 import fallbacks from '@/constants/fallbacks.json'
 import { generateMeta, generateStaticFallbackMeta } from '@/utilities/generateMeta'
 
@@ -49,104 +47,7 @@ export default async function ContactPage() {
         <div className="container py-16 md:py-20 grid lg:grid-cols-[1fr_380px] gap-12">
           {/* Form */}
           <section>
-            <form className="space-y-5">
-              <div className="grid sm:grid-cols-2 gap-5">
-                <div>
-                  <label className="mb-1.5 block font-display text-[15px] leading-[1.3] text-[#4f566f]">
-                    {contactUsContent.form.fields.firstName.label}
-                  </label>
-                  <input
-                    className="w-full border border-[#d9def0] px-4 py-3 text-[15px] text-[#0b1035] bg-white placeholder:text-[#b0b5c8] focus:outline-none focus:border-[#0040ff] transition-colors"
-                    placeholder={contactUsContent.form.fields.firstName.placeholder}
-                  />
-                </div>
-                <div>
-                  <label className="mb-1.5 block font-display text-[15px] leading-[1.3] text-[#4f566f]">
-                    {contactUsContent.form.fields.lastName.label}
-                  </label>
-                  <input
-                    className="w-full border border-[#d9def0] px-4 py-3 text-[15px] text-[#0b1035] bg-white placeholder:text-[#b0b5c8] focus:outline-none focus:border-[#0040ff] transition-colors"
-                    placeholder={contactUsContent.form.fields.lastName.placeholder}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="mb-1.5 block font-display text-[15px] leading-[1.3] text-[#4f566f]">
-                  {contactUsContent.form.fields.phone.label}
-                </label>
-                <input
-                  className="w-full border border-[#d9def0] px-4 py-3 text-[15px] text-[#0b1035] bg-white placeholder:text-[#b0b5c8] focus:outline-none focus:border-[#0040ff] transition-colors"
-                  placeholder={contactUsContent.form.fields.phone.placeholder}
-                />
-              </div>
-
-              <div>
-                <label className="mb-1.5 block font-display text-[15px] leading-[1.3] text-[#4f566f]">
-                  {contactUsContent.form.fields.email.label}{' '}
-                  <span className="text-red-500">{contactUsContent.form.fields.email.requiredSuffix}</span>
-                </label>
-                <input
-                  type="email"
-                  required
-                  className="w-full border border-[#d9def0] px-4 py-3 text-[15px] text-[#0b1035] bg-white placeholder:text-[#b0b5c8] focus:outline-none focus:border-[#0040ff] transition-colors"
-                  placeholder={contactUsContent.form.fields.email.placeholder}
-                />
-              </div>
-
-              <fieldset>
-                <legend className="mb-3 font-display text-[15px] leading-[1.3] text-[#4f566f]">
-                  {contactUsContent.form.inquiryType.legend}
-                </legend>
-                <div className="flex flex-wrap gap-4">
-                  {contactUsContent.form.inquiryType.options.map((opt, idx) => (
-                    <label key={opt} htmlFor={`inquiry-${idx}`} className="flex items-center gap-2 text-[14px] text-[#2b3045]">
-                      <Checkbox
-                        id={`inquiry-${idx}`}
-                        className="size-5 rounded-none border-[#d9def0] data-[state=checked]:border-[#0040ff] data-[state=checked]:bg-[#0040ff] cursor-pointer"
-                        defaultChecked={opt === contactUsContent.form.inquiryType.defaultChecked}
-                      />
-                      {opt}
-                    </label>
-                  ))}
-                </div>
-              </fieldset>
-
-              <div>
-                <label className="mb-1.5 block font-display text-[15px] leading-[1.3] text-[#4f566f]">
-                  {contactUsContent.form.fields.message.label}
-                </label>
-                <textarea
-                  rows={5}
-                  className="w-full border border-[#d9def0] px-4 py-3 text-[15px] text-[#0b1035] bg-white placeholder:text-[#b0b5c8] focus:outline-none focus:border-[#0040ff] transition-colors resize-none"
-                  placeholder={contactUsContent.form.fields.message.placeholder}
-                />
-              </div>
-
-              <div className="border-t border-[#d9def0] pt-5">
-                <h3 className="text-[15px] font-medium text-[#0b1035] mb-2">{contactUsContent.form.consent.heading}</h3>
-                {consentText ? (
-                  <p className="mb-3 text-[14px] leading-relaxed text-[#5f6477]">{consentText}</p>
-                ) : null}
-                <label htmlFor="contact-consent" className="flex items-start gap-2 text-[14px] text-[#2b3045]">
-                  <Checkbox
-                    id="contact-consent"
-                    required
-                    className="mt-0.5 size-5 rounded-none border-[#d9def0] data-[state=checked]:border-[#0040ff] data-[state=checked]:bg-[#0040ff] cursor-pointer"
-                  />
-                  {contactUsContent.form.consent.checkboxLabel}
-                </label>
-              </div>
-
-              <Button
-                type="submit"
-                variant="default"
-                size="clear"
-                className="rounded-none bg-[#0040ff] px-8 py-3 font-display text-[14px] text-white hover:bg-[#0035d9] cursor-pointer"
-              >
-                {contactUsContent.form.submitLabel}
-              </Button>
-            </form>
+            <ContactForm consentText={consentText} />
           </section>
 
           {/* Contact Info */}
