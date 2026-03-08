@@ -252,9 +252,9 @@ export interface Page {
   };
   layout: (CallToActionBlock | ContentBlock | MediaBlock | ArchiveBlock | FormBlock)[];
   /**
-   * Optional MP4 URL for /about-us video.
+   * Optional video file from Media Library for /about-us.
    */
-  aboutUsVideoUrl?: string | null;
+  aboutUsVideo?: (number | null) | Media;
   /**
    * Homepage CTA label used in the hero section.
    */
@@ -263,6 +263,24 @@ export interface Page {
    * Homepage CTA URL used in the hero section.
    */
   heroCtaHref?: string | null;
+  homeDownloads?: {
+    /**
+     * Homepage download: Factsheet USD (PDF media asset).
+     */
+    factsheetUsd?: (number | null) | Media;
+    /**
+     * Homepage download: Factsheet CHF Hedged (PDF media asset).
+     */
+    factsheetChfHedged?: (number | null) | Media;
+    /**
+     * Homepage download: Fund Commentary (PDF media asset).
+     */
+    fundCommentary?: (number | null) | Media;
+    /**
+     * Homepage download: Presentation (PDF media asset).
+     */
+    presentation?: (number | null) | Media;
+  };
   contactCompanyName?: string | null;
   contactAddress?: string | null;
   contactPhone?: string | null;
@@ -2918,9 +2936,17 @@ export interface PagesSelect<T extends boolean = true> {
         archive?: T | ArchiveBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
       };
-  aboutUsVideoUrl?: T;
+  aboutUsVideo?: T;
   heroCtaLabel?: T;
   heroCtaHref?: T;
+  homeDownloads?:
+    | T
+    | {
+        factsheetUsd?: T;
+        factsheetChfHedged?: T;
+        fundCommentary?: T;
+        presentation?: T;
+      };
   contactCompanyName?: T;
   contactAddress?: T;
   contactPhone?: T;
@@ -4687,6 +4713,24 @@ export interface Footer {
         id?: string | null;
       }[]
     | null;
+  downloads?: {
+    /**
+     * PDF media asset for Factsheet USD.
+     */
+    factsheetUsd?: (number | null) | Media;
+    /**
+     * PDF media asset for Factsheet CHF Hedged.
+     */
+    factsheetChfHedged?: (number | null) | Media;
+    /**
+     * PDF media asset for Fund Commentary.
+     */
+    fundCommentary?: (number | null) | Media;
+    /**
+     * PDF media asset for Presentation.
+     */
+    presentation?: (number | null) | Media;
+  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -4731,6 +4775,14 @@ export interface FooterSelect<T extends boolean = true> {
               label?: T;
             };
         id?: T;
+      };
+  downloads?:
+    | T
+    | {
+        factsheetUsd?: T;
+        factsheetChfHedged?: T;
+        fundCommentary?: T;
+        presentation?: T;
       };
   updatedAt?: T;
   createdAt?: T;

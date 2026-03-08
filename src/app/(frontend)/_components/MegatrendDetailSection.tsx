@@ -65,7 +65,7 @@ export function MegatrendDetailSection({
             {trend.icon ? (
               <img
                 src={trend.icon}
-                alt=""
+                alt={`${trend.title} icon`}
                 className="w-full h-auto object-contain"
               />
             ) : null}

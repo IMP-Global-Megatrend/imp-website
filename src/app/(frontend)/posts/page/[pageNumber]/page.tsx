@@ -69,6 +69,9 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
   return {
     title: postsContent.pagination.titleTemplate.replace('{pageNumber}', normalizedPageNumber),
     description: postsContent.pagination.descriptionTemplate.replace('{pageNumber}', normalizedPageNumber),
+    openGraph: {
+      images: [{ url: '/images/og/posts-og.png' }],
+    },
   }
 }
 

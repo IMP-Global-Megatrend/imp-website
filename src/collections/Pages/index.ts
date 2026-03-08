@@ -84,10 +84,11 @@ export const Pages: CollectionConfig<'pages'> = {
         {
           fields: [
             {
-              name: 'aboutUsVideoUrl',
-              type: 'text',
+              name: 'aboutUsVideo',
+              type: 'upload',
+              relationTo: 'media',
               admin: {
-                description: 'Optional MP4 URL for /about-us video.',
+                description: 'Optional video file from Media Library for /about-us.',
               },
             },
           ],
@@ -108,6 +109,44 @@ export const Pages: CollectionConfig<'pages'> = {
               admin: {
                 description: 'Homepage CTA URL used in the hero section.',
               },
+            },
+            {
+              name: 'homeDownloads',
+              type: 'group',
+              fields: [
+                {
+                  name: 'factsheetUsd',
+                  type: 'upload',
+                  relationTo: 'media',
+                  admin: {
+                    description: 'Homepage download: Factsheet USD (PDF media asset).',
+                  },
+                },
+                {
+                  name: 'factsheetChfHedged',
+                  type: 'upload',
+                  relationTo: 'media',
+                  admin: {
+                    description: 'Homepage download: Factsheet CHF Hedged (PDF media asset).',
+                  },
+                },
+                {
+                  name: 'fundCommentary',
+                  type: 'upload',
+                  relationTo: 'media',
+                  admin: {
+                    description: 'Homepage download: Fund Commentary (PDF media asset).',
+                  },
+                },
+                {
+                  name: 'presentation',
+                  type: 'upload',
+                  relationTo: 'media',
+                  admin: {
+                    description: 'Homepage download: Presentation (PDF media asset).',
+                  },
+                },
+              ],
             },
           ],
           label: 'Home',

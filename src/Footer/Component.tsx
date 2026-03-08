@@ -16,6 +16,19 @@ export async function Footer() {
   }
 
   const navItems = footerData?.navItems || []
+  const footerDownloads = [
+    { label: 'Factsheet USD', media: footerData?.downloads?.factsheetUsd },
+    { label: 'Factsheet CHF Hedged', media: footerData?.downloads?.factsheetChfHedged },
+    { label: 'Fund Commentary', media: footerData?.downloads?.fundCommentary },
+    { label: 'Presentation', media: footerData?.downloads?.presentation },
+  ]
+    .map((item) => {
+      if (!item.media || typeof item.media !== 'object') return null
+      const href = typeof item.media.url === 'string' ? item.media.url.trim() : ''
+      if (!href) return null
+      return { label: item.label, href }
+    })
+    .filter((item): item is { label: string; href: string } => Boolean(item))
 
   return (
     <footer className="mt-auto border-t border-border/30 bg-[var(--card)]">
@@ -48,10 +61,17 @@ export async function Footer() {
               Downloads
             </h4>
             <nav className="flex flex-col gap-2.5">
-              <a href="https://www.impgmtfund.com/_files/ugd/037a25_e3e73c35d566433fa958a54696b69633.pdf" target="_blank" rel="noopener noreferrer" className="text-sm text-foreground/60 hover:text-foreground transition-colors">Factsheet USD</a>
-              <a href="https://www.impgmtfund.com/_files/ugd/037a25_671093d7123f482e9e90bf53264f0f85.pdf" target="_blank" rel="noopener noreferrer" className="text-sm text-foreground/60 hover:text-foreground transition-colors">Factsheet CHF Hedged</a>
-              <a href="https://www.impgmtfund.com/_files/ugd/037a25_4f821338d34e4ad082c86d13bd46c757.pdf" target="_blank" rel="noopener noreferrer" className="text-sm text-foreground/60 hover:text-foreground transition-colors">Fund Commentary</a>
-              <a href="https://www.impgmtfund.com/_files/ugd/037a25_eb4acc9f30f64bc6a3cb83cd325b4333.pdf" target="_blank" rel="noopener noreferrer" className="text-sm text-foreground/60 hover:text-foreground transition-colors">Presentation</a>
+              {footerDownloads.map((item) => (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-foreground/60 hover:text-foreground transition-colors"
+                >
+                  {item.label}
+                </a>
+              ))}
             </nav>
           </div>
 

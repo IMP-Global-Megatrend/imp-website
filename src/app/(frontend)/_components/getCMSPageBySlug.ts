@@ -27,15 +27,30 @@ export async function getCMSAboutUsVideoUrl(): Promise<string | null> {
       collection: 'pages',
       limit: 1,
       pagination: false,
-      depth: 0,
+      depth: 1,
       where: {
         slug: { equals: 'about-us' },
       },
     })
 
-    const page = result.docs?.[0] as { aboutUsVideoUrl?: unknown } | undefined
-    if (typeof page?.aboutUsVideoUrl === 'string' && page.aboutUsVideoUrl.trim()) {
-      return page.aboutUsVideoUrl.trim()
+    const page = result.docs?.[0] as
+      | {
+          aboutUsVideo?: {
+            url?: unknown
+            filename?: unknown
+          }
+        }
+      | undefined
+
+    const mediaUrl = page?.aboutUsVideo?.url
+    if (typeof mediaUrl === 'string' && mediaUrl.trim()) {
+      return mediaUrl.trim()
+    }
+
+    const mediaFilename = page?.aboutUsVideo?.filename
+    if (typeof mediaFilename === 'string' && mediaFilename.trim()) {
+      const resolvedUrl = resolveSupabasePublicMediaUrl(mediaFilename.trim())
+      if (resolvedUrl) return resolvedUrl
     }
 
     return null

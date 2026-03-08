@@ -142,8 +142,7 @@ export function ContentGatePopup() {
                   <div className="inline-flex items-center gap-2 whitespace-nowrap">
                     <img
                       src={selectedCountryOption.flagSrc}
-                      alt=""
-                      aria-hidden="true"
+                      alt={`${selectedCountryOption.label} flag`}
                       className="h-3.5 w-[21px] rounded-none object-cover"
                     />
                     <span>{selectedCountryOption.label}</span>
@@ -158,8 +157,7 @@ export function ContentGatePopup() {
                     <span className="inline-flex items-center gap-2 whitespace-nowrap">
                       <img
                         src={country.flagSrc}
-                        alt=""
-                        aria-hidden="true"
+                        alt={`${country.label} flag`}
                         className="h-3.5 w-[21px] rounded-none object-cover"
                       />
                       <span>{country.label}</span>

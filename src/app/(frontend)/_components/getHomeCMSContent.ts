@@ -29,6 +29,10 @@ type ExploreMegatrendsCard = {
 type CMSRecord = Record<string, unknown>
 type ParsedTrendItem = TrendItem & { manualSort: string; imageSource: string }
 type ParsedDownloadItem = Omit<DownloadItem, 'href'> & { source: string }
+type MediaLike = {
+  url?: unknown
+  filename?: unknown
+}
 
 export type HomeCMSContent = {
   hero: {
@@ -524,6 +528,23 @@ function resolveSupabasePublicMediaUrl(filename: string): string | null {
   }
 }
 
+function resolveMediaLikeUrl(media: unknown): string {
+  if (!media || typeof media !== 'object') return ''
+
+  const mediaRecord = media as MediaLike
+  const directUrl = mediaRecord.url
+  if (typeof directUrl === 'string' && directUrl.trim() !== '') {
+    return directUrl.trim()
+  }
+
+  const filename = mediaRecord.filename
+  if (typeof filename === 'string' && filename.trim() !== '') {
+    return resolveSupabasePublicMediaUrl(filename.trim()) || ''
+  }
+
+  return ''
+}
+
 function normalizeMediaLookupSource(source: string): string {
   if (source.startsWith('wix:image://v1/')) {
     const fileId = source.replace('wix:image://v1/', '').split('/')[0]
@@ -607,6 +628,7 @@ export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
       collection: 'pages',
       limit: 1,
       pagination: false,
+      depth: 1,
       where: {
         slug: { equals: 'home' },
       },
@@ -663,26 +685,66 @@ export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
       payload.logger.warn('Trend data missing: no valid rows found in payload collection wix-megatrend-dataset.')
     }
 
-    const downloadResult = await payload.find({
-      collection: 'wix-homepage-links',
-      limit: 10,
-      pagination: false,
-      depth: 0,
-    })
-    const downloadDocs = (downloadResult.docs ?? []) as unknown as CMSRecord[]
-    const parsedDownloadItems = parseDownloadItems(downloadDocs)
-    const downloadItems = await Promise.all(
-      parsedDownloadItems.map(async (item) => {
-        const resolvedHref = await resolveMediaUrlFromSource(payload, item.source)
-        return { id: item.id, label: item.label, href: resolvedHref }
-      }),
-    )
-    const resolvedDownloadItems = downloadItems.filter((item) => Boolean(item.href))
-    if (resolvedDownloadItems.length === 0) {
-      payload.logger.warn('Download data missing: no valid rows found in payload collection wix-homepage-links.')
+    const pageRecord = page as {
+      homeDownloads?: {
+        factsheetUsd?: unknown
+        factsheetChfHedged?: unknown
+        fundCommentary?: unknown
+        presentation?: unknown
+      }
     }
 
-    const downloadData = ((downloadDocs[0]?.data as CMSRecord | undefined) ?? {}) as CMSRecord
+    const pageDownloads: DownloadItem[] = [
+      {
+        id: 'factsheetUsd',
+        label: 'Factsheet USD',
+        href: resolveMediaLikeUrl(pageRecord.homeDownloads?.factsheetUsd),
+      },
+      {
+        id: 'factsheetChfHedged',
+        label: 'Factsheet CHF Hedged',
+        href: resolveMediaLikeUrl(pageRecord.homeDownloads?.factsheetChfHedged),
+      },
+      {
+        id: 'fundCommentary',
+        label: 'Fund Commentary',
+        href: resolveMediaLikeUrl(pageRecord.homeDownloads?.fundCommentary),
+      },
+      {
+        id: 'presentation',
+        label: 'Presentation',
+        href: resolveMediaLikeUrl(pageRecord.homeDownloads?.presentation),
+      },
+    ].filter((item): item is DownloadItem => Boolean(item.href))
+
+    let resolvedDownloadItems = pageDownloads
+    let downloadData: CMSRecord = {}
+
+    if (resolvedDownloadItems.length === 0) {
+      const downloadResult = await payload.find({
+        collection: 'wix-homepage-links',
+        limit: 10,
+        pagination: false,
+        depth: 0,
+      })
+      const downloadDocs = (downloadResult.docs ?? []) as unknown as CMSRecord[]
+      const parsedDownloadItems = parseDownloadItems(downloadDocs)
+      const downloadItems = await Promise.all(
+        parsedDownloadItems.map(async (item) => {
+          const resolvedHref = await resolveMediaUrlFromSource(payload, item.source)
+          return { id: item.id, label: item.label, href: resolvedHref }
+        }),
+      )
+      resolvedDownloadItems = downloadItems.filter((item): item is DownloadItem => Boolean(item.href))
+      downloadData = ((downloadDocs[0]?.data as CMSRecord | undefined) ?? {}) as CMSRecord
+    }
+
+    if (resolvedDownloadItems.length === 0) {
+      payload.logger.warn(
+        'Download data missing: no valid media in page.homeDownloads and no valid rows in wix-homepage-links.',
+      )
+    }
+
     const exploreMegatrendsTitle = parseExploreMegatrendsTitle(downloadData)
     const exploreMegatrendsImageSource = parseExploreMegatrendsImageSource(downloadData)
 
@@ -716,9 +778,9 @@ export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
     const heroSplit = heroSource.split('Harnessing')
     const heroHeading = (heroSplit[0] ?? '').replace(/\.+$/, '').trim()
     const heroSubtitle = heroSplit[1] ? `Harnessing${heroSplit[1]}`.trim() : ''
-    const pageRecord = page as { heroCtaLabel?: unknown; heroCtaHref?: unknown }
-    const heroCtaLabel = typeof pageRecord.heroCtaLabel === 'string' ? pageRecord.heroCtaLabel.trim() : ''
-    const heroCtaHref = typeof pageRecord.heroCtaHref === 'string' ? pageRecord.heroCtaHref.trim() : ''
+    const heroRecord = page as { heroCtaLabel?: unknown; heroCtaHref?: unknown }
+    const heroCtaLabel = typeof heroRecord.heroCtaLabel === 'string' ? heroRecord.heroCtaLabel.trim() : ''
+    const heroCtaHref = typeof heroRecord.heroCtaHref === 'string' ? heroRecord.heroCtaHref.trim() : ''
 
     return {
       hero: {

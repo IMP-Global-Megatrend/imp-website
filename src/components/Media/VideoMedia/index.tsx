@@ -7,8 +7,19 @@ import type { Props as MediaProps } from '../types'
 
 import { getMediaUrl } from '@/utilities/getMediaUrl'
 
+function filenameToLabel(filename: string): string {
+  const withoutExt = filename.replace(/\.[a-zA-Z0-9]+$/, '')
+  const normalized = withoutExt
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+
+  if (!normalized) return 'Media video'
+  return normalized.charAt(0).toUpperCase() + normalized.slice(1)
+}
+
 export const VideoMedia: React.FC<MediaProps> = (props) => {
-  const { onClick, resource, videoClassName } = props
+  const { alt: altFromProps, onClick, resource, videoClassName } = props
 
   const videoRef = useRef<HTMLVideoElement>(null)
   // const [showFallback] = useState<boolean>()
@@ -24,10 +35,16 @@ export const VideoMedia: React.FC<MediaProps> = (props) => {
   }, [])
 
   if (resource && typeof resource === 'object') {
-    const { filename } = resource
+    const { alt: altFromResource, filename } = resource
+    const ariaLabel =
+      (typeof altFromProps === 'string' && altFromProps.trim()) ||
+      (typeof altFromResource === 'string' && altFromResource.trim()) ||
+      (typeof filename === 'string' ? filenameToLabel(filename) : '') ||
+      'Media video'
 
     return (
       <video
+        aria-label={ariaLabel}
         autoPlay
         className={cn(videoClassName)}
         controls={false}

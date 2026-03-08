@@ -1,7 +1,9 @@
+import type { Metadata } from 'next'
 import { getCMSPageBySlug } from '../_components/getCMSPageBySlug'
 import { PageHero } from '../_components/PageHero'
 import RichText from '@/components/RichText'
 import fallbacks from '@/constants/fallbacks.json'
+import { generateMeta } from '@/utilities/generateMeta'
 import { notFound } from 'next/navigation'
 
 function removeH1HeadingsFromRichText(richText: unknown): unknown {
@@ -74,4 +76,11 @@ export default async function PrivacyPage() {
       </div>
     </main>
   )
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const cmsPage = await getCMSPageBySlug('privacy-policy')
+  if (cmsPage) return generateMeta({ doc: cmsPage })
+
+  return fallbacks.metadata.privacyPolicy
 }

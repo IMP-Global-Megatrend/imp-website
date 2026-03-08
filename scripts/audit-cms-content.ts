@@ -57,7 +57,7 @@ async function main() {
       layoutBlocks: layout.length,
       hasHeroCtaLabel: isNonEmptyString(doc.heroCtaLabel),
       hasHeroCtaHref: isNonEmptyString(doc.heroCtaHref),
-      hasAboutUsVideoUrl: isNonEmptyString(doc.aboutUsVideoUrl),
+      hasAboutUsVideo: Boolean(doc.aboutUsVideo),
       hasContactCompanyName: isNonEmptyString(doc.contactCompanyName),
       hasContactAddress: isNonEmptyString(doc.contactAddress),
       hasContactEmail: isNonEmptyString(doc.contactEmail),
