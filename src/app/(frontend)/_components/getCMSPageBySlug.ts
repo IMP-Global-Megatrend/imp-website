@@ -91,6 +91,8 @@ export type CMSPerformancePageData = {
   annualPerformanceTitle?: string
   usdLabel?: string
   chfLabel?: string
+  exportSvgTooltip?: string
+  exportCsvTooltip?: string
   usd?: CMSPerformanceShareClassDetails
   chf?: CMSPerformanceShareClassDetails
 }
@@ -811,18 +813,36 @@ export async function getCMSPerformancePageData(): Promise<CMSPerformancePageDat
       depth: 0,
     })
 
-    const doc = result.docs?.[0] as { data?: Record<string, unknown> | unknown } | undefined
+    const doc = result.docs?.[0] as
+      | {
+          data?: Record<string, unknown> | unknown
+          textFields?: Array<{ key?: unknown; value?: unknown }> | null
+        }
+      | undefined
     if (!doc) return null
     const data = (doc.data && typeof doc.data === 'object' ? doc.data : {}) as Record<string, unknown>
+    const getFromDataOrTextFields = (...keys: string[]): string | undefined => {
+      const fromData = getDataString(data, ...keys)
+      if (fromData) return fromData
+
+      for (const key of keys) {
+        const fromTextFields = getTextFieldValue(doc.textFields, key)
+        if (fromTextFields) return fromTextFields
+      }
+
+      return undefined
+    }
 
     const usd = buildPerformanceShareClass(data, 'usd')
     const chf = buildPerformanceShareClass(data, 'chf')
 
     return {
-      pageTitle: getDataString(data, 'pageTitle') ?? undefined,
-      annualPerformanceTitle: getDataString(data, 'annualPerformanceTitle') ?? undefined,
-      usdLabel: getDataString(data, 'usd') ?? undefined,
-      chfLabel: getDataString(data, 'chf') ?? undefined,
+      pageTitle: getFromDataOrTextFields('pageTitle'),
+      annualPerformanceTitle: getFromDataOrTextFields('annualPerformanceTitle'),
+      usdLabel: getFromDataOrTextFields('usd'),
+      chfLabel: getFromDataOrTextFields('chf'),
+      exportSvgTooltip: getFromDataOrTextFields('exportSvgTooltip', 'exportSvgLabel'),
+      exportCsvTooltip: getFromDataOrTextFields('exportCsvTooltip', 'exportCsvLabel'),
       usd,
       chf,
     }

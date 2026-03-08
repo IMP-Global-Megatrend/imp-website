@@ -197,6 +197,8 @@ export default async function PerformancePage() {
             <PerformanceChart
               usdSeries={cmsPerformanceSeries.usd}
               chfSeries={cmsPerformanceSeries.chf}
+              exportSvgTooltip={cmsPerformanceData?.exportSvgTooltip}
+              exportCsvTooltip={cmsPerformanceData?.exportCsvTooltip}
             />
           </div>
         </section>

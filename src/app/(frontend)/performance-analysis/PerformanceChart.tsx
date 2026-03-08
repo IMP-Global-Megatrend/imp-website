@@ -244,6 +244,8 @@ function NavPlotChart({
   currencyCode,
   height = 300,
   exportFileName,
+  exportSvgTooltip = 'Export SVG',
+  exportCsvTooltip = 'Export CSV',
   timelineTickCadence = 'quarterly',
 }: {
   data: ChartPoint[]
@@ -251,6 +253,8 @@ function NavPlotChart({
   currencyCode: string
   height?: number
   exportFileName: string
+  exportSvgTooltip?: string
+  exportCsvTooltip?: string
   timelineTickCadence?: 'monthly' | 'quarterly'
 }) {
   const chartContainerRef = useRef<HTMLDivElement | null>(null)
@@ -353,10 +357,10 @@ function NavPlotChart({
 
   return (
     <div className="group/chart w-full">
-      <div ref={chartContainerRef} className="relative w-full overflow-hidden" style={{ height }}>
+      <div ref={chartContainerRef} className="relative w-full overflow-visible" style={{ height }}>
         <div className="pointer-events-none absolute right-3 top-0 z-10 opacity-0 transition-opacity duration-150 group-hover/chart:opacity-100 group-hover/chart:pointer-events-auto group-focus-within/chart:opacity-100 group-focus-within/chart:pointer-events-auto">
           <div className="inline-flex border border-[#d9def0] rounded-none bg-white">
-          <ExportIconButton label="Export SVG" onClick={exportAsSvg} disabled={exportingType !== null}>
+          <ExportIconButton label={exportSvgTooltip} onClick={exportAsSvg} disabled={exportingType !== null}>
             {exportingType === 'svg' ? (
               <span className="text-[11px]">...</span>
             ) : (
@@ -367,7 +371,7 @@ function NavPlotChart({
               </svg>
             )}
           </ExportIconButton>
-          <ExportIconButton label="Export CSV" onClick={exportAsCsv} disabled={exportingType !== null}>
+          <ExportIconButton label={exportCsvTooltip} onClick={exportAsCsv} disabled={exportingType !== null}>
             {exportingType === 'csv' ? (
               <span className="text-[11px]">...</span>
             ) : (
@@ -456,9 +460,13 @@ function NavPlotChart({
 export function PerformanceChart({
   usdSeries = [],
   chfSeries = [],
+  exportSvgTooltip = 'Export SVG',
+  exportCsvTooltip = 'Export CSV',
 }: {
   usdSeries?: PerformanceNavPoint[]
   chfSeries?: PerformanceNavPoint[]
+  exportSvgTooltip?: string
+  exportCsvTooltip?: string
 }) {
   const hasUSDFromCMS = usdSeries.length > 0
   const hasCHFFromCMS = chfSeries.length > 0
@@ -489,6 +497,8 @@ export function PerformanceChart({
             currencyCode="USD"
             height={300}
             exportFileName="usd-share-class-performance.svg"
+            exportSvgTooltip={exportSvgTooltip}
+            exportCsvTooltip={exportCsvTooltip}
           />
         </div>
         <p className="container text-[11px] text-[#5f6477] mt-2 pb-4 text-center">
@@ -511,6 +521,8 @@ export function PerformanceChart({
             currencyCode="CHF"
             height={300}
             exportFileName="chf-hedged-share-class-performance.svg"
+            exportSvgTooltip={exportSvgTooltip}
+            exportCsvTooltip={exportCsvTooltip}
             timelineTickCadence="monthly"
           />
         </div>

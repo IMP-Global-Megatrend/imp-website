@@ -128,7 +128,7 @@ export function SiteHeader({ navItems }: { navItems?: SiteHeaderNavItem[] }) {
             className={`w-full rounded-none ${transparentBg ? 'bg-transparent' : 'bg-primary/85'} text-white pointer-events-auto`}
           >
             <nav className="hidden lg:flex w-full bg-transparent text-white items-stretch justify-start">
-              <div className="flex w-full overflow-hidden rounded-none border-r border-secondary">
+              <div className="flex w-full overflow-hidden rounded-none">
                 {desktopHeaderNav.map((item, index) => {
                   const isActive = item.href === '/'
                     ? pathname === '/'
@@ -137,12 +137,12 @@ export function SiteHeader({ navItems }: { navItems?: SiteHeaderNavItem[] }) {
                     <Link
                       key={item.href}
                       href={item.href}
-                      className={`group [font-family:var(--font-display-regular)] inline-flex flex-1 min-w-0 flex-col xl:flex-row items-center justify-center whitespace-normal xl:whitespace-nowrap bg-transparent px-4 xl:px-5 py-2 xl:py-3 text-[15px] font-medium text-white text-center gap-1 xl:gap-2 border-t-[5px] transition-[border-top-width] duration-200 ${
+                      className={`group [font-family:var(--font-display-regular)] inline-flex flex-1 min-w-0 flex-col xl:flex-row items-center justify-center whitespace-normal xl:whitespace-nowrap bg-transparent px-4 xl:px-5 py-2 xl:py-3 text-[15px] font-medium text-white text-center gap-1 xl:gap-2 border-t-[5px] border-t-secondary border-b transition-colors duration-200 hover:bg-white hover:text-[#0b1035] focus-visible:bg-white focus-visible:text-[#0b1035] active:bg-white active:text-[#0b1035] ${
                         index > 0 ? 'border-l border-secondary' : ''
                       } ${
                         isActive
-                          ? '!border-t-0 border-b border-b-transparent hover:!border-t-0 focus:!border-t-0 active:!border-t-0'
-                          : '!border-t-secondary border-b border-secondary hover:!border-t-0 focus:!border-t-0 active:!border-t-0'
+                          ? 'border-b-transparent'
+                          : 'border-b-secondary'
                       }`}
                       onMouseEnter={() => setHoveredDesktopItem(item.href)}
                       onMouseLeave={() => setHoveredDesktopItem((prev) => (prev === item.href ? null : prev))}
@@ -150,7 +150,7 @@ export function SiteHeader({ navItems }: { navItems?: SiteHeaderNavItem[] }) {
                       onBlur={() => setHoveredDesktopItem((prev) => (prev === item.href ? null : prev))}
                     >
                       {renderHeaderMenuIcon(item.icon, hoveredDesktopItem === item.href)}
-                      <span className="leading-[1.15]">{item.label}</span>
+                      <span className="leading-[1.15] pt-0.5">{item.label}</span>
                     </Link>
                   )
                 })}
