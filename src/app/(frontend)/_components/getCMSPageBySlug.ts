@@ -44,7 +44,8 @@ export async function getCMSAboutUsVideoUrl(): Promise<string | null> {
 
     const mediaUrl = page?.aboutUsVideo?.url
     if (typeof mediaUrl === 'string' && mediaUrl.trim()) {
-      return mediaUrl.trim()
+      const normalizedUrl = normalizeCMSMediaUrl(mediaUrl.trim())
+      if (normalizedUrl) return normalizedUrl
     }
 
     const mediaFilename = page?.aboutUsVideo?.filename
@@ -495,6 +496,33 @@ function resolveSupabasePublicMediaUrl(filename: string): string | null {
   }
 }
 
+function resolvePayloadApiMediaPath(source: string): string {
+  if (!source.startsWith('/api/media/file/')) return ''
+
+  const filename = source.replace('/api/media/file/', '').split('?')[0]?.split('#')[0]?.trim() || ''
+  if (!filename) return ''
+
+  return resolveSupabasePublicMediaUrl(filename) || ''
+}
+
+function normalizeCMSMediaUrl(source: string): string {
+  if (!source) return ''
+
+  if (source.startsWith('/api/media/file/')) {
+    return resolvePayloadApiMediaPath(source)
+  }
+  if (source.startsWith('/')) return source
+
+  if (
+    (source.startsWith('http://') || source.startsWith('https://')) &&
+    source.includes('/storage/v1/object/public/')
+  ) {
+    return source
+  }
+
+  return ''
+}
+
 function normalizeSourceForMediaLookup(source: string): string {
   if (source.startsWith('wix:image://')) {
     const parts = source.replace('wix:image://v1/', '').split('/')
@@ -509,7 +537,11 @@ async function resolveCMSImageUrlFromMedia(
   source: string,
 ): Promise<string> {
   if (!source) return ''
-  if (source.startsWith('/')) return source
+  if (source.startsWith('/api/media/file/')) {
+    const resolvedApiMediaPath = resolvePayloadApiMediaPath(source)
+    if (resolvedApiMediaPath) return resolvedApiMediaPath
+  }
+  if (source.startsWith('/') && !source.startsWith('/api/media/file/')) return source
 
   if (
     (source.startsWith('http://') || source.startsWith('https://')) &&
@@ -519,7 +551,7 @@ async function resolveCMSImageUrlFromMedia(
   }
 
   const normalizedSource = normalizeSourceForMediaLookup(source)
-  const mediaBySource = await payload.find({
+  let mediaBySource = await payload.find({
     collection: 'media',
     limit: 1,
     pagination: false,
@@ -528,6 +560,18 @@ async function resolveCMSImageUrlFromMedia(
       or: [{ sourceUrl: { equals: source } }, { sourceUrl: { equals: normalizedSource } }],
     },
   })
+
+  if ((mediaBySource.docs?.length ?? 0) === 0 && source.startsWith('/api/media/file/')) {
+    mediaBySource = await payload.find({
+      collection: 'media',
+      limit: 1,
+      pagination: false,
+      depth: 0,
+      where: {
+        url: { equals: source },
+      },
+    })
+  }
 
   const mediaDoc = mediaBySource.docs?.[0] as { url?: unknown; filename?: unknown } | undefined
   const mediaFilename = mediaDoc?.filename
@@ -538,7 +582,7 @@ async function resolveCMSImageUrlFromMedia(
 
   const mediaUrl = mediaDoc?.url
   if (typeof mediaUrl === 'string' && mediaUrl.trim() !== '') {
-    return mediaUrl
+    return normalizeCMSMediaUrl(mediaUrl.trim())
   }
 
   return ''
