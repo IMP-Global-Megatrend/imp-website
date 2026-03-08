@@ -21,7 +21,7 @@
   "megatrends": [
     {
       "anchor": "technology-technological-advancements",
-      "icon": "/images/technology_icon.png",
+      "icon": "/images/megatrend_technology.png",
       "title": "Technology/Technological Advancements",
       "subtitle": "Redefining what's possible.",
       "description": [
@@ -34,7 +34,7 @@
     },
     {
       "anchor": "changing-consumer-behavior-demographics",
-      "icon": "/images/consumer_icon.png",
+      "icon": "/images/megatrend_consumer.png",
       "title": "Changing Consumer Behavior/Demographics",
       "subtitle": "A new era of demand.",
       "description": [
@@ -48,7 +48,7 @@
     },
     {
       "anchor": "healthcare-longevity-revolution",
-      "icon": "/images/healthcare_icon.png",
+      "icon": "/images/megatrend_healthcare.png",
       "title": "Healthcare/Longevity Revolution",
       "subtitle": "Investing in longer, healthier lives.",
       "description": [
@@ -61,7 +61,7 @@
     },
     {
       "anchor": "shift-in-economic-power",
-      "icon": "/images/economic_icon.png",
+      "icon": "/images/megatrend_economic.png",
       "title": "Shift in Economic Power",
       "subtitle": "Emerging markets at the frontier of growth.",
       "description": [
@@ -75,7 +75,7 @@
     },
     {
       "anchor": "mobility-transportation",
-      "icon": "/images/mobility_icon.png",
+      "icon": "/images/megatrend_mobility.png",
       "title": "Mobility/Transportation",
       "subtitle": "The reinvention of movement.",
       "description": [
@@ -89,7 +89,7 @@
     },
     {
       "anchor": "smart-infrastructure-smart-city",
-      "icon": "/images/infrastructure_icon.png",
+      "icon": "/images/megatrend_infrastructure.png",
       "title": "Smart Infrastructure/Smart City",
       "subtitle": "The backbone of tomorrow's urban life.",
       "description": [

@@ -3,8 +3,8 @@ import {
   getCMSPageBySlug,
   getCMSPerformanceNavSeries,
   getCMSPerformancePageData,
+  getCMSPerformanceShareClassCards,
 } from '../_components/getCMSPageBySlug'
-import { getHomeCMSContent } from '../_components/getHomeCMSContent'
 import { PageHero } from '../_components/PageHero'
 import { ActionLinkButton } from '../_components/ActionLinkButton'
 import { PerformanceChart } from './PerformanceChart'
@@ -19,74 +19,58 @@ export async function generateMetadata(): Promise<Metadata> {
   return generateStaticFallbackMeta('/performance-analysis', fallbacks.metadata.performanceAnalysis)
 }
 
-const chfFallbackDetails = {
-  ...fallbacks.performance.shareClassDetails.chf,
-  fundDetails: fallbacks.performance.shareClassDetails.chf.fundDetails as Array<[string, string]>,
+type ShareClassDetails = {
+  nav: string
+  perfYTD: string
+  asOf: string
+  sharpe: string
+  volatility: string
+  sortino: string
+  downsideRisk: string
+  fundDetails: Array<[string, string]>
 }
 
-const usdFallbackDetails = {
-  ...fallbacks.performance.shareClassDetails.usd,
-  fundDetails: fallbacks.performance.shareClassDetails.usd.fundDetails as Array<[string, string]>,
+type PerformanceCardLabels = {
+  navUpdatesTitle: string
+  navPerShareLabel: string
+  performanceMetricsTitle: string
+  asOfPrefix: string
+  performanceYtdLabel: string
+  riskMetricsTitle: string
+  sharpeRatioLabel: string
+  volatilityLabel: string
+  sortinoRatioLabel: string
+  downsideRiskLabel: string
+  fundDetailsTitle: string
 }
 
-type ShareClassDetails = typeof chfFallbackDetails
-
-function mergeShareClassDetails(
-  fallback: ShareClassDetails,
-  cms: {
-    nav?: string
-    perfYTD?: string
-    asOf?: string
-    sharpe?: string
-    volatility?: string
-    sortino?: string
-    downsideRisk?: string
-    fundDetails?: Array<[string, string]>
-  } | null | undefined,
-): ShareClassDetails {
-  return {
-    nav: cms?.nav || fallback.nav,
-    perfYTD: cms?.perfYTD || fallback.perfYTD,
-    asOf: cms?.asOf || fallback.asOf,
-    sharpe: cms?.sharpe || fallback.sharpe,
-    volatility: cms?.volatility || fallback.volatility,
-    sortino: cms?.sortino || fallback.sortino,
-    downsideRisk: cms?.downsideRisk || fallback.downsideRisk,
-    fundDetails: cms?.fundDetails?.length ? cms.fundDetails : fallback.fundDetails,
-  }
-}
-
-function NavUpdatesCard({ data }: { data: ShareClassDetails }) {
+function NavUpdatesCard({ data, labels }: { data: ShareClassDetails; labels: PerformanceCardLabels }) {
   return (
     <div className="font-display">
-      <h3 className="text-[14px] uppercase tracking-[0.12em] text-[#5f6477] mb-4">
-        {performanceContent.cards.navUpdatesTitle}
-      </h3>
+      <h3 className="text-[14px] uppercase tracking-[0.12em] text-[#5f6477] mb-4">{labels.navUpdatesTitle}</h3>
       <div className="flex items-baseline gap-2">
         <span className="text-[36px] font-semibold text-[#0b1035]">{data.nav}</span>
       </div>
       <p className="text-[13px] text-[#5f6477] mt-1">
-        {performanceContent.cards.navPerShareLabel} <span className="text-[#0040ff]">*</span>
+        {labels.navPerShareLabel} <span className="text-[#0040ff]">*</span>
       </p>
     </div>
   )
 }
 
-function PerformanceMetricsCard({ data }: { data: ShareClassDetails }) {
+function PerformanceMetricsCard({ data, labels }: { data: ShareClassDetails; labels: PerformanceCardLabels }) {
   return (
     <div className="font-display">
       <div className="mb-4 h-px w-full bg-[#d9def0]" />
-      <h3 className="text-[14px] uppercase tracking-[0.12em] text-[#5f6477] mb-4">
-        {performanceContent.cards.performanceMetricsTitle}
-      </h3>
+      <h3 className="text-[14px] uppercase tracking-[0.12em] text-[#5f6477] mb-4">{labels.performanceMetricsTitle}</h3>
       <p className="text-[13px] text-[#5f6477] mb-4">
-        <span className="text-[#0040ff]">*</span> {performanceContent.cards.asOfPrefix} {data.asOf}
+        <span className="text-[#0040ff]">*</span> {labels.asOfPrefix} {data.asOf}
       </p>
       <div className="grid grid-cols-1 gap-4">
         <div>
           <p className="text-[28px] font-semibold text-[#0b1035]">{data.perfYTD}</p>
           <p className="text-[13px] text-[#5f6477]">
-            {performanceContent.cards.performanceYtdLabel} <span className="text-[#0040ff]">*</span>
+            {labels.performanceYtdLabel} <span className="text-[#0040ff]">*</span>
           </p>
         </div>
       </div>
@@ -94,36 +78,34 @@ function PerformanceMetricsCard({ data }: { data: ShareClassDetails }) {
   )
 }
 
-function RiskMetricsCard({ data }: { data: ShareClassDetails }) {
+function RiskMetricsCard({ data, labels }: { data: ShareClassDetails; labels: PerformanceCardLabels }) {
   return (
     <div className="font-display">
       <div className="mb-4 h-px w-full bg-[#d9def0]" />
-      <h3 className="text-[14px] uppercase tracking-[0.12em] text-[#5f6477] mb-4">
-        {performanceContent.cards.riskMetricsTitle}
-      </h3>
+      <h3 className="text-[14px] uppercase tracking-[0.12em] text-[#5f6477] mb-4">{labels.riskMetricsTitle}</h3>
       <div className="grid grid-cols-2 gap-4">
         <div>
           <p className="text-[28px] font-semibold text-[#0b1035]">{data.sharpe}</p>
           <p className="text-[13px] text-[#5f6477]">
-            {performanceContent.cards.sharpeRatioLabel} <span className="text-[#0040ff]">**</span>
+            {labels.sharpeRatioLabel} <span className="text-[#0040ff]">**</span>
           </p>
         </div>
         <div>
           <p className="text-[28px] font-semibold text-[#0b1035]">{data.volatility}</p>
           <p className="text-[13px] text-[#5f6477]">
-            {performanceContent.cards.volatilityLabel} <span className="text-[#0040ff]">**</span>
+            {labels.volatilityLabel} <span className="text-[#0040ff]">**</span>
           </p>
         </div>
         <div>
           <p className="text-[28px] font-semibold text-[#0b1035]">{data.sortino}</p>
           <p className="text-[13px] text-[#5f6477]">
-            {performanceContent.cards.sortinoRatioLabel} <span className="text-[#0040ff]">**</span>
+            {labels.sortinoRatioLabel} <span className="text-[#0040ff]">**</span>
           </p>
         </div>
         <div>
           <p className="text-[28px] font-semibold text-[#0b1035]">{data.downsideRisk}</p>
           <p className="text-[13px] text-[#5f6477]">
-            {performanceContent.cards.downsideRiskLabel} <span className="text-[#0040ff]">**</span>
+            {labels.downsideRiskLabel} <span className="text-[#0040ff]">**</span>
           </p>
         </div>
       </div>
@@ -131,12 +113,10 @@ function RiskMetricsCard({ data }: { data: ShareClassDetails }) {
   )
 }
 
-function FundDetailsCard({ data }: { data: ShareClassDetails }) {
+function FundDetailsCard({ data, labels }: { data: ShareClassDetails; labels: PerformanceCardLabels }) {
   return (
     <div className="border-t border-[#d9def0] pt-4 font-display">
-      <h3 className="text-[14px] uppercase tracking-[0.12em] text-[#5f6477] mb-4">
-        {performanceContent.cards.fundDetailsTitle}
-      </h3>
+      <h3 className="text-[14px] uppercase tracking-[0.12em] text-[#5f6477] mb-4">{labels.fundDetailsTitle}</h3>
       <div className="divide-y divide-[#d9def0] border-b border-[#d9def0]">
         {data.fundDetails.map(([k, v]) => (
           <div key={k} className="flex justify-between gap-4 py-3">
@@ -150,24 +130,50 @@ function FundDetailsCard({ data }: { data: ShareClassDetails }) {
 }
 
 export default async function PerformancePage() {
-  const [cmsPerformanceSeries, cmsPerformanceData, homeCms] = await Promise.all([
+  const [cmsPerformanceSeries, cmsPerformanceData, cmsShareClassCards] = await Promise.all([
     getCMSPerformanceNavSeries(),
     getCMSPerformancePageData(),
-    getHomeCMSContent(),
+    getCMSPerformanceShareClassCards(),
   ])
-  const factsheetUSD =
-    homeCms.downloads.find((item) => item.id === 'factsheetUsd')?.href || fallbacks.ui.emptyText
-  const factsheetCHF =
-    homeCms.downloads.find((item) => item.id === 'factsheetChfHedged')?.href || fallbacks.ui.emptyText
-  const fundCommentary =
-    homeCms.downloads.find((item) => item.id === 'fundCommentary')?.href || fallbacks.ui.emptyText
+  const factsheetUSD = cmsPerformanceData?.factsheetUsdHref || fallbacks.ui.emptyText
+  const factsheetCHF = cmsPerformanceData?.factsheetChfHref || fallbacks.ui.emptyText
+  const fundCommentary = cmsPerformanceData?.fundCommentaryHref || fallbacks.ui.emptyText
 
-  const chfDetails = mergeShareClassDetails(chfFallbackDetails, cmsPerformanceData?.chf)
-  const usdDetails = mergeShareClassDetails(usdFallbackDetails, cmsPerformanceData?.usd)
+  const chfDetails = cmsShareClassCards.chf as ShareClassDetails
+  const usdDetails = cmsShareClassCards.usd as ShareClassDetails
   const chfTitle = cmsPerformanceData?.chfLabel || fallbacks.performance.labels.chfTitle
   const usdTitle = cmsPerformanceData?.usdLabel || fallbacks.performance.labels.usdTitle
   const performanceTitle = cmsPerformanceData?.annualPerformanceTitle || performanceContent.chart.title
   const heroTitle = cmsPerformanceData?.pageTitle || fallbacks.performance.labels.heroTitle
+  const yearBadge = cmsPerformanceData?.chartYearBadge || performanceContent.chart.yearBadge
+  const relatedLinksHeading = cmsPerformanceData?.relatedLinksHeading || performanceContent.relatedLinks.heading
+  const fullHistoryLabel = cmsPerformanceData?.fullHistoryLabel || performanceContent.relatedLinks.fullHistory.label
+  const fullHistoryHref = cmsPerformanceData?.fullHistoryHref || performanceContent.relatedLinks.fullHistory.href
+  const factsheetUsdLabel =
+    cmsPerformanceData?.factsheetUsdLabel || performanceContent.relatedLinks.factsheetUsdLabel
+  const factsheetChfLabel =
+    cmsPerformanceData?.factsheetChfLabel || performanceContent.relatedLinks.factsheetChfLabel
+  const fundCommentaryLabel =
+    cmsPerformanceData?.fundCommentaryLabel || performanceContent.relatedLinks.fundCommentaryLabel
+  const singleAsteriskFootnote =
+    cmsPerformanceData?.footnoteSingleAsterisk || performanceContent.footnotes.singleAsterisk
+  const doubleAsteriskFootnote =
+    cmsPerformanceData?.footnoteDoubleAsterisk || performanceContent.footnotes.doubleAsterisk
+
+  const cardLabels: PerformanceCardLabels = {
+    navUpdatesTitle: cmsPerformanceData?.navUpdatesTitle || performanceContent.cards.navUpdatesTitle,
+    navPerShareLabel: cmsPerformanceData?.navPerShareLabel || performanceContent.cards.navPerShareLabel,
+    performanceMetricsTitle:
+      cmsPerformanceData?.performanceMetricsTitle || performanceContent.cards.performanceMetricsTitle,
+    asOfPrefix: cmsPerformanceData?.asOfPrefix || performanceContent.cards.asOfPrefix,
+    performanceYtdLabel: cmsPerformanceData?.performanceYtdLabel || performanceContent.cards.performanceYtdLabel,
+    riskMetricsTitle: cmsPerformanceData?.riskMetricsTitle || performanceContent.cards.riskMetricsTitle,
+    sharpeRatioLabel: cmsPerformanceData?.sharpeRatioLabel || performanceContent.cards.sharpeRatioLabel,
+    volatilityLabel: cmsPerformanceData?.volatilityLabel || performanceContent.cards.volatilityLabel,
+    sortinoRatioLabel: cmsPerformanceData?.sortinoRatioLabel || performanceContent.cards.sortinoRatioLabel,
+    downsideRiskLabel: cmsPerformanceData?.downsideRiskLabel || performanceContent.cards.downsideRiskLabel,
+    fundDetailsTitle: cmsPerformanceData?.fundDetailsTitle || performanceContent.cards.fundDetailsTitle,
+  }
 
   return (
     <main className="bg-white text-[#0b1035]">
@@ -189,7 +195,7 @@ export default async function PerformancePage() {
             <h2 className="mb-6 flex flex-wrap items-center gap-2 text-[22px] leading-[1.3] text-[#0b1035]">
               <span>{performanceTitle}</span>
               <span className="inline-flex items-center border border-[#d9def0] bg-white px-2.5 py-1 text-[12px] text-[#2b3045]">
-                {performanceContent.chart.yearBadge}
+                {yearBadge}
               </span>
             </h2>
           </div>
@@ -219,19 +225,19 @@ export default async function PerformancePage() {
               <div className="space-y-8 pt-4 lg:pt-6 lg:pr-8">
                 <img src="/images/flags/ch.svg" alt="Swiss flag" className="h-5 w-auto" loading="lazy" />
                 <h2 className="text-[26px] leading-[1.2] text-[#0b1035]">{chfTitle}</h2>
-                <NavUpdatesCard data={chfDetails} />
-                <PerformanceMetricsCard data={chfDetails} />
-                <RiskMetricsCard data={chfDetails} />
-                <FundDetailsCard data={chfDetails} />
+                <NavUpdatesCard data={chfDetails} labels={cardLabels} />
+                <PerformanceMetricsCard data={chfDetails} labels={cardLabels} />
+                <RiskMetricsCard data={chfDetails} labels={cardLabels} />
+                <FundDetailsCard data={chfDetails} labels={cardLabels} />
               </div>
               <div className="space-y-8 pt-4 lg:pt-6 lg:pl-8">
                 <div className="-mx-4 h-px w-[calc(100%+2rem)] bg-[#d9def0] lg:hidden" />
                 <img src="/images/flags/us.svg" alt="United States flag" className="h-5 w-auto" loading="lazy" />
                 <h2 className="text-[26px] leading-[1.2] text-[#0b1035]">{usdTitle}</h2>
-                <NavUpdatesCard data={usdDetails} />
-                <PerformanceMetricsCard data={usdDetails} />
-                <RiskMetricsCard data={usdDetails} />
-                <FundDetailsCard data={usdDetails} />
+                <NavUpdatesCard data={usdDetails} labels={cardLabels} />
+                <PerformanceMetricsCard data={usdDetails} labels={cardLabels} />
+                <RiskMetricsCard data={usdDetails} labels={cardLabels} />
+                <FundDetailsCard data={usdDetails} labels={cardLabels} />
               </div>
             </div>
           </div>
@@ -241,10 +247,10 @@ export default async function PerformancePage() {
         <section className="bg-white py-10">
           <div className="container text-[13px] text-[#5f6477] space-y-2">
             <p>
-              <span className="text-[#0040ff]">*</span> {performanceContent.footnotes.singleAsterisk}
+              <span className="text-[#0040ff]">*</span> {singleAsteriskFootnote}
             </p>
             <p>
-              <span className="text-[#0040ff]">**</span> {performanceContent.footnotes.doubleAsterisk}
+              <span className="text-[#0040ff]">**</span> {doubleAsteriskFootnote}
             </p>
           </div>
         </section>
@@ -252,12 +258,12 @@ export default async function PerformancePage() {
         <section className="border-t border-[#d9def0] pt-10 pb-10 md:pt-12 md:pb-12">
           <div className="container">
             <h3 className="mb-5 text-center text-[20px] md:text-[22px] text-[#0b1035]">
-              {performanceContent.relatedLinks.heading}
+              {relatedLinksHeading}
             </h3>
             <div className="flex flex-wrap items-center justify-center gap-4">
               <ActionLinkButton
-                href={performanceContent.relatedLinks.fullHistory.href}
-                label={performanceContent.relatedLinks.fullHistory.label}
+                href={fullHistoryHref}
+                label={fullHistoryLabel}
                 icon="chartLine"
                 external
                 iconBefore
@@ -266,7 +272,7 @@ export default async function PerformancePage() {
               {factsheetUSD ? (
                 <ActionLinkButton
                   href={factsheetUSD}
-                  label={performanceContent.relatedLinks.factsheetUsdLabel}
+                  label={factsheetUsdLabel}
                   icon="download"
                   external
                   iconBefore
@@ -276,7 +282,7 @@ export default async function PerformancePage() {
               {factsheetCHF ? (
                 <ActionLinkButton
                   href={factsheetCHF}
-                  label={performanceContent.relatedLinks.factsheetChfLabel}
+                  label={factsheetChfLabel}
                   icon="download"
                   external
                   iconBefore
@@ -286,7 +292,7 @@ export default async function PerformancePage() {
               {fundCommentary ? (
                 <ActionLinkButton
                   href={fundCommentary}
-                  label={performanceContent.relatedLinks.fundCommentaryLabel}
+                  label={fundCommentaryLabel}
                   icon="trendingUp"
                   external
                   iconBefore

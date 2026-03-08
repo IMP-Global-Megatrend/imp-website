@@ -9,9 +9,30 @@ import {
 import { anyone } from '../access/anyone'
 import { authenticated } from '../access/authenticated'
 
+function buildSupabasePublicMediaUrl(filename?: string | null): string | null {
+  if (!filename) return null
+
+  const endpoint = process.env.S3_ENDPOINT
+  const bucket = process.env.S3_BUCKET
+  if (!endpoint || !bucket) return null
+
+  try {
+    const endpointUrl = new URL(endpoint)
+    const normalizedFilename = filename.trim()
+    if (!normalizedFilename) return null
+
+    return `${endpointUrl.origin}/storage/v1/object/public/${bucket}/${encodeURIComponent(normalizedFilename)}`
+  } catch {
+    return null
+  }
+}
+
 export const Media: CollectionConfig = {
   slug: 'media',
   folders: true,
+  admin: {
+    defaultColumns: ['folder', 'filename', 'alt', 'url', 'storageUrl', 'updatedAt'],
+  },
   access: {
     create: authenticated,
     delete: authenticated,
@@ -36,6 +57,23 @@ export const Media: CollectionConfig = {
       },
     },
     {
+      name: 'storageUrl',
+      type: 'text',
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        description: 'Direct Supabase public object URL for this asset.',
+      },
+      hooks: {
+        afterRead: [
+          ({ value, siblingData }) =>
+            typeof value === 'string' && value.trim().length > 0
+              ? value
+              : buildSupabasePublicMediaUrl((siblingData as { filename?: string })?.filename) || '',
+        ],
+      },
+    },
+    {
       name: 'caption',
       type: 'richText',
       editor: lexicalEditor({
@@ -45,6 +83,19 @@ export const Media: CollectionConfig = {
       }),
     },
   ],
+  hooks: {
+    beforeValidate: [
+      ({ data }) => {
+        const storageUrl = buildSupabasePublicMediaUrl((data as { filename?: string })?.filename)
+        if (!storageUrl) return data
+
+        return {
+          ...data,
+          storageUrl,
+        }
+      },
+    ],
+  },
   upload: {
     disableLocalStorage: true,
     adminThumbnail: 'thumbnail',

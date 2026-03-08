@@ -37,6 +37,10 @@ export const hero: Field = {
         },
       ],
       required: true,
+      admin: {
+        // Home only consumes hero.richText in the frontend.
+        condition: (data) => data?.slug !== 'home',
+      },
     },
     {
       name: 'richText',
@@ -56,13 +60,20 @@ export const hero: Field = {
     linkGroup({
       overrides: {
         maxRows: 2,
+        admin: {
+          initCollapsed: true,
+          // Home uses dedicated CTA fields on pages, not hero.links.
+          condition: (data) => data?.slug !== 'home',
+        },
       },
     }),
     {
       name: 'media',
       type: 'upload',
       admin: {
-        condition: (_, { type } = {}) => ['highImpact', 'mediumImpact'].includes(type),
+        // Home does not render hero media; keep this for non-home pages only.
+        condition: (data, { type } = {}) =>
+          data?.slug !== 'home' && ['highImpact', 'mediumImpact'].includes(type),
       },
       relationTo: 'media',
       required: true,

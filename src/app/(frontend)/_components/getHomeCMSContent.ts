@@ -27,12 +27,33 @@ type ExploreMegatrendsCard = {
 }
 
 type CMSRecord = Record<string, unknown>
-type ParsedTrendItem = TrendItem & { manualSort: string; imageSource: string }
-type ParsedDownloadItem = Omit<DownloadItem, 'href'> & { source: string }
+type ParsedTrendItem = TrendItem & { manualSort: string; imageSource: string; mediaUpload: unknown }
 type MediaLike = {
   url?: unknown
   filename?: unknown
 }
+
+const REQUIRED_HOME_DOWNLOADS: Array<{
+  id: DownloadItem['id']
+  label: string
+}> = [
+  {
+    id: 'factsheetUsd',
+    label: 'Factsheet USD',
+  },
+  {
+    id: 'factsheetChfHedged',
+    label: 'Factsheet CHF Hedged',
+  },
+  {
+    id: 'fundCommentary',
+    label: 'Fund Commentary',
+  },
+  {
+    id: 'presentation',
+    label: 'Presentation',
+  },
+]
 
 export type HomeCMSContent = {
   hero: {
@@ -168,6 +189,24 @@ function getRecordObjectValue(record: Record<string, unknown>, key: string): unk
   return match?.value
 }
 
+function getRecordMediaFieldValue(record: Record<string, unknown>, key: string): unknown {
+  const direct = record[key]
+  if (direct !== undefined && direct !== null) {
+    return direct
+  }
+
+  const mediaFields = Array.isArray(record.mediaFields)
+    ? (record.mediaFields as Array<Record<string, unknown>>)
+    : []
+
+  const match = mediaFields.find((entry) => {
+    const entryKey = entry?.key
+    return typeof entryKey === 'string' && entryKey === key
+  })
+
+  return match?.value
+}
+
 function extractImageSourceFromUnknown(value: unknown, depth = 0): string | null {
   if (depth > 4 || value == null) return null
 
@@ -267,6 +306,32 @@ function parseTrendImageSource(data: CMSRecord): string | null {
   return null
 }
 
+function parseTrendImageUpload(doc: CMSRecord): unknown {
+  const mediaCandidates = [
+    'image_fld',
+    'image',
+    'imageUrl',
+    'imageURL',
+    'imageSrc',
+    'megatrendImage',
+    'trendImage',
+    'coverImage',
+    'thumbnail',
+    'icon',
+    'iconUrl',
+    'iconURL',
+  ]
+
+  for (const key of mediaCandidates) {
+    const value = getRecordMediaFieldValue(doc, key)
+    if (value !== undefined && value !== null) {
+      return value
+    }
+  }
+
+  return null
+}
+
 function getRecordSortValue(record: CMSRecord): string {
   const directSort = getRecordTextValue(record, '_manualSort_', '_manualSort_')
   if (directSort) return directSort
@@ -343,7 +408,8 @@ function parseTrustListItems(docs: Array<Record<string, unknown>>): RegulatoryIt
 function parseTrendItems(docs: CMSRecord[]): ParsedTrendItem[] {
   return docs
     .map((doc) => {
-      const data = (doc.data && typeof doc.data === 'object' ? doc.data : {}) as CMSRecord
+      const docRecord = (doc ?? {}) as CMSRecord
+      const data = (docRecord.data && typeof docRecord.data === 'object' ? docRecord.data : {}) as CMSRecord
       const title = getRecordTextValue(data, 'title_fld')
       const descriptionHtml = getRecordTextValue(data, 'description_fld')
       const body = descriptionHtml ? stripHtml(descriptionHtml) : ''
@@ -359,6 +425,7 @@ function parseTrendItems(docs: CMSRecord[]): ParsedTrendItem[] {
 
       const manualSort = getRecordSortValue(data)
       const imageSource = parseTrendImageSource(data)
+      const mediaUpload = parseTrendImageUpload(docRecord)
 
       if (!title || !body) return null
       return {
@@ -367,6 +434,7 @@ function parseTrendItems(docs: CMSRecord[]): ParsedTrendItem[] {
         tickers,
         imageUrl: imageSource || fallbackTrendImageByTitle(title),
         imageSource: imageSource || '',
+        mediaUpload,
         manualSort,
       }
     })
@@ -409,27 +477,6 @@ function dedupeTrendItemsByTitle(trends: TrendItem[]): {
     removed: trends.length - deduped.length,
     duplicateTitles: Array.from(new Set(duplicateTitles)),
   }
-}
-
-function parseDownloadItems(docs: CMSRecord[]): ParsedDownloadItem[] {
-  const first = docs[0]
-  if (!first) return []
-
-  const data = (first.data && typeof first.data === 'object' ? first.data : {}) as CMSRecord
-  const mapping: Array<{ id: DownloadItem['id']; key: string; label: string }> = [
-    { id: 'factsheetUsd', key: 'factSheet', label: 'Factsheet USD' },
-    { id: 'factsheetChfHedged', key: 'factsheetChfHedged', label: 'Factsheet CHF Hedged' },
-    { id: 'fundCommentary', key: 'fundCommentary', label: 'Fund Commentary' },
-    { id: 'presentation', key: 'presentation', label: 'Presentation' },
-  ]
-
-  return mapping
-    .map(({ id, key, label }) => {
-      const source = getRecordTextValue(data, key)
-      if (!source) return null
-      return { id, label, source }
-    })
-    .filter((item): item is ParsedDownloadItem => item !== null)
 }
 
 function parseExploreMegatrendsTitle(data: CMSRecord): string {
@@ -548,6 +595,32 @@ function resolveMediaLikeUrl(media: unknown): string {
   return ''
 }
 
+class HomeDownloadAssetError extends Error {
+  constructor(
+    public readonly field: DownloadItem['id'],
+    message: string,
+  ) {
+    super(message)
+    this.name = 'HomeDownloadAssetError'
+  }
+}
+
+function resolveRequiredHomeDownloadUrl(args: {
+  media: unknown
+  field: DownloadItem['id']
+  label: string
+  pageId: unknown
+  pageSlug: string
+}): string {
+  const href = resolveMediaLikeUrl(args.media)
+  if (href) return href
+
+  throw new HomeDownloadAssetError(
+    args.field,
+    `Missing or unresolvable Home download asset for "${args.label}" (field: "${args.field}") on page #${String(args.pageId)} (${args.pageSlug}).`,
+  )
+}
+
 function normalizeMediaLookupSource(source: string): string {
   if (source.startsWith('wix:image://v1/')) {
     const fileId = source.replace('wix:image://v1/', '').split('/')[0]
@@ -650,8 +723,10 @@ async function resolveMediaUrlFromSource(
 }
 
 export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
+  let payload: Awaited<ReturnType<typeof getPayload>> | null = null
+
   try {
-    const payload = await getPayload({ config: configPromise })
+    payload = await getPayload({ config: configPromise })
     const result = await payload.find({
       collection: 'pages',
       limit: 1,
@@ -666,7 +741,7 @@ export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
     if (!page) return EMPTY_HOME_CONTENT
 
     const trustListResult = await payload.find({
-      collection: 'wix-trust-list',
+      collection: 'trust-list',
       limit: 100,
       pagination: false,
       depth: 0,
@@ -675,22 +750,23 @@ export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
     const trustListItems = parseTrustListItems(trustListDocs)
 
     if (trustListItems.length === 0) {
-      payload.logger.warn('Regulatory strip data missing: no valid rows found in payload collection wix-trust-list.')
+      payload.logger.warn('Regulatory strip data missing: no valid rows found in payload collection trust-list.')
     }
 
     const trendResult = await payload.find({
-      collection: 'wix-megatrend-dataset',
+      collection: 'megatrend-dataset',
       limit: 100,
       pagination: false,
-      depth: 0,
+      depth: 2,
     })
     const trendDocs = (trendResult.docs ?? []) as unknown as CMSRecord[]
     const trendItems = parseTrendItems(trendDocs)
     const trendsWithResolvedImages = await Promise.all(
       trendItems.map(async (trend) => {
-        const resolvedImageUrl = trend.imageSource
-          ? await resolveMediaUrlFromSource(payload, trend.imageSource)
-          : trend.imageUrl
+        const mediaFieldImageUrl = resolveMediaLikeUrl(trend.mediaUpload)
+        const resolvedImageUrl =
+          mediaFieldImageUrl ||
+          (trend.imageSource ? await resolveMediaUrlFromSource(payload!, trend.imageSource) : trend.imageUrl)
 
         return {
           title: trend.title,
@@ -710,7 +786,7 @@ export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
     }
 
     if (trendItems.length === 0) {
-      payload.logger.warn('Trend data missing: no valid rows found in payload collection wix-megatrend-dataset.')
+      payload.logger.warn('Trend data missing: no valid rows found in payload collection megatrend-dataset.')
     }
 
     const pageRecord = page as {
@@ -722,66 +798,39 @@ export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
       }
     }
 
-    const pageDownloads: DownloadItem[] = [
-      {
-        id: 'factsheetUsd',
-        label: 'Factsheet USD',
-        href: resolveMediaLikeUrl(pageRecord.homeDownloads?.factsheetUsd),
-      },
-      {
-        id: 'factsheetChfHedged',
-        label: 'Factsheet CHF Hedged',
-        href: resolveMediaLikeUrl(pageRecord.homeDownloads?.factsheetChfHedged),
-      },
-      {
-        id: 'fundCommentary',
-        label: 'Fund Commentary',
-        href: resolveMediaLikeUrl(pageRecord.homeDownloads?.fundCommentary),
-      },
-      {
-        id: 'presentation',
-        label: 'Presentation',
-        href: resolveMediaLikeUrl(pageRecord.homeDownloads?.presentation),
-      },
-    ].filter((item): item is DownloadItem => Boolean(item.href))
+    // Canonical source for homepage downloads is pages(home).homeDownloads.* .
+    // Strict mode intentionally throws when any required download media cannot resolve.
+    // When rotating assets, update the media relations in the Home document.
+    const resolvedDownloads: DownloadItem[] = REQUIRED_HOME_DOWNLOADS.map(({ id, label }) => ({
+      id,
+      label,
+      href: resolveRequiredHomeDownloadUrl({
+        media: pageRecord.homeDownloads?.[id],
+        field: id,
+        label,
+        pageId: (page as { id?: unknown }).id,
+        pageSlug: 'home',
+      }),
+    }))
 
-    let resolvedDownloadItems = pageDownloads
-    let downloadData: CMSRecord = {}
-
-    if (resolvedDownloadItems.length === 0) {
-      const downloadResult = await payload.find({
-        collection: 'wix-homepage-links',
-        limit: 10,
-        pagination: false,
-        depth: 0,
-      })
-      const downloadDocs = (downloadResult.docs ?? []) as unknown as CMSRecord[]
-      const parsedDownloadItems = parseDownloadItems(downloadDocs)
-      const downloadItems = await Promise.all(
-        parsedDownloadItems.map(async (item) => {
-          const resolvedHref = await resolveMediaUrlFromSource(payload, item.source)
-          return { id: item.id, label: item.label, href: resolvedHref }
-        }),
-      )
-      resolvedDownloadItems = downloadItems.filter((item): item is DownloadItem => Boolean(item.href))
-      downloadData = ((downloadDocs[0]?.data as CMSRecord | undefined) ?? {}) as CMSRecord
-    }
-
-    if (resolvedDownloadItems.length === 0) {
-      payload.logger.warn(
-        'Download data missing: no valid media in page.homeDownloads and no valid rows in wix-homepage-links.',
-      )
-    }
+    const downloadResult = await payload.find({
+      collection: 'homepage-links',
+      limit: 10,
+      pagination: false,
+      depth: 0,
+    })
+    const downloadDocs = (downloadResult.docs ?? []) as unknown as CMSRecord[]
+    const downloadData = ((downloadDocs[0]?.data as CMSRecord | undefined) ?? {}) as CMSRecord
 
     const exploreMegatrendsTitle = parseExploreMegatrendsTitle(downloadData)
     const exploreMegatrendsImageSource = parseExploreMegatrendsImageSource(downloadData)
 
     const exploreMegatrendsImageUrl = exploreMegatrendsImageSource
-      ? await resolveMediaUrlFromSource(payload, exploreMegatrendsImageSource)
+      ? await resolveMediaUrlFromSource(payload!, exploreMegatrendsImageSource)
       : ''
 
     const legalResult = await payload.find({
-      collection: 'wix-legal-information',
+      collection: 'legal-information',
       limit: 5,
       pagination: false,
       depth: 0,
@@ -789,7 +838,7 @@ export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
     const legalDocs = (legalResult.docs ?? []) as unknown as CMSRecord[]
 
     const contactResult = await payload.find({
-      collection: 'wix-contact-us',
+      collection: 'contact-us',
       limit: 5,
       pagination: false,
       depth: 0,
@@ -798,7 +847,7 @@ export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
 
     const regulatoryNoticeFromCMS = parseRegulatoryNoticeFromCMS(legalDocs, contactDocs)
     if (!regulatoryNoticeFromCMS) {
-      payload.logger.warn('Regulatory notice data missing in payload collections wix-legal-information / wix-contact-us.')
+      payload.logger.warn('Regulatory notice data missing in payload collections legal-information / contact-us.')
     }
 
     const heroParagraphs = richTextToParagraphs(page.hero?.richText)
@@ -819,14 +868,18 @@ export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
       },
       regulatoryItems: trustListItems,
       trends: dedupedTrendsWithResolvedImages,
-      downloads: resolvedDownloadItems,
+      downloads: resolvedDownloads,
       exploreMegatrendsCard: {
-        title: exploreMegatrendsTitle || '',
-        imageUrl: exploreMegatrendsImageUrl || '',
+        title: exploreMegatrendsTitle || EMPTY_HOME_CONTENT.exploreMegatrendsCard.title,
+        imageUrl: exploreMegatrendsImageUrl || EMPTY_HOME_CONTENT.exploreMegatrendsCard.imageUrl,
       },
       regulatoryNotice: regulatoryNoticeFromCMS ?? EMPTY_HOME_CONTENT.regulatoryNotice,
     }
-  } catch {
+  } catch (error) {
+    if (error instanceof HomeDownloadAssetError) {
+      payload?.logger.error(`[home-downloads] ${error.message}`)
+      throw error
+    }
     return EMPTY_HOME_CONTENT
   }
 })

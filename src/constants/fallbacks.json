@@ -1,5 +1,12 @@
 {
   "metadata": {
+    "home": {
+      "title": "Global Megatrend Investing Fund | IMP Global Megatrend",
+      "description": "Discover the IMP Global Megatrend Umbrella Fund, a high-conviction thematic equity strategy investing across six structural megatrends for long-term growth.",
+      "openGraph": {
+        "images": [{ "url": "/images/og/home-hero-og.png" }]
+      }
+    },
     "aboutUs": {
       "title": "About Us | IMP Global Megatrend",
       "description": "Meet the team behind the IMP Global Megatrend investment strategy.",
@@ -352,6 +359,6 @@
     }
   },
   "portfolioStrategy": {
-    "intro": "Long-term above-average return through global direct and indirect equity investments."
+    "intro": "The investment objective aims to generate a long-term, above average return. Therefore, in principle global direct and indirect investments in securities of listed companies are made. Shares as well as bonus and participation certificates are especially considered as securities. Indirect investments are particularly done via funds and ETFs. Investments will be made in the USA, Asia and Europe. At the same time, investments in other selected markets can be carried out."
   }
 }

@@ -72,7 +72,8 @@ export function MegatrendDetailSection({
                 width={1200}
                 height={1200}
                 sizes="(max-width: 1024px) 100vw, 50vw"
-                loading="lazy"
+                priority={index === 0}
+                loading={index === 0 ? 'eager' : 'lazy'}
               />
             ) : null}
           </div>

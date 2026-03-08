@@ -36,19 +36,19 @@ async function main() {
   }
 
   const trust = await payload.find({
-    collection: 'wix-trust-list',
+    collection: 'trust-list',
     limit: 1,
     pagination: false,
     depth: 0,
   })
   const trends = await payload.find({
-    collection: 'wix-megatrend-dataset',
+    collection: 'megatrend-dataset',
     limit: 1,
     pagination: false,
     depth: 0,
   })
   const links = await payload.find({
-    collection: 'wix-homepage-links',
+    collection: 'homepage-links',
     limit: 1,
     pagination: false,
     depth: 0,

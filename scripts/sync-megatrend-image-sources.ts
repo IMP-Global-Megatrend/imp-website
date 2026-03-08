@@ -37,13 +37,13 @@ async function main() {
 
   const [detailResult, datasetResult] = await Promise.all([
     payload.find({
-      collection: 'wix-megatrends-detail',
+      collection: 'megatrends-detail',
       limit: 200,
       pagination: false,
       depth: 0,
     }),
     payload.find({
-      collection: 'wix-megatrend-dataset',
+      collection: 'megatrend-dataset',
       limit: 200,
       pagination: false,
       depth: 0,
@@ -94,7 +94,7 @@ async function main() {
     )
 
     await payload.update({
-      collection: 'wix-megatrend-dataset',
+      collection: 'megatrend-dataset',
       id: String(doc.id),
       depth: 0,
       data: {

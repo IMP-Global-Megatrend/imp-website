@@ -154,17 +154,7 @@ const frontendPages: FrontendPageSeed[] = [
     title: 'Portfolio Strategy',
     hero: 'Long-term above-average return through global direct and indirect equity investments.',
     sections: [
-      [
-        'Investment process',
-        '1) Global macroeconomic trends and sector selection',
-        '2) Idea generation and long-term opportunity identification',
-        '3) Due diligence and transparent information gathering',
-        '4) Technical and fundamental investment evaluation',
-        '5) Diversification, weighting, risk and compliance',
-        '6) Best execution and settlement efficiency',
-        '7) Continuous monitoring and rebalancing',
-        '8) Disciplined buy/sell policy under committee guidelines',
-      ].join('\n'),
+      'The investment objective aims to generate a long-term, above average return. Therefore, in principle global direct and indirect investments in securities of listed companies are made. Shares as well as bonus and participation certificates are especially considered as securities. Indirect investments are particularly done via funds and ETFs. Investments will be made in the USA, Asia and Europe. At the same time, investments in other selected markets can be carried out.',
       [
         'Megatrend allocations',
         'Technology & Technological Advancements: 24.2%',

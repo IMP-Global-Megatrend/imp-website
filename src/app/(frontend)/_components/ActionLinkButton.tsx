@@ -31,7 +31,7 @@ export function ActionLinkButton({
       asChild
       variant={buttonVariant}
       size="clear"
-      className={cn('px-5 py-2.5 rounded-none font-display hover:bg-transparent', className)}
+      className={cn('px-5 py-2.5 rounded-none font-display', className)}
     >
       {external ? (
         <a href={href} target="_blank" rel="noreferrer" className="group">

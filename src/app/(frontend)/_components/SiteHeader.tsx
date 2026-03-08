@@ -11,6 +11,16 @@ type SiteHeaderNavItem = {
   newTab?: boolean
 }
 type HeaderMenuIcon = 'home' | 'fund' | 'megatrends' | 'portfolio' | 'performance' | 'about' | 'mail'
+const HEADER_MENU_ICON_CLASS = 'shrink-0 text-current transition-colors'
+const headerMenuIconByType = {
+  home: 'home',
+  fund: 'rocket',
+  megatrends: 'telescope',
+  portfolio: 'compass',
+  performance: 'chartLine',
+  about: 'users',
+  mail: 'mailCheck',
+} as const
 
 const desktopHeaderNav = [
   { href: '/', label: 'Home', icon: 'home' as const },
@@ -21,19 +31,6 @@ const desktopHeaderNav = [
   { href: '/about-us', label: 'About Us', icon: 'about' as const },
   { href: '/newsletter-subscription', label: 'Subscribe', icon: 'mail' as const },
 ]
-
-function renderHeaderMenuIcon(icon: HeaderMenuIcon, animate: boolean) {
-  if (icon === 'home') return <AnimatedIcon name="home" size={16} className="shrink-0" animate={animate} />
-  if (icon === 'fund')
-    return <AnimatedIcon name="rocket" size={16} className="shrink-0" animate={animate} />
-  if (icon === 'megatrends')
-    return <AnimatedIcon name="telescope" size={16} className="shrink-0" animate={animate} />
-  if (icon === 'portfolio') return <AnimatedIcon name="compass" size={16} className="shrink-0" animate={animate} />
-  if (icon === 'performance')
-    return <AnimatedIcon name="chartLine" size={16} className="shrink-0" animate={animate} />
-  if (icon === 'about') return <AnimatedIcon name="users" size={16} className="shrink-0" animate={animate} />
-  return <AnimatedIcon name="mailCheck" size={16} className="shrink-0" animate={animate} />
-}
 
 function splitLabel(label: string): [string, string?] {
   const parts = label.trim().split(/\s+/)
@@ -133,6 +130,7 @@ export function SiteHeader({ navItems }: { navItems?: SiteHeaderNavItem[] }) {
                   const isActive = item.href === '/'
                     ? pathname === '/'
                     : pathname === item.href || pathname.startsWith(`${item.href}/`)
+                  const iconName = headerMenuIconByType[item.icon]
                   return (
                     <Link
                       key={item.href}
@@ -149,7 +147,12 @@ export function SiteHeader({ navItems }: { navItems?: SiteHeaderNavItem[] }) {
                       onFocus={() => setHoveredDesktopItem(item.href)}
                       onBlur={() => setHoveredDesktopItem((prev) => (prev === item.href ? null : prev))}
                     >
-                      {renderHeaderMenuIcon(item.icon, hoveredDesktopItem === item.href)}
+                      <AnimatedIcon
+                        name={iconName}
+                        size={16}
+                        className={HEADER_MENU_ICON_CLASS}
+                        animate={hoveredDesktopItem === item.href}
+                      />
                       <span className="leading-[1.15] pt-0.5">{item.label}</span>
                     </Link>
                   )
@@ -265,7 +268,7 @@ export function SiteHeader({ navItems }: { navItems?: SiteHeaderNavItem[] }) {
               href={item.href}
               target={item.newTab ? '_blank' : undefined}
               rel={item.newTab ? 'noopener noreferrer' : undefined}
-              className="[font-family:var(--font-display-regular)] text-[20px] font-light text-white/90 hover:text-white transition-[color,opacity,transform] duration-300 ease-out motion-reduce:transition-none py-3 border-b border-white/10"
+              className="[font-family:var(--font-display-regular)] text-[20px] font-light text-white hover:text-white focus-visible:text-white active:text-white transition-[color,opacity,transform] duration-300 ease-out motion-reduce:transition-none py-3 border-b border-white/10"
               style={{
                 opacity: menuItemsVisible ? 1 : 0,
                 transform: menuItemsVisible ? 'translateY(0)' : 'translateY(10px)',

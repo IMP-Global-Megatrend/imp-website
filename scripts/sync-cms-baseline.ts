@@ -63,7 +63,7 @@ async function seedTrustList(payload: Awaited<ReturnType<typeof getPayload>>) {
     const sourceItemId = `trust-${index + 1}`
     await upsertCMSDoc(
       payload,
-      'wix-trust-list',
+      'trust-list',
       'TrustList',
       sourceItemId,
       { title_fld: label, description_fld: value, _manualSort: String(100 - index).padStart(3, '0') },
@@ -138,7 +138,7 @@ async function seedMegatrends(payload: Awaited<ReturnType<typeof getPayload>>) {
     const sort = String(100 - index).padStart(3, '0')
     await upsertCMSDoc(
       payload,
-      'wix-megatrend-dataset',
+      'megatrend-dataset',
       'MegatrendDataset',
       `megatrend-${index + 1}`,
       {
@@ -168,7 +168,7 @@ async function seedMegatrends(payload: Awaited<ReturnType<typeof getPayload>>) {
 async function seedHomepageLinks(payload: Awaited<ReturnType<typeof getPayload>>) {
   await upsertCMSDoc(
     payload,
-    'wix-homepage-links',
+    'homepage-links',
     'Homepagelinks',
     'homepage-links-1',
     {
@@ -196,7 +196,7 @@ async function seedHomepageLinks(payload: Awaited<ReturnType<typeof getPayload>>
 async function seedLegalAndContact(payload: Awaited<ReturnType<typeof getPayload>>) {
   await upsertCMSDoc(
     payload,
-    'wix-legal-information',
+    'legal-information',
     'LegalInformmation',
     'legal-1',
     {
@@ -212,7 +212,7 @@ async function seedLegalAndContact(payload: Awaited<ReturnType<typeof getPayload
 
   await upsertCMSDoc(
     payload,
-    'wix-contact-us',
+    'contact-us',
     'ContactUs',
     'contact-1',
     {
@@ -246,7 +246,7 @@ async function seedFundAttributes(payload: Awaited<ReturnType<typeof getPayload>
   for (const [index, [title, description, icon]] of rows.entries()) {
     await upsertCMSDoc(
       payload,
-      'wix-fund-attributes',
+      'fund-attributes',
       'FundAttributes',
       `fund-attr-${index + 1}`,
       {
@@ -266,7 +266,7 @@ async function seedFundAttributes(payload: Awaited<ReturnType<typeof getPayload>
 async function seedFundDetails(payload: Awaited<ReturnType<typeof getPayload>>) {
   await upsertCMSDoc(
     payload,
-    'wix-fund-details',
+    'fund-details',
     'FundDetails',
     'fund-details-1',
     {

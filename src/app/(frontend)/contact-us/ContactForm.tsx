@@ -36,6 +36,9 @@ export function ContactForm({ consentText }: ContactFormProps) {
   const [inquiryState, setInquiryState] = useState<boolean[]>(defaultInquiryState)
   const [errors, setErrors] = useState<FieldErrors>({})
   const [touched, setTouched] = useState<Partial<Record<FieldName | 'consent' | 'inquiryType', boolean>>>({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
+  const [submitSuccess, setSubmitSuccess] = useState(false)
 
   const hasInquirySelection = useMemo(() => inquiryState.some(Boolean), [inquiryState])
 
@@ -96,7 +99,7 @@ export function ContactForm({ consentText }: ContactFormProps) {
     }
   }
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     setTouched({
@@ -111,6 +114,50 @@ export function ContactForm({ consentText }: ContactFormProps) {
 
     const nextErrors = validateAll()
     setErrors(nextErrors)
+
+    setSubmitError(null)
+    setSubmitSuccess(false)
+
+    if (Object.keys(nextErrors).length > 0) return
+
+    setIsSubmitting(true)
+    try {
+      const inquiryTypes = contactUsContent.form.inquiryType.options.filter((_, index) => inquiryState[index])
+
+      const response = await fetch('/api/contact-us', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          firstName: values.firstName.trim(),
+          lastName: values.lastName.trim(),
+          phone: values.phone.trim(),
+          email: values.email.trim(),
+          message: values.message.trim(),
+          inquiryTypes,
+          consentAccepted: consent,
+          path: '/contact-us',
+        }),
+      })
+
+      const data = (await response.json().catch(() => ({}))) as { error?: string }
+      if (!response.ok) {
+        setSubmitError(data.error || 'Unable to submit your message right now. Please try again.')
+        return
+      }
+
+      setSubmitSuccess(true)
+      setValues(initialValues)
+      setConsent(false)
+      setInquiryState(defaultInquiryState)
+      setErrors({})
+      setTouched({})
+    } catch {
+      setSubmitError('Unable to submit your message right now. Please try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -294,13 +341,19 @@ export function ContactForm({ consentText }: ContactFormProps) {
         ) : null}
       </div>
 
+      {submitError ? <p className="text-[14px] text-red-600">{submitError}</p> : null}
+      {submitSuccess ? (
+        <p className="text-[14px] text-green-700">Thanks for your message. Your details were saved successfully.</p>
+      ) : null}
+
       <Button
         type="submit"
         variant="default"
         size="clear"
-        className="rounded-none bg-[#0040ff] px-8 py-3 font-display text-[14px] text-white hover:bg-[#0035d9] cursor-pointer"
+        disabled={isSubmitting}
+        className="rounded-none bg-[#0040ff] px-8 py-3 font-display text-[14px] text-white hover:bg-[#0035d9] cursor-pointer disabled:cursor-not-allowed disabled:opacity-70"
       >
-        {contactUsContent.form.submitLabel}
+        {isSubmitting ? 'Submitting...' : contactUsContent.form.submitLabel}
       </Button>
     </form>
   )

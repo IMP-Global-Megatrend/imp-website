@@ -73,8 +73,8 @@ export function AnimatedHeroHeading({ heading, className }: AnimatedHeroHeadingP
         className={`${revealClass} hero-heading-word`}
         style={getWordStyle(animatedWordIndex, totalWords)}
       >
-        <span className="inline-block align-baseline [perspective:1000px]">
-          <span className="relative inline-block h-[1.1em] min-w-[8.8ch] overflow-hidden align-baseline">
+        <span className="inline-flex items-baseline align-baseline [perspective:1000px]">
+          <span className="relative inline-block h-[1em] min-w-[8.8ch] overflow-hidden align-baseline leading-[inherit]">
             <span className="absolute inset-0 inline-block [transform-style:preserve-3d] [transform-origin:50%_50%] animate-[hero-word-flip_3.2s_ease-in-out_infinite_alternate]">
               <span className="absolute inset-0 inline-block [backface-visibility:hidden]">
                 {`Tomorrow${animatedPunctuation}`}
