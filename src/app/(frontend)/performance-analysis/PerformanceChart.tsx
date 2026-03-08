@@ -244,6 +244,8 @@ function NavPlotChart({
   currencyCode,
   height = 300,
   exportFileName,
+  exportSvgTooltip = 'Export SVG',
+  exportCsvTooltip = 'Export CSV',
   timelineTickCadence = 'quarterly',
 }: {
   data: ChartPoint[]
@@ -251,14 +253,16 @@ function NavPlotChart({
   currencyCode: string
   height?: number
   exportFileName: string
+  exportSvgTooltip?: string
+  exportCsvTooltip?: string
   timelineTickCadence?: 'monthly' | 'quarterly'
 }) {
   const chartContainerRef = useRef<HTMLDivElement | null>(null)
   const [exportingType, setExportingType] = useState<'svg' | 'csv' | null>(null)
   const [isMobile, setIsMobile] = useState(false)
-  const dotRadius = isMobile ? 2.5 : 4
-  const activeDotRadius = isMobile ? 3.5 : 5
-  const dotStrokeWidth = isMobile ? 1.5 : 2
+  const dotRadius = isMobile ? 1.75 : 2.75
+  const activeDotRadius = isMobile ? 2.5 : 3.5
+  const dotStrokeWidth = isMobile ? 1.25 : 1.5
   const formatTick = (value: number) => `${currencyCode} ${Math.round(value)}`
   const formatDeviationTick = (value: number) => `${value >= 0 ? '+' : ''}${Math.round(value)}%`
   const baselineNav = data[0]?.nav ?? 0
@@ -353,10 +357,10 @@ function NavPlotChart({
 
   return (
     <div className="group/chart w-full">
-      <div ref={chartContainerRef} className="relative w-full overflow-hidden" style={{ height }}>
+      <div ref={chartContainerRef} className="relative w-full overflow-visible" style={{ height }}>
         <div className="pointer-events-none absolute right-3 top-0 z-10 opacity-0 transition-opacity duration-150 group-hover/chart:opacity-100 group-hover/chart:pointer-events-auto group-focus-within/chart:opacity-100 group-focus-within/chart:pointer-events-auto">
           <div className="inline-flex border border-[#d9def0] rounded-none bg-white">
-          <ExportIconButton label="Export SVG" onClick={exportAsSvg} disabled={exportingType !== null}>
+          <ExportIconButton label={exportSvgTooltip} onClick={exportAsSvg} disabled={exportingType !== null}>
             {exportingType === 'svg' ? (
               <span className="text-[11px]">...</span>
             ) : (
@@ -367,7 +371,7 @@ function NavPlotChart({
               </svg>
             )}
           </ExportIconButton>
-          <ExportIconButton label="Export CSV" onClick={exportAsCsv} disabled={exportingType !== null}>
+          <ExportIconButton label={exportCsvTooltip} onClick={exportAsCsv} disabled={exportingType !== null}>
             {exportingType === 'csv' ? (
               <span className="text-[11px]">...</span>
             ) : (
@@ -456,9 +460,13 @@ function NavPlotChart({
 export function PerformanceChart({
   usdSeries = [],
   chfSeries = [],
+  exportSvgTooltip = 'Export SVG',
+  exportCsvTooltip = 'Export CSV',
 }: {
   usdSeries?: PerformanceNavPoint[]
   chfSeries?: PerformanceNavPoint[]
+  exportSvgTooltip?: string
+  exportCsvTooltip?: string
 }) {
   const hasUSDFromCMS = usdSeries.length > 0
   const hasCHFFromCMS = chfSeries.length > 0
@@ -466,51 +474,59 @@ export function PerformanceChart({
   const chfData = hasCHFFromCMS ? mapCMSSeries(chfSeries) : chfNavSeries
 
   return (
-    <div className="grid grid-cols-1 gap-8 font-display px-4 md:px-0">
+    <div className="grid grid-cols-1 gap-8 font-display">
       {/* USD Share Class */}
       <div className="w-full">
-        <h3 className="text-[15px] font-semibold text-[#0b1035] mb-1">USD Share Class</h3>
-        <div className="mb-3 flex items-center gap-2">
-          <p className="text-[12px] text-[#5f6477]">
-            {hasUSDFromCMS ? 'NAV History' : 'NAV History (Quarterly Points)'}
-          </p>
-          {!hasUSDFromCMS ? (
-            <span className="inline-flex items-center border border-[#d9def0] bg-white px-2 py-0.5 text-[11px] text-[#5f6477]">
-              2016-2026
-            </span>
-          ) : null}
+        <div className="container">
+          <h3 className="text-[15px] font-semibold text-[#0b1035] mb-1">USD Share Class</h3>
+          <div className="mb-3 flex items-center gap-2">
+            <p className="text-[12px] text-[#5f6477]">
+              {hasUSDFromCMS ? 'NAV History' : 'NAV History (Quarterly Points)'}
+            </p>
+            {!hasUSDFromCMS ? (
+              <span className="inline-flex items-center border border-[#d9def0] bg-white px-2 py-0.5 text-[11px] text-[#5f6477]">
+                2016-2026
+              </span>
+            ) : null}
+          </div>
         </div>
-        <div className="-mx-4 md:mx-0">
+        <div className="w-full">
           <NavPlotChart
             data={usdData}
             accentColor="#2b3dea"
             currencyCode="USD"
             height={300}
             exportFileName="usd-share-class-performance.svg"
+            exportSvgTooltip={exportSvgTooltip}
+            exportCsvTooltip={exportCsvTooltip}
           />
         </div>
-        <p className="text-[11px] text-[#5f6477] mt-2 pb-4 text-center">
+        <p className="container text-[11px] text-[#5f6477] mt-2 pb-4 text-center">
           Net of all fees. Past performance is not indicative of future results.
         </p>
       </div>
 
       {/* CHF Hedged Share Class */}
       <div className="w-full">
-        <h3 className="text-[15px] font-semibold text-[#0b1035] mb-1">CHF Hedged Share Class</h3>
-        <p className="text-[12px] text-[#5f6477] mb-3">
-          {hasCHFFromCMS ? 'NAV History' : 'NAV History (Since Inception Oct 2025)'}
-        </p>
-        <div className="-mx-4 md:mx-0">
+        <div className="container">
+          <h3 className="text-[15px] font-semibold text-[#0b1035] mb-1">CHF Hedged Share Class</h3>
+          <p className="text-[12px] text-[#5f6477] mb-3">
+            {hasCHFFromCMS ? 'NAV History' : 'NAV History (Since Inception Oct 2025)'}
+          </p>
+        </div>
+        <div className="w-full">
           <NavPlotChart
             data={chfData}
             accentColor="#0f3bbf"
             currencyCode="CHF"
             height={300}
             exportFileName="chf-hedged-share-class-performance.svg"
+            exportSvgTooltip={exportSvgTooltip}
+            exportCsvTooltip={exportCsvTooltip}
             timelineTickCadence="monthly"
           />
         </div>
-        <p className="text-[11px] text-[#5f6477] mt-2 pb-4 text-center">
+        <p className="container text-[11px] text-[#5f6477] mt-2 pb-4 text-center">
           Net of all fees. Past performance is not indicative of future results.
         </p>
       </div>

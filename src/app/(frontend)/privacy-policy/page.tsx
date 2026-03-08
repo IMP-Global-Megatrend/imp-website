@@ -1,6 +1,9 @@
+import type { Metadata } from 'next'
 import { getCMSPageBySlug } from '../_components/getCMSPageBySlug'
 import { PageHero } from '../_components/PageHero'
 import RichText from '@/components/RichText'
+import fallbacks from '@/constants/fallbacks.json'
+import { generateMeta } from '@/utilities/generateMeta'
 import { notFound } from 'next/navigation'
 
 function removeH1HeadingsFromRichText(richText: unknown): unknown {
@@ -25,7 +28,7 @@ function removeH1HeadingsFromRichText(richText: unknown): unknown {
 }
 
 export default async function PrivacyPage() {
-  const cmsPage = await getCMSPageBySlug('privacy-policy', { bypassFeatureFlag: true })
+  const cmsPage = await getCMSPageBySlug('privacy-policy')
   if (!cmsPage) notFound()
 
   const contentColumns = (Array.isArray(cmsPage.layout) ? cmsPage.layout : [])
@@ -35,12 +38,16 @@ export default async function PrivacyPage() {
       return Array.isArray(columns) ? columns : []
     })
     .filter((column) => Boolean((column as { richText?: unknown }).richText))
+  const fallbackSections = Array.isArray(fallbacks.privacyPolicy?.sections)
+    ? fallbacks.privacyPolicy.sections.filter((item): item is string => typeof item === 'string' && item.trim() !== '')
+    : []
+  const shouldRenderFallbackSections = contentColumns.length === 0 && fallbackSections.length > 0
 
   return (
     <main className="bg-white text-[#0b1035]">
       <PageHero
-        title={cmsPage.title || 'Privacy Policy'}
-        subtitle="Data Protection Statement of MRB Fund Partners AG"
+        title={cmsPage.title || fallbacks.pageTitles.privacyPolicy}
+        subtitle={fallbacks.pageTitles.privacyPolicySubtitle}
         palette={{ color1: '#2b3dea', color2: 'oklch(0.45 0.13 355)', color3: 'oklch(0.45 0.12 36)' }}
         subtitleClassName="max-w-none"
       />
@@ -60,8 +67,20 @@ export default async function PrivacyPage() {
               />
             )
           })}
-          </div>
+          {shouldRenderFallbackSections
+            ? fallbackSections.map((section, index) => (
+                <p key={`privacy-fallback-${index}`}>{section}</p>
+              ))
+            : null}
+        </div>
       </div>
     </main>
   )
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const cmsPage = await getCMSPageBySlug('privacy-policy')
+  if (cmsPage) return generateMeta({ doc: cmsPage })
+
+  return fallbacks.metadata.privacyPolicy
 }

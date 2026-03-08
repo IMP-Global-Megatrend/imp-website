@@ -19,7 +19,7 @@ export const Logo = (props: Props) => {
       )}
     >
       <Image
-        src="/impgmt-clone/static.wixstatic.com/media/c3fe54_db73cbbc71114b7b8aa56454abccb539~mv2.png/v1/fill/w_32,h_32,lg_1,usm_0.66_1.00_0.01/c3fe54_db73cbbc71114b7b8aa56454abccb539~mv2.png"
+        src="/original-favicon-32.png"
         alt="IMP logo"
         width={32}
         height={32}

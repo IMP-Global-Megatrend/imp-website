@@ -1,0 +1,7 @@
+{
+  "heading": "Posts",
+  "pagination": {
+    "titleTemplate": "Posts Page {pageNumber} | IMP Global Megatrend",
+    "descriptionTemplate": "Paginated posts archive page {pageNumber} for IMP Global Megatrend updates."
+  }
+}

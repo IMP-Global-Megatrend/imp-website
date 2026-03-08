@@ -2,7 +2,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 
 import type { WixDataItem, WixRichContent } from './types'
-import { createWixClient } from './wix-client'
+import { createWixClient } from './source-client'
 import { plainTextToLexical, wixRichContentToLexical } from './converters/rich-text'
 
 type WixRecord = Record<string, unknown>
@@ -68,8 +68,8 @@ async function run() {
   const pageData = {
     title,
     slug: 'legal-information',
-    wixId: legalItem.id,
-    wixUpdatedAt: legalItem._updatedDate ?? null,
+    sourceId: legalItem.id,
+    sourceUpdatedAt: legalItem._updatedDate ?? null,
     _status: 'published' as const,
     hero: {
       type: 'lowImpact' as const,
@@ -106,7 +106,7 @@ async function run() {
           success: true,
           action: 'updated',
           slug: 'legal-information',
-          wixItemId: legalItem.id,
+          sourceItemId: legalItem.id,
         },
         null,
         2,
@@ -127,7 +127,7 @@ async function run() {
         success: true,
         action: 'created',
         slug: 'legal-information',
-        wixItemId: legalItem.id,
+        sourceItemId: legalItem.id,
       },
       null,
       2,

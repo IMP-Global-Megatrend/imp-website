@@ -1,0 +1,41 @@
+{
+  "highlights": [
+    "Technology/Technological Advancements",
+    "Changing Consumer Behavior/Demographics",
+    "Healthcare/Longevity Revolution",
+    "Shift in Economic Power",
+    "Mobility/Transportation",
+    "Smart Infrastructure/Smart City"
+  ],
+  "investmentObjective": {
+    "heading": "Our Investment Objective",
+    "body": "Focused on above-average, long-term capital appreciation through exposure to transformational megatrends."
+  },
+  "intro": {
+    "highlighted": false
+  },
+  "relatedLinks": {
+    "heading": "Related Links",
+    "items": [
+      {
+        "href": "https://www.vpbank.com/de/vpfundsolutions/fondsinformationen/fondsdokumentationen",
+        "label": "Fund documentation",
+        "icon": "download",
+        "external": true,
+        "iconBefore": true
+      },
+      {
+        "href": "/performance-analysis",
+        "label": "Key Investor Infos",
+        "icon": "chartLine",
+        "iconBefore": true
+      },
+      {
+        "href": "/legal-information",
+        "label": "Regulatory Details",
+        "icon": "trendingUp",
+        "iconBefore": true
+      }
+    ]
+  }
+}

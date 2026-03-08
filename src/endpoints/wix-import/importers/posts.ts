@@ -97,7 +97,7 @@ export async function importPosts(
       if (options?.upsertByWixId) {
         existingByWixId = await payload.find({
           collection: 'posts',
-          where: { wixId: { equals: post.id } },
+          where: { sourceId: { equals: post.id } },
           limit: 1,
           depth: 0,
         })
@@ -166,8 +166,8 @@ export async function importPosts(
       const postData: Record<string, unknown> = {
         title: post.title,
         slug,
-        wixId: post.id,
-        wixUpdatedAt: post.editedDate || post.lastPublishedDate || post.publishedDate || null,
+        sourceId: post.id,
+        sourceUpdatedAt: post.editedDate || post.lastPublishedDate || post.publishedDate || null,
         content,
         publishedAt: post.firstPublishedDate || post.publishedDate || new Date().toISOString(),
         meta: {

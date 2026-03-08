@@ -25,6 +25,44 @@ export const Footer: GlobalConfig = {
         },
       },
     },
+    {
+      name: 'downloads',
+      type: 'group',
+      fields: [
+        {
+          name: 'factsheetUsd',
+          type: 'upload',
+          relationTo: 'media',
+          admin: {
+            description: 'PDF media asset for Factsheet USD.',
+          },
+        },
+        {
+          name: 'factsheetChfHedged',
+          type: 'upload',
+          relationTo: 'media',
+          admin: {
+            description: 'PDF media asset for Factsheet CHF Hedged.',
+          },
+        },
+        {
+          name: 'fundCommentary',
+          type: 'upload',
+          relationTo: 'media',
+          admin: {
+            description: 'PDF media asset for Fund Commentary.',
+          },
+        },
+        {
+          name: 'presentation',
+          type: 'upload',
+          relationTo: 'media',
+          admin: {
+            description: 'PDF media asset for Presentation.',
+          },
+        },
+      ],
+    },
   ],
   hooks: {
     afterChange: [revalidateFooter],

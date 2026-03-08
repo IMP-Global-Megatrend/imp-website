@@ -1,11 +1,11 @@
 import type { Payload } from 'payload'
 import type { WixImportOptions, WixImportResult, ImportIdMap, ImportEntityResult } from './types'
-import { createWixClient } from './wix-client'
+import { createWixClient } from './source-client'
 import { importCategories } from './importers/categories'
 import { importPosts } from './importers/posts'
 import { importPages } from './importers/pages'
 import { importDataCollectionItems } from './importers/data-collections'
-import { wixCollectionSlugById } from '@/collections/WixCollections'
+import { wixCollectionSlugById } from '@/collections/SourceCollections'
 
 /**
  * Main Wix data import orchestrator.

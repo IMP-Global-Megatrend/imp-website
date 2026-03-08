@@ -1,0 +1,105 @@
+{
+  "hero": {
+    "title": "The Six Megatrends Powering Our Portfolio",
+    "subtitle": "Megatrends focus on a deep, structural force reshaping the global economy. These themes are enduring, transformative, and global."
+  },
+  "intro": {
+    "heading": "Investing at the Intersection of Innovation, Demographics, and Sustainability",
+    "leftQuote": "At the heart of the IMP Global Megatrend Umbrella Fund is our deep conviction in the power of structural change. We focus on six transformational megatrends that are reshaping the global economy, society, and our daily lives.",
+    "rightQuote": "These trends are not fleeting fads; they are multi-decade forces that cut across sectors and geographies - creating durable, secular growth opportunities for companies aligned with them."
+  },
+  "thematicFramework": {
+    "heading": "Our Thematic Framework in Action",
+    "leftQuote": "Each company in our portfolio must demonstrate direct revenue exposure to one or more of these six megatrends. Rather than following index composition, we build a high-conviction portfolio that reflects our forward-looking thematic convictions.",
+    "rightQuote": "We believe that investing through the lens of these megatrends not only aligns capital with positive change, but also positions investors to capture asymmetric growth in a complex and rapidly evolving global economy."
+  },
+  "relatedLinks": {
+    "heading": "Related Links",
+    "primaryLabel": "Explore our Portfolio",
+    "secondaryLabel": "How we invest"
+  },
+  "megatrends": [
+    {
+      "anchor": "technology-technological-advancements",
+      "icon": "/images/technology_icon.png",
+      "title": "Technology/Technological Advancements",
+      "subtitle": "Redefining what's possible.",
+      "description": [
+        "The exponential rise of technologies such as artificial intelligence (AI), machine learning, quantum computing, and the Internet of Things (IoT) is transforming not only industries but entire economic models.",
+        "Semiconductors are foundational, enabling everything from data center acceleration to edge computing and next-gen consumer devices.",
+        "Cloud computing, robotics, and automation are driving efficiency across manufacturing, logistics, and services.",
+        "Cybersecurity has become mission-critical in an interconnected world, with zero-trust architectures and behavioral threat detection technologies becoming key defensive frontiers."
+      ],
+      "conclusion": "We invest in companies at the core of this innovation stack - from component suppliers to platforms and enablers - with a focus on scalable, defensible, and capital-light business models."
+    },
+    {
+      "anchor": "changing-consumer-behavior-demographics",
+      "icon": "/images/consumer_icon.png",
+      "title": "Changing Consumer Behavior/Demographics",
+      "subtitle": "A new era of demand.",
+      "description": [
+        "Shifting demographics and evolving preferences are altering global consumption patterns:",
+        "Aging populations in developed markets are creating demand for healthcare, financial planning, and experience-based services.",
+        "Urbanization is redefining housing, infrastructure, and mobility needs.",
+        "The mobile-first generation, particularly in Asia and Africa, is accelerating the rise of e-commerce, digital entertainment, and decentralized service delivery.",
+        "Intergenerational wealth transfer is shaping investment behavior, sustainability preferences, and spending priorities."
+      ],
+      "conclusion": "We target businesses that are successfully capturing this shift - from digital platforms and healthtech firms to premium consumer brands and urban infrastructure providers."
+    },
+    {
+      "anchor": "healthcare-longevity-revolution",
+      "icon": "/images/healthcare_icon.png",
+      "title": "Healthcare/Longevity Revolution",
+      "subtitle": "Investing in longer, healthier lives.",
+      "description": [
+        "Medical science is evolving from reactive treatment to proactive, personalized healthcare. This revolution is underpinned by:",
+        "Biotechnology and genomics, unlocking targeted therapies and regenerative medicine.",
+        "Digital health platforms, telemedicine, and AI-powered diagnostics, bringing scalable precision to care delivery.",
+        "Advanced surgical robotics and medtech innovations enhancing patient outcomes and operational efficiency."
+      ],
+      "conclusion": "We focus on companies at the forefront of life sciences, diagnostics, healthcare infrastructure, and biopharmaceutical innovation, offering scalable solutions to global healthcare challenges."
+    },
+    {
+      "anchor": "shift-in-economic-power",
+      "icon": "/images/economic_icon.png",
+      "title": "Shift in Economic Power",
+      "subtitle": "Emerging markets at the frontier of growth.",
+      "description": [
+        "The epicenter of global economic activity is moving. Asia, Latin America, and select parts of Africa are witnessing a surge in productivity, innovation, and consumption. Key drivers include:",
+        "The rise of a digitally native middle class with increasing purchasing power.",
+        "Growth in financial inclusion through mobile banking, fintech apps, and digital payment ecosystems.",
+        "Adoption of decentralized finance (DeFi) and digital currencies, which are reducing friction and increasing access in global transactions.",
+        "Local innovation hubs in cities like Bangalore, Shenzhen, and Sao Paulo that are shaping global technology supply chains."
+      ],
+      "conclusion": "We invest in companies that are either emerging champions within these regions or global firms poised to capitalize on this rebalancing of economic power."
+    },
+    {
+      "anchor": "mobility-transportation",
+      "icon": "/images/mobility_icon.png",
+      "title": "Mobility/Transportation",
+      "subtitle": "The reinvention of movement.",
+      "description": [
+        "A radical redefinition of how people and goods move is underway, centered on sustainability, safety, and smart systems.",
+        "Electric vehicles (EVs) are going mainstream, supported by battery innovation, policy incentives, and charging infrastructure build-out.",
+        "Autonomous driving and mobility-as-a-service (MaaS) platforms are improving safety, accessibility, and urban efficiency.",
+        "Drone logistics and AI-based traffic optimization are pushing boundaries in last-mile delivery and infrastructure planning.",
+        "Smart cities and intelligent infrastructure are integrating mobility solutions to reduce congestion and emissions."
+      ],
+      "conclusion": "We invest in companies at the core of this innovation stack - from component suppliers to platforms and enablers - with a focus on scalable, defensible, and capital-light business models."
+    },
+    {
+      "anchor": "smart-infrastructure-smart-city",
+      "icon": "/images/infrastructure_icon.png",
+      "title": "Smart Infrastructure/Smart City",
+      "subtitle": "The backbone of tomorrow's urban life.",
+      "description": [
+        "Cities are transforming into intelligent, connected ecosystems, powered by digitalization, electrification, and advanced technologies.",
+        "AI, IoT, 5G, and edge computing are embedded into housing, transportation, energy grids, and public services.",
+        "Real-time analytics enable predictive maintenance, efficient resource allocation, and resilient city operations.",
+        "Data centers, transmission networks, and utility systems are scaling to meet surging connectivity and electrification demands.",
+        "Smart construction and adaptive energy systems are addressing sustainability and urban growth challenges."
+      ],
+      "conclusion": "We target companies building and enabling this next-generation infrastructure - from critical components and platforms to service providers - with a focus on scalable, adaptive, and high-barrier business models."
+    }
+  ]
+}

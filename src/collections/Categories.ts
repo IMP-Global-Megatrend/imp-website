@@ -22,7 +22,7 @@ export const Categories: CollectionConfig = {
       required: true,
     },
     {
-      name: 'wixId',
+      name: 'sourceId',
       type: 'text',
       index: true,
       admin: {
@@ -35,7 +35,7 @@ export const Categories: CollectionConfig = {
   ],
   indexes: [
     {
-      fields: ['wixId'],
+      fields: ['sourceId'],
       unique: true,
     },
   ],

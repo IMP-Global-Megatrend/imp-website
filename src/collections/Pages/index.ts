@@ -84,14 +84,122 @@ export const Pages: CollectionConfig<'pages'> = {
         {
           fields: [
             {
-              name: 'aboutUsVideoUrl',
-              type: 'text',
+              name: 'aboutUsVideo',
+              type: 'upload',
+              relationTo: 'media',
               admin: {
-                description: 'Optional MP4 URL for /about-us video.',
+                description: 'Optional video file from Media Library for /about-us.',
               },
             },
           ],
           label: 'About Us',
+        },
+        {
+          fields: [
+            {
+              name: 'heroCtaLabel',
+              type: 'text',
+              admin: {
+                description: 'Homepage CTA label used in the hero section.',
+              },
+            },
+            {
+              name: 'heroCtaHref',
+              type: 'text',
+              admin: {
+                description: 'Homepage CTA URL used in the hero section.',
+              },
+            },
+            {
+              name: 'homeDownloads',
+              type: 'group',
+              fields: [
+                {
+                  name: 'factsheetUsd',
+                  type: 'upload',
+                  relationTo: 'media',
+                  admin: {
+                    description: 'Homepage download: Factsheet USD (PDF media asset).',
+                  },
+                },
+                {
+                  name: 'factsheetChfHedged',
+                  type: 'upload',
+                  relationTo: 'media',
+                  admin: {
+                    description: 'Homepage download: Factsheet CHF Hedged (PDF media asset).',
+                  },
+                },
+                {
+                  name: 'fundCommentary',
+                  type: 'upload',
+                  relationTo: 'media',
+                  admin: {
+                    description: 'Homepage download: Fund Commentary (PDF media asset).',
+                  },
+                },
+                {
+                  name: 'presentation',
+                  type: 'upload',
+                  relationTo: 'media',
+                  admin: {
+                    description: 'Homepage download: Presentation (PDF media asset).',
+                  },
+                },
+              ],
+            },
+          ],
+          label: 'Home',
+        },
+        {
+          fields: [
+            {
+              name: 'contactCompanyName',
+              type: 'text',
+            },
+            {
+              name: 'contactAddress',
+              type: 'textarea',
+            },
+            {
+              name: 'contactPhone',
+              type: 'text',
+            },
+            {
+              name: 'contactEmail',
+              type: 'text',
+            },
+            {
+              name: 'contactWebsite',
+              type: 'text',
+            },
+            {
+              name: 'contactConsentText',
+              type: 'textarea',
+            },
+          ],
+          label: 'Contact',
+        },
+        {
+          fields: [
+            {
+              name: 'newsletterIntroTitle',
+              type: 'text',
+            },
+            {
+              name: 'newsletterIntroBody',
+              type: 'textarea',
+            },
+            {
+              name: 'newsletterConsentText',
+              type: 'textarea',
+            },
+            {
+              name: 'newsletterSubmitLabel',
+              type: 'text',
+            },
+          ],
+          label: 'Newsletter',
         },
         {
           name: 'meta',
@@ -130,7 +238,7 @@ export const Pages: CollectionConfig<'pages'> = {
       },
     },
     {
-      name: 'wixId',
+      name: 'sourceId',
       type: 'text',
       index: true,
       admin: {
@@ -138,7 +246,7 @@ export const Pages: CollectionConfig<'pages'> = {
       },
     },
     {
-      name: 'wixUpdatedAt',
+      name: 'sourceUpdatedAt',
       type: 'date',
       admin: {
         position: 'sidebar',
@@ -162,7 +270,7 @@ export const Pages: CollectionConfig<'pages'> = {
   },
   indexes: [
     {
-      fields: ['wixId'],
+      fields: ['sourceId'],
       unique: true,
     },
   ],

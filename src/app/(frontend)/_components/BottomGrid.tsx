@@ -22,6 +22,9 @@ function BottomGridColumn({
 
 export async function ExploreMegatrendsCard() {
   const cms = await getHomeCMSContent()
+  const hasExploreCard = Boolean(cms.exploreMegatrendsCard.title && cms.exploreMegatrendsCard.imageUrl)
+
+  if (!hasExploreCard) return null
 
   return (
     <div className="flex flex-col items-center text-center">

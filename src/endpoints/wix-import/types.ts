@@ -408,7 +408,7 @@ export interface WixImportOptions {
   dataCollections?: string[]
   /** Skip existing items (match by slug) */
   skipExisting?: boolean
-  /** Update existing docs when a matching wixId/slug exists */
+  /** Update existing docs when a matching sourceId/slug exists */
   upsertByWixId?: boolean
   /** Do not write to the database, only log/report actions */
   dryRun?: boolean

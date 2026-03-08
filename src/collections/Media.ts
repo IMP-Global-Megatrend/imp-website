@@ -22,9 +22,13 @@ export const Media: CollectionConfig = {
     {
       name: 'alt',
       type: 'text',
+      required: true,
+      admin: {
+        description: 'Required alternative text used by screen readers and SEO.',
+      },
     },
     {
-      name: 'wixSourceUrl',
+      name: 'sourceUrl',
       type: 'text',
       index: true,
       admin: {

@@ -1,0 +1,357 @@
+{
+  "metadata": {
+    "aboutUs": {
+      "title": "About Us | IMP Global Megatrend",
+      "description": "Meet the team behind the IMP Global Megatrend investment strategy.",
+      "openGraph": {
+        "images": [{ "url": "/images/og/about-us-og.png" }]
+      }
+    },
+    "contactUs": {
+      "title": "Contact Us | IMP Global Megatrend",
+      "description": "Contact MRB Fund Partners AG for fund-related inquiries.",
+      "openGraph": {
+        "images": [{ "url": "/images/og/contact-us-og.png" }]
+      }
+    },
+    "fund": {
+      "title": "The Fund | IMP Global Megatrend",
+      "description": "Fund structure, objective, and share class details for IMP Global Megatrend.",
+      "openGraph": {
+        "images": [{ "url": "/images/og/fund-og.png" }]
+      }
+    },
+    "megatrends": {
+      "title": "Our Megatrends | IMP Global Megatrend",
+      "description": "Explore the six structural megatrends shaping our portfolio construction.",
+      "openGraph": {
+        "images": [{ "url": "/images/og/megatrends-og.png" }]
+      }
+    },
+    "newsletterSubscription": {
+      "title": "Newsletter Subscription | IMP Global Megatrend",
+      "description": "Subscribe for periodic updates on market developments and fund news.",
+      "openGraph": {
+        "images": [{ "url": "/images/og/newsletter-subscription-og.png" }]
+      }
+    },
+    "performanceAnalysis": {
+      "title": "Performance Analysis | IMP Global Megatrend",
+      "description": "Performance charts, metrics, and share class details for the fund.",
+      "openGraph": {
+        "images": [{ "url": "/images/og/performance-analysis-og.png" }]
+      }
+    },
+    "portfolioStrategy": {
+      "title": "Portfolio Strategy | IMP Global Megatrend",
+      "description": "Understand our thematic investment process, allocations, and portfolio framework.",
+      "openGraph": {
+        "images": [{ "url": "/images/og/portfolio-strategy-og.png" }]
+      }
+    },
+    "posts": {
+      "title": "Posts | IMP Global Megatrend",
+      "description": "Insights, updates, and market commentary from IMP Global Megatrend.",
+      "openGraph": {
+        "images": [{ "url": "/images/og/posts-og.png" }]
+      }
+    },
+    "search": {
+      "title": "Search | IMP Global Megatrend",
+      "description": "Search articles and updates from the IMP Global Megatrend Umbrella Fund.",
+      "openGraph": {
+        "images": [{ "url": "/images/og/search-og.png" }]
+      }
+    },
+    "privacyPolicy": {
+      "title": "Privacy Policy | IMP Global Megatrend",
+      "description": "Read the data protection statement of MRB Fund Partners AG.",
+      "openGraph": {
+        "images": [{ "url": "/images/og/privacy-policy-og.png" }]
+      }
+    },
+    "legalInformation": {
+      "title": "Regulatory & Legal Information | IMP Global Megatrend",
+      "description": "Regulatory disclosures and legal information for IMP Global Megatrend.",
+      "openGraph": {
+        "images": [{ "url": "/images/og/legal-information-og.png" }]
+      }
+    }
+  },
+  "ui": {
+    "blankHeroTitle": " ",
+    "emptyText": "",
+    "newsletterSubmitLabel": "Submit"
+  },
+  "pageTitles": {
+    "privacyPolicy": "Privacy Policy",
+    "legalInformation": "Regulatory & Legal Information",
+    "privacyPolicySubtitle": "Data Protection Statement of MRB Fund Partners AG"
+  },
+  "privacyPolicy": {
+    "sections": [
+      "Data Protection Statement of MRB Fund Partners AG",
+      "Version effective as of 01 February 2025",
+      "With this Data Protection Statement we, MRB Fund Partners AG (hereinafter \"MRB Fund Partners\", we or us), describe how we collect and further process personal data.",
+      "This Privacy Notice is aligned with the EU General Data Protection Regulation (GDPR), the Swiss Data Protection Act (DPA) and the revised Swiss Data Protection (revDPA).",
+      "1. Controller / Data Protection Officer / Representative",
+      "The controller of data processing is MRB Fund Partners AG, Fraumunsterstrasse 9, CH-8001 Zurich, info@mrbpartner.ch.",
+      "2. Collection and Processing of Personal Data",
+      "We primarily process personal data obtained from clients, business partners, public sources and website usage where legally permitted.",
+      "3. Purpose of Data Processing and Legal Grounds",
+      "We process personal data to provide services, fulfill contracts, comply with legal obligations, and where necessary on the basis of consent or legitimate interests.",
+      "4. Cookies / Tracking and Other Techniques Regarding the Use of our Website",
+      "We use cookies, analytics and similar technologies to operate and improve our website and communications.",
+      "5. Datatransfer and Transfer of Data Abroad",
+      "Data may be transferred to service providers and group entities in Switzerland and abroad, including Europe and the USA, with appropriate safeguards.",
+      "6. Retention Periods for your Personal Data",
+      "We retain personal data as long as required for contractual performance, legal obligations, documentation and legitimate business interests.",
+      "7. Data Security",
+      "We apply appropriate technical and organizational measures to protect personal data from unauthorized access and misuse.",
+      "8. Obligation to Provide Personal Data To Us",
+      "Where required for a relationship or service, you must provide personal data; otherwise services or contracts may not be possible.",
+      "9. Profiling and Automated Individual Decision-Making",
+      "We may process data in part automatically (profiling) to improve communication, advisory quality and relevance of information.",
+      "10. Your Rights",
+      "Subject to applicable law, you have rights including access, rectification, erasure, restriction, objection and data portability.",
+      "11. Amendments of this Data Protection Statement",
+      "We may update this statement at any time; the current website version applies."
+    ]
+  },
+  "home": {
+    "hero": {
+      "heading": "Investing in the World of Tomorrow Today",
+      "subtitle": "Harnessing global megatrends to unlock long-term growth.",
+      "ctaLabel": "Explore Our Megatrends",
+      "ctaHref": "/megatrends"
+    },
+    "exploreMegatrendsCard": {
+      "title": "Explore Our Megatrends",
+      "imageUrl": "/images/downloads_icon.png"
+    },
+    "regulatoryNotice": {
+      "title": "Regulatory Notice",
+      "body": "Portfolio management of the IMP Global Megatrend Umbrella Fund is entrusted to MRB Fund Partners AG. In related marketing materials, \"we\", \"us\", and \"our\" refer exclusively to MRB Fund Partners AG regarding regulated portfolio-management activities.",
+      "address": "Fraumunsterstrasse 9 · 8001 Zurich · www.mrbpartner.ch"
+    }
+  },
+  "fund": {
+    "details": [
+      {
+        "label": "Liquidity",
+        "value": "Daily and T+3 settlement",
+        "icon": "circleDollar"
+      },
+      {
+        "label": "Asset Classes",
+        "value": "Global equities, with selective use of funds/ETFs",
+        "icon": "boxes"
+      },
+      {
+        "label": "Regulatory Distribution",
+        "value": "Switzerland",
+        "icon": "mapPinCheck"
+      },
+      {
+        "label": "Structure & Jurisdiction",
+        "value": "UCITS · Liechtenstein",
+        "icon": "shieldCheck"
+      },
+      {
+        "label": "SFDR-Classification",
+        "value": "Article 6 SFDR",
+        "icon": "graduationCap"
+      }
+    ],
+    "shareClass": {
+      "usd": {
+        "title": "USD Share Class",
+        "feeLabel": "USD Fee Structure",
+        "feeText": "Up to 1.5% all-in, sign-on fee with performance fee with high-water mark.",
+        "isin": "LI0325349897",
+        "wkn": "A2DWTX",
+        "bloomberg": "IMPGLMT LE"
+      },
+      "chf": {
+        "title": "CHF Hedged Share Class",
+        "feeLabel": "CHF Hedged Fee Structure",
+        "feeText": "Up to 1.27% all-in, waived sign-on fee with performance fee with high-water mark (Soft-Close).",
+        "isin": "LI1454290381",
+        "wkn": "A41AWF",
+        "bloomberg": "IMPGMCH LE"
+      }
+    },
+    "relatedLinks": {
+      "heading": "Related Links",
+      "items": [
+        {
+          "href": "https://www.vpbank.com/de/vpfundsolutions/fondsinformationen/fondsdokumentationen",
+          "label": "Fund documentation"
+        },
+        {
+          "href": "/performance-analysis",
+          "label": "Key Investor Infos"
+        },
+        {
+          "href": "/legal-information",
+          "label": "Regulatory Details"
+        }
+      ]
+    }
+  },
+  "performance": {
+    "shareClassDetails": {
+      "usd": {
+        "nav": "USD 192.91",
+        "perfYTD": "-0.42%",
+        "asOf": "31.01.2026",
+        "sharpe": "0.06",
+        "volatility": "19.75",
+        "sortino": "0.09",
+        "downsideRisk": "14.16",
+        "fundDetails": [
+          [
+            "Liquidity",
+            "Daily"
+          ],
+          [
+            "Trade Day",
+            "Banking Day"
+          ],
+          [
+            "Settlement",
+            "T+3"
+          ],
+          [
+            "Cut-off Subscription & Redemption (Trade Day)",
+            "12:00"
+          ],
+          [
+            "All-In Fee",
+            "up to 1.50%"
+          ],
+          [
+            "Management Fee",
+            "1.00%"
+          ],
+          [
+            "Administrative Fees",
+            "up to 0.50%"
+          ],
+          [
+            "Performance Fee",
+            "10.00% / High-Water Mark"
+          ],
+          [
+            "Crystallization Freq.",
+            "Quarterly"
+          ],
+          [
+            "Subscription Fee",
+            "1.00%"
+          ],
+          [
+            "Redemption Fee",
+            "2.00%"
+          ],
+          [
+            "Inception Date",
+            "06.09.2016"
+          ],
+          [
+            "Fund Currency",
+            "USD"
+          ],
+          [
+            "Inception Price",
+            "USD 100.00"
+          ],
+          [
+            "Min. Investment",
+            "1.00 Share"
+          ]
+        ]
+      },
+      "chf": {
+        "nav": "CHF 93.29",
+        "perfYTD": "-0.89%",
+        "asOf": "31.01.2026",
+        "sharpe": "0.06",
+        "volatility": "19.75",
+        "sortino": "0.09",
+        "downsideRisk": "14.16",
+        "fundDetails": [
+          [
+            "Liquidity",
+            "Daily"
+          ],
+          [
+            "Trade Day",
+            "Banking Day"
+          ],
+          [
+            "Settlement",
+            "T+3"
+          ],
+          [
+            "Cut-off Subscription & Redemption (Trade Day)",
+            "12:00"
+          ],
+          [
+            "All-In Fee",
+            "up to 1.27%"
+          ],
+          [
+            "Management Fee",
+            "0.50%"
+          ],
+          [
+            "Administrative Fees",
+            "up to 0.77%"
+          ],
+          [
+            "Performance Fee",
+            "10.00% / High-Water Mark"
+          ],
+          [
+            "Crystallization Freq.",
+            "Quarterly"
+          ],
+          [
+            "Subscription Fee",
+            "0.00%"
+          ],
+          [
+            "Redemption Fee",
+            "2.00%"
+          ],
+          [
+            "Inception Date",
+            "07.10.2025"
+          ],
+          [
+            "Fund Currency",
+            "CHF"
+          ],
+          [
+            "Inception Price",
+            "CHF 100.00"
+          ],
+          [
+            "Min. Investment",
+            "1.00 Share"
+          ]
+        ]
+      }
+    },
+    "labels": {
+      "chfTitle": "CHF Hedged Share Class",
+      "usdTitle": "USD Share Class",
+      "performanceTitle": "Annual Performance Graph (2016-2026)",
+      "heroTitle": "Delivering Results Over the Long Term"
+    }
+  },
+  "portfolioStrategy": {
+    "intro": "Long-term above-average return through global direct and indirect equity investments."
+  }
+}

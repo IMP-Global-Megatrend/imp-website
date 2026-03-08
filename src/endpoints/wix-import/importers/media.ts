@@ -45,6 +45,33 @@ function sanitizeFilename(filename: string): string {
   return safeExt ? `${safeBase}.${safeExt}` : safeBase
 }
 
+function buildAltText({ explicitAlt, filename, url }: { explicitAlt?: string; filename: string; url: string }): string {
+  const cleanedExplicitAlt = explicitAlt?.trim()
+  if (cleanedExplicitAlt) return cleanedExplicitAlt
+
+  const withoutExt = filename.replace(/\.[a-zA-Z0-9]+$/, '')
+  const humanized = withoutExt
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+
+  if (humanized) {
+    return humanized.charAt(0).toUpperCase() + humanized.slice(1)
+  }
+
+  try {
+    const pathname = new URL(url).pathname
+    const fallbackName = pathname.split('/').pop() || 'Imported image'
+    return fallbackName
+      .replace(/\.[a-zA-Z0-9]+$/, '')
+      .replace(/[_-]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim() || 'Imported image'
+  } catch {
+    return 'Imported image'
+  }
+}
+
 /**
  * Imports a single image by URL into the Payload media collection.
  * Returns the created document's ID, or an existing one if skipExisting is true.
@@ -69,7 +96,7 @@ export async function importMediaByUrl(
   if (options?.skipExisting) {
     const bySourceUrl = await payload.find({
       collection: 'media',
-      where: { wixSourceUrl: { equals: resolvedUrl } },
+      where: { sourceUrl: { equals: resolvedUrl } },
       limit: 1,
       depth: 0,
     })
@@ -107,8 +134,12 @@ export async function importMediaByUrl(
     const doc = await payload.create({
       collection: 'media',
       data: {
-        alt: options?.alt || '',
-        wixSourceUrl: resolvedUrl,
+        alt: buildAltText({
+          explicitAlt: options?.alt,
+          filename: file.name,
+          url: resolvedUrl,
+        }),
+        sourceUrl: resolvedUrl,
       },
       file,
     })

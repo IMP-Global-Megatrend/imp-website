@@ -33,7 +33,7 @@ export async function importCategories(
       if (options?.upsertByWixId) {
         existingByWixId = await payload.find({
           collection: 'categories',
-          where: { wixId: { equals: wixCat.id } },
+          where: { sourceId: { equals: wixCat.id } },
           limit: 1,
           depth: 0,
         })
@@ -58,7 +58,7 @@ export async function importCategories(
               data: {
                 title,
                 slug,
-                wixId: wixCat.id,
+                sourceId: wixCat.id,
               },
               depth: 0,
               context: { disableRevalidate: true },
@@ -83,7 +83,7 @@ export async function importCategories(
             data: {
               title,
               slug,
-              wixId: wixCat.id,
+              sourceId: wixCat.id,
             },
             depth: 0,
             context: { disableRevalidate: true },

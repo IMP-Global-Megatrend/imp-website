@@ -252,9 +252,45 @@ export interface Page {
   };
   layout: (CallToActionBlock | ContentBlock | MediaBlock | ArchiveBlock | FormBlock)[];
   /**
-   * Optional MP4 URL for /about-us video.
+   * Optional video file from Media Library for /about-us.
    */
-  aboutUsVideoUrl?: string | null;
+  aboutUsVideo?: (number | null) | Media;
+  /**
+   * Homepage CTA label used in the hero section.
+   */
+  heroCtaLabel?: string | null;
+  /**
+   * Homepage CTA URL used in the hero section.
+   */
+  heroCtaHref?: string | null;
+  homeDownloads?: {
+    /**
+     * Homepage download: Factsheet USD (PDF media asset).
+     */
+    factsheetUsd?: (number | null) | Media;
+    /**
+     * Homepage download: Factsheet CHF Hedged (PDF media asset).
+     */
+    factsheetChfHedged?: (number | null) | Media;
+    /**
+     * Homepage download: Fund Commentary (PDF media asset).
+     */
+    fundCommentary?: (number | null) | Media;
+    /**
+     * Homepage download: Presentation (PDF media asset).
+     */
+    presentation?: (number | null) | Media;
+  };
+  contactCompanyName?: string | null;
+  contactAddress?: string | null;
+  contactPhone?: string | null;
+  contactEmail?: string | null;
+  contactWebsite?: string | null;
+  contactConsentText?: string | null;
+  newsletterIntroTitle?: string | null;
+  newsletterIntroBody?: string | null;
+  newsletterConsentText?: string | null;
+  newsletterSubmitLabel?: string | null;
   meta?: {
     title?: string | null;
     /**
@@ -264,8 +300,8 @@ export interface Page {
     description?: string | null;
   };
   publishedAt?: string | null;
-  wixId?: string | null;
-  wixUpdatedAt?: string | null;
+  sourceId?: string | null;
+  sourceUpdatedAt?: string | null;
   /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
@@ -310,8 +346,8 @@ export interface Post {
   };
   publishedAt?: string | null;
   authors?: (number | User)[] | null;
-  wixId?: string | null;
-  wixUpdatedAt?: string | null;
+  sourceId?: string | null;
+  sourceUpdatedAt?: string | null;
   populatedAuthors?:
     | {
         id?: string | null;
@@ -333,8 +369,11 @@ export interface Post {
  */
 export interface Media {
   id: number;
-  alt?: string | null;
-  wixSourceUrl?: string | null;
+  /**
+   * Required alternative text used by screen readers and SEO.
+   */
+  alt: string;
+  sourceUrl?: string | null;
   caption?: {
     root: {
       type: string;
@@ -454,7 +493,7 @@ export interface FolderInterface {
 export interface Category {
   id: number;
   title: string;
-  wixId?: string | null;
+  sourceId?: string | null;
   /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
@@ -861,9 +900,9 @@ export interface ContentGateSubmission {
  */
 export interface WixDataItem {
   id: number;
-  wixCollectionId: string;
-  wixItemId: string;
-  wixUpdatedAt?: string | null;
+  sourceCollectionId: string;
+  sourceItemId: string;
+  sourceUpdatedAt?: string | null;
   data:
     | {
         [k: string]: unknown;
@@ -882,9 +921,9 @@ export interface WixDataItem {
  */
 export interface WixAboutUsList {
   id: number;
-  wixCollectionId: string;
-  wixItemId: string;
-  wixUpdatedAt?: string | null;
+  sourceCollectionId: string;
+  sourceItemId: string;
+  sourceUpdatedAt?: string | null;
   textFields?:
     | {
         key: string;
@@ -949,9 +988,9 @@ export interface WixAboutUsList {
  */
 export interface WixContactUs {
   id: number;
-  wixCollectionId: string;
-  wixItemId: string;
-  wixUpdatedAt?: string | null;
+  sourceCollectionId: string;
+  sourceItemId: string;
+  sourceUpdatedAt?: string | null;
   textFields?:
     | {
         key: string;
@@ -1016,9 +1055,9 @@ export interface WixContactUs {
  */
 export interface WixCountrySelection {
   id: number;
-  wixCollectionId: string;
-  wixItemId: string;
-  wixUpdatedAt?: string | null;
+  sourceCollectionId: string;
+  sourceItemId: string;
+  sourceUpdatedAt?: string | null;
   textFields?:
     | {
         key: string;
@@ -1083,9 +1122,9 @@ export interface WixCountrySelection {
  */
 export interface WixFundAttribute {
   id: number;
-  wixCollectionId: string;
-  wixItemId: string;
-  wixUpdatedAt?: string | null;
+  sourceCollectionId: string;
+  sourceItemId: string;
+  sourceUpdatedAt?: string | null;
   textFields?:
     | {
         key: string;
@@ -1150,9 +1189,9 @@ export interface WixFundAttribute {
  */
 export interface WixFundDetail {
   id: number;
-  wixCollectionId: string;
-  wixItemId: string;
-  wixUpdatedAt?: string | null;
+  sourceCollectionId: string;
+  sourceItemId: string;
+  sourceUpdatedAt?: string | null;
   textFields?:
     | {
         key: string;
@@ -1217,9 +1256,9 @@ export interface WixFundDetail {
  */
 export interface WixGeographicAllocation {
   id: number;
-  wixCollectionId: string;
-  wixItemId: string;
-  wixUpdatedAt?: string | null;
+  sourceCollectionId: string;
+  sourceItemId: string;
+  sourceUpdatedAt?: string | null;
   textFields?:
     | {
         key: string;
@@ -1284,9 +1323,9 @@ export interface WixGeographicAllocation {
  */
 export interface WixHomepageLink {
   id: number;
-  wixCollectionId: string;
-  wixItemId: string;
-  wixUpdatedAt?: string | null;
+  sourceCollectionId: string;
+  sourceItemId: string;
+  sourceUpdatedAt?: string | null;
   textFields?:
     | {
         key: string;
@@ -1351,9 +1390,9 @@ export interface WixHomepageLink {
  */
 export interface WixImportUsd {
   id: number;
-  wixCollectionId: string;
-  wixItemId: string;
-  wixUpdatedAt?: string | null;
+  sourceCollectionId: string;
+  sourceItemId: string;
+  sourceUpdatedAt?: string | null;
   textFields?:
     | {
         key: string;
@@ -1418,9 +1457,9 @@ export interface WixImportUsd {
  */
 export interface WixImportChf {
   id: number;
-  wixCollectionId: string;
-  wixItemId: string;
-  wixUpdatedAt?: string | null;
+  sourceCollectionId: string;
+  sourceItemId: string;
+  sourceUpdatedAt?: string | null;
   textFields?:
     | {
         key: string;
@@ -1485,9 +1524,9 @@ export interface WixImportChf {
  */
 export interface WixInvestmentProcess {
   id: number;
-  wixCollectionId: string;
-  wixItemId: string;
-  wixUpdatedAt?: string | null;
+  sourceCollectionId: string;
+  sourceItemId: string;
+  sourceUpdatedAt?: string | null;
   textFields?:
     | {
         key: string;
@@ -1552,9 +1591,9 @@ export interface WixInvestmentProcess {
  */
 export interface WixLegalInformation {
   id: number;
-  wixCollectionId: string;
-  wixItemId: string;
-  wixUpdatedAt?: string | null;
+  sourceCollectionId: string;
+  sourceItemId: string;
+  sourceUpdatedAt?: string | null;
   textFields?:
     | {
         key: string;
@@ -1619,9 +1658,9 @@ export interface WixLegalInformation {
  */
 export interface WixMegatrendDataset {
   id: number;
-  wixCollectionId: string;
-  wixItemId: string;
-  wixUpdatedAt?: string | null;
+  sourceCollectionId: string;
+  sourceItemId: string;
+  sourceUpdatedAt?: string | null;
   textFields?:
     | {
         key: string;
@@ -1686,9 +1725,9 @@ export interface WixMegatrendDataset {
  */
 export interface WixMegatrendsAllocation {
   id: number;
-  wixCollectionId: string;
-  wixItemId: string;
-  wixUpdatedAt?: string | null;
+  sourceCollectionId: string;
+  sourceItemId: string;
+  sourceUpdatedAt?: string | null;
   textFields?:
     | {
         key: string;
@@ -1753,9 +1792,9 @@ export interface WixMegatrendsAllocation {
  */
 export interface WixMegatrendsDetail {
   id: number;
-  wixCollectionId: string;
-  wixItemId: string;
-  wixUpdatedAt?: string | null;
+  sourceCollectionId: string;
+  sourceItemId: string;
+  sourceUpdatedAt?: string | null;
   textFields?:
     | {
         key: string;
@@ -1820,9 +1859,9 @@ export interface WixMegatrendsDetail {
  */
 export interface WixMembersBadge {
   id: number;
-  wixCollectionId: string;
-  wixItemId: string;
-  wixUpdatedAt?: string | null;
+  sourceCollectionId: string;
+  sourceItemId: string;
+  sourceUpdatedAt?: string | null;
   textFields?:
     | {
         key: string;
@@ -1887,9 +1926,9 @@ export interface WixMembersBadge {
  */
 export interface WixMembersFullDatum {
   id: number;
-  wixCollectionId: string;
-  wixItemId: string;
-  wixUpdatedAt?: string | null;
+  sourceCollectionId: string;
+  sourceItemId: string;
+  sourceUpdatedAt?: string | null;
   textFields?:
     | {
         key: string;
@@ -1954,9 +1993,9 @@ export interface WixMembersFullDatum {
  */
 export interface WixMembersPrivateDatum {
   id: number;
-  wixCollectionId: string;
-  wixItemId: string;
-  wixUpdatedAt?: string | null;
+  sourceCollectionId: string;
+  sourceItemId: string;
+  sourceUpdatedAt?: string | null;
   textFields?:
     | {
         key: string;
@@ -2021,9 +2060,9 @@ export interface WixMembersPrivateDatum {
  */
 export interface WixMembersPublicDatum {
   id: number;
-  wixCollectionId: string;
-  wixItemId: string;
-  wixUpdatedAt?: string | null;
+  sourceCollectionId: string;
+  sourceItemId: string;
+  sourceUpdatedAt?: string | null;
   textFields?:
     | {
         key: string;
@@ -2088,9 +2127,9 @@ export interface WixMembersPublicDatum {
  */
 export interface WixMenuList {
   id: number;
-  wixCollectionId: string;
-  wixItemId: string;
-  wixUpdatedAt?: string | null;
+  sourceCollectionId: string;
+  sourceItemId: string;
+  sourceUpdatedAt?: string | null;
   textFields?:
     | {
         key: string;
@@ -2155,9 +2194,9 @@ export interface WixMenuList {
  */
 export interface WixPortfolioStrategyProcess {
   id: number;
-  wixCollectionId: string;
-  wixItemId: string;
-  wixUpdatedAt?: string | null;
+  sourceCollectionId: string;
+  sourceItemId: string;
+  sourceUpdatedAt?: string | null;
   textFields?:
     | {
         key: string;
@@ -2222,9 +2261,9 @@ export interface WixPortfolioStrategyProcess {
  */
 export interface WixPrivacyPolicy {
   id: number;
-  wixCollectionId: string;
-  wixItemId: string;
-  wixUpdatedAt?: string | null;
+  sourceCollectionId: string;
+  sourceItemId: string;
+  sourceUpdatedAt?: string | null;
   textFields?:
     | {
         key: string;
@@ -2289,9 +2328,9 @@ export interface WixPrivacyPolicy {
  */
 export interface WixSectorAllocation {
   id: number;
-  wixCollectionId: string;
-  wixItemId: string;
-  wixUpdatedAt?: string | null;
+  sourceCollectionId: string;
+  sourceItemId: string;
+  sourceUpdatedAt?: string | null;
   textFields?:
     | {
         key: string;
@@ -2356,9 +2395,9 @@ export interface WixSectorAllocation {
  */
 export interface WixTopHolding {
   id: number;
-  wixCollectionId: string;
-  wixItemId: string;
-  wixUpdatedAt?: string | null;
+  sourceCollectionId: string;
+  sourceItemId: string;
+  sourceUpdatedAt?: string | null;
   textFields?:
     | {
         key: string;
@@ -2423,9 +2462,9 @@ export interface WixTopHolding {
  */
 export interface WixTrustList {
   id: number;
-  wixCollectionId: string;
-  wixItemId: string;
-  wixUpdatedAt?: string | null;
+  sourceCollectionId: string;
+  sourceItemId: string;
+  sourceUpdatedAt?: string | null;
   textFields?:
     | {
         key: string;
@@ -2897,7 +2936,27 @@ export interface PagesSelect<T extends boolean = true> {
         archive?: T | ArchiveBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
       };
-  aboutUsVideoUrl?: T;
+  aboutUsVideo?: T;
+  heroCtaLabel?: T;
+  heroCtaHref?: T;
+  homeDownloads?:
+    | T
+    | {
+        factsheetUsd?: T;
+        factsheetChfHedged?: T;
+        fundCommentary?: T;
+        presentation?: T;
+      };
+  contactCompanyName?: T;
+  contactAddress?: T;
+  contactPhone?: T;
+  contactEmail?: T;
+  contactWebsite?: T;
+  contactConsentText?: T;
+  newsletterIntroTitle?: T;
+  newsletterIntroBody?: T;
+  newsletterConsentText?: T;
+  newsletterSubmitLabel?: T;
   meta?:
     | T
     | {
@@ -2906,8 +2965,8 @@ export interface PagesSelect<T extends boolean = true> {
         description?: T;
       };
   publishedAt?: T;
-  wixId?: T;
-  wixUpdatedAt?: T;
+  sourceId?: T;
+  sourceUpdatedAt?: T;
   generateSlug?: T;
   slug?: T;
   updatedAt?: T;
@@ -3017,8 +3076,8 @@ export interface PostsSelect<T extends boolean = true> {
       };
   publishedAt?: T;
   authors?: T;
-  wixId?: T;
-  wixUpdatedAt?: T;
+  sourceId?: T;
+  sourceUpdatedAt?: T;
   populatedAuthors?:
     | T
     | {
@@ -3037,7 +3096,7 @@ export interface PostsSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
-  wixSourceUrl?: T;
+  sourceUrl?: T;
   caption?: T;
   folder?: T;
   updatedAt?: T;
@@ -3132,7 +3191,7 @@ export interface MediaSelect<T extends boolean = true> {
  */
 export interface CategoriesSelect<T extends boolean = true> {
   title?: T;
-  wixId?: T;
+  sourceId?: T;
   generateSlug?: T;
   slug?: T;
   parent?: T;
@@ -3189,9 +3248,9 @@ export interface ContentGateSubmissionsSelect<T extends boolean = true> {
  * via the `definition` "wix-data-items_select".
  */
 export interface WixDataItemsSelect<T extends boolean = true> {
-  wixCollectionId?: T;
-  wixItemId?: T;
-  wixUpdatedAt?: T;
+  sourceCollectionId?: T;
+  sourceItemId?: T;
+  sourceUpdatedAt?: T;
   data?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -3201,9 +3260,9 @@ export interface WixDataItemsSelect<T extends boolean = true> {
  * via the `definition` "wix-about-us-list_select".
  */
 export interface WixAboutUsListSelect<T extends boolean = true> {
-  wixCollectionId?: T;
-  wixItemId?: T;
-  wixUpdatedAt?: T;
+  sourceCollectionId?: T;
+  sourceItemId?: T;
+  sourceUpdatedAt?: T;
   textFields?:
     | T
     | {
@@ -3248,9 +3307,9 @@ export interface WixAboutUsListSelect<T extends boolean = true> {
  * via the `definition` "wix-contact-us_select".
  */
 export interface WixContactUsSelect<T extends boolean = true> {
-  wixCollectionId?: T;
-  wixItemId?: T;
-  wixUpdatedAt?: T;
+  sourceCollectionId?: T;
+  sourceItemId?: T;
+  sourceUpdatedAt?: T;
   textFields?:
     | T
     | {
@@ -3295,9 +3354,9 @@ export interface WixContactUsSelect<T extends boolean = true> {
  * via the `definition` "wix-country-selection_select".
  */
 export interface WixCountrySelectionSelect<T extends boolean = true> {
-  wixCollectionId?: T;
-  wixItemId?: T;
-  wixUpdatedAt?: T;
+  sourceCollectionId?: T;
+  sourceItemId?: T;
+  sourceUpdatedAt?: T;
   textFields?:
     | T
     | {
@@ -3342,9 +3401,9 @@ export interface WixCountrySelectionSelect<T extends boolean = true> {
  * via the `definition` "wix-fund-attributes_select".
  */
 export interface WixFundAttributesSelect<T extends boolean = true> {
-  wixCollectionId?: T;
-  wixItemId?: T;
-  wixUpdatedAt?: T;
+  sourceCollectionId?: T;
+  sourceItemId?: T;
+  sourceUpdatedAt?: T;
   textFields?:
     | T
     | {
@@ -3389,9 +3448,9 @@ export interface WixFundAttributesSelect<T extends boolean = true> {
  * via the `definition` "wix-fund-details_select".
  */
 export interface WixFundDetailsSelect<T extends boolean = true> {
-  wixCollectionId?: T;
-  wixItemId?: T;
-  wixUpdatedAt?: T;
+  sourceCollectionId?: T;
+  sourceItemId?: T;
+  sourceUpdatedAt?: T;
   textFields?:
     | T
     | {
@@ -3436,9 +3495,9 @@ export interface WixFundDetailsSelect<T extends boolean = true> {
  * via the `definition` "wix-geographic-allocations_select".
  */
 export interface WixGeographicAllocationsSelect<T extends boolean = true> {
-  wixCollectionId?: T;
-  wixItemId?: T;
-  wixUpdatedAt?: T;
+  sourceCollectionId?: T;
+  sourceItemId?: T;
+  sourceUpdatedAt?: T;
   textFields?:
     | T
     | {
@@ -3483,9 +3542,9 @@ export interface WixGeographicAllocationsSelect<T extends boolean = true> {
  * via the `definition` "wix-homepage-links_select".
  */
 export interface WixHomepageLinksSelect<T extends boolean = true> {
-  wixCollectionId?: T;
-  wixItemId?: T;
-  wixUpdatedAt?: T;
+  sourceCollectionId?: T;
+  sourceItemId?: T;
+  sourceUpdatedAt?: T;
   textFields?:
     | T
     | {
@@ -3530,9 +3589,9 @@ export interface WixHomepageLinksSelect<T extends boolean = true> {
  * via the `definition` "wix-import-usd_select".
  */
 export interface WixImportUsdSelect<T extends boolean = true> {
-  wixCollectionId?: T;
-  wixItemId?: T;
-  wixUpdatedAt?: T;
+  sourceCollectionId?: T;
+  sourceItemId?: T;
+  sourceUpdatedAt?: T;
   textFields?:
     | T
     | {
@@ -3577,9 +3636,9 @@ export interface WixImportUsdSelect<T extends boolean = true> {
  * via the `definition` "wix-import-chf_select".
  */
 export interface WixImportChfSelect<T extends boolean = true> {
-  wixCollectionId?: T;
-  wixItemId?: T;
-  wixUpdatedAt?: T;
+  sourceCollectionId?: T;
+  sourceItemId?: T;
+  sourceUpdatedAt?: T;
   textFields?:
     | T
     | {
@@ -3624,9 +3683,9 @@ export interface WixImportChfSelect<T extends boolean = true> {
  * via the `definition` "wix-investment-process_select".
  */
 export interface WixInvestmentProcessSelect<T extends boolean = true> {
-  wixCollectionId?: T;
-  wixItemId?: T;
-  wixUpdatedAt?: T;
+  sourceCollectionId?: T;
+  sourceItemId?: T;
+  sourceUpdatedAt?: T;
   textFields?:
     | T
     | {
@@ -3671,9 +3730,9 @@ export interface WixInvestmentProcessSelect<T extends boolean = true> {
  * via the `definition` "wix-legal-information_select".
  */
 export interface WixLegalInformationSelect<T extends boolean = true> {
-  wixCollectionId?: T;
-  wixItemId?: T;
-  wixUpdatedAt?: T;
+  sourceCollectionId?: T;
+  sourceItemId?: T;
+  sourceUpdatedAt?: T;
   textFields?:
     | T
     | {
@@ -3718,9 +3777,9 @@ export interface WixLegalInformationSelect<T extends boolean = true> {
  * via the `definition` "wix-megatrend-dataset_select".
  */
 export interface WixMegatrendDatasetSelect<T extends boolean = true> {
-  wixCollectionId?: T;
-  wixItemId?: T;
-  wixUpdatedAt?: T;
+  sourceCollectionId?: T;
+  sourceItemId?: T;
+  sourceUpdatedAt?: T;
   textFields?:
     | T
     | {
@@ -3765,9 +3824,9 @@ export interface WixMegatrendDatasetSelect<T extends boolean = true> {
  * via the `definition` "wix-megatrends-allocations_select".
  */
 export interface WixMegatrendsAllocationsSelect<T extends boolean = true> {
-  wixCollectionId?: T;
-  wixItemId?: T;
-  wixUpdatedAt?: T;
+  sourceCollectionId?: T;
+  sourceItemId?: T;
+  sourceUpdatedAt?: T;
   textFields?:
     | T
     | {
@@ -3812,9 +3871,9 @@ export interface WixMegatrendsAllocationsSelect<T extends boolean = true> {
  * via the `definition` "wix-megatrends-detail_select".
  */
 export interface WixMegatrendsDetailSelect<T extends boolean = true> {
-  wixCollectionId?: T;
-  wixItemId?: T;
-  wixUpdatedAt?: T;
+  sourceCollectionId?: T;
+  sourceItemId?: T;
+  sourceUpdatedAt?: T;
   textFields?:
     | T
     | {
@@ -3859,9 +3918,9 @@ export interface WixMegatrendsDetailSelect<T extends boolean = true> {
  * via the `definition` "wix-members-badges_select".
  */
 export interface WixMembersBadgesSelect<T extends boolean = true> {
-  wixCollectionId?: T;
-  wixItemId?: T;
-  wixUpdatedAt?: T;
+  sourceCollectionId?: T;
+  sourceItemId?: T;
+  sourceUpdatedAt?: T;
   textFields?:
     | T
     | {
@@ -3906,9 +3965,9 @@ export interface WixMembersBadgesSelect<T extends boolean = true> {
  * via the `definition` "wix-members-full-data_select".
  */
 export interface WixMembersFullDataSelect<T extends boolean = true> {
-  wixCollectionId?: T;
-  wixItemId?: T;
-  wixUpdatedAt?: T;
+  sourceCollectionId?: T;
+  sourceItemId?: T;
+  sourceUpdatedAt?: T;
   textFields?:
     | T
     | {
@@ -3953,9 +4012,9 @@ export interface WixMembersFullDataSelect<T extends boolean = true> {
  * via the `definition` "wix-members-private-data_select".
  */
 export interface WixMembersPrivateDataSelect<T extends boolean = true> {
-  wixCollectionId?: T;
-  wixItemId?: T;
-  wixUpdatedAt?: T;
+  sourceCollectionId?: T;
+  sourceItemId?: T;
+  sourceUpdatedAt?: T;
   textFields?:
     | T
     | {
@@ -4000,9 +4059,9 @@ export interface WixMembersPrivateDataSelect<T extends boolean = true> {
  * via the `definition` "wix-members-public-data_select".
  */
 export interface WixMembersPublicDataSelect<T extends boolean = true> {
-  wixCollectionId?: T;
-  wixItemId?: T;
-  wixUpdatedAt?: T;
+  sourceCollectionId?: T;
+  sourceItemId?: T;
+  sourceUpdatedAt?: T;
   textFields?:
     | T
     | {
@@ -4047,9 +4106,9 @@ export interface WixMembersPublicDataSelect<T extends boolean = true> {
  * via the `definition` "wix-menu-list_select".
  */
 export interface WixMenuListSelect<T extends boolean = true> {
-  wixCollectionId?: T;
-  wixItemId?: T;
-  wixUpdatedAt?: T;
+  sourceCollectionId?: T;
+  sourceItemId?: T;
+  sourceUpdatedAt?: T;
   textFields?:
     | T
     | {
@@ -4094,9 +4153,9 @@ export interface WixMenuListSelect<T extends boolean = true> {
  * via the `definition` "wix-portfolio-strategy-process_select".
  */
 export interface WixPortfolioStrategyProcessSelect<T extends boolean = true> {
-  wixCollectionId?: T;
-  wixItemId?: T;
-  wixUpdatedAt?: T;
+  sourceCollectionId?: T;
+  sourceItemId?: T;
+  sourceUpdatedAt?: T;
   textFields?:
     | T
     | {
@@ -4141,9 +4200,9 @@ export interface WixPortfolioStrategyProcessSelect<T extends boolean = true> {
  * via the `definition` "wix-privacy-policy_select".
  */
 export interface WixPrivacyPolicySelect<T extends boolean = true> {
-  wixCollectionId?: T;
-  wixItemId?: T;
-  wixUpdatedAt?: T;
+  sourceCollectionId?: T;
+  sourceItemId?: T;
+  sourceUpdatedAt?: T;
   textFields?:
     | T
     | {
@@ -4188,9 +4247,9 @@ export interface WixPrivacyPolicySelect<T extends boolean = true> {
  * via the `definition` "wix-sector-allocations_select".
  */
 export interface WixSectorAllocationsSelect<T extends boolean = true> {
-  wixCollectionId?: T;
-  wixItemId?: T;
-  wixUpdatedAt?: T;
+  sourceCollectionId?: T;
+  sourceItemId?: T;
+  sourceUpdatedAt?: T;
   textFields?:
     | T
     | {
@@ -4235,9 +4294,9 @@ export interface WixSectorAllocationsSelect<T extends boolean = true> {
  * via the `definition` "wix-top-holdings_select".
  */
 export interface WixTopHoldingsSelect<T extends boolean = true> {
-  wixCollectionId?: T;
-  wixItemId?: T;
-  wixUpdatedAt?: T;
+  sourceCollectionId?: T;
+  sourceItemId?: T;
+  sourceUpdatedAt?: T;
   textFields?:
     | T
     | {
@@ -4282,9 +4341,9 @@ export interface WixTopHoldingsSelect<T extends boolean = true> {
  * via the `definition` "wix-trust-list_select".
  */
 export interface WixTrustListSelect<T extends boolean = true> {
-  wixCollectionId?: T;
-  wixItemId?: T;
-  wixUpdatedAt?: T;
+  sourceCollectionId?: T;
+  sourceItemId?: T;
+  sourceUpdatedAt?: T;
   textFields?:
     | T
     | {
@@ -4654,6 +4713,24 @@ export interface Footer {
         id?: string | null;
       }[]
     | null;
+  downloads?: {
+    /**
+     * PDF media asset for Factsheet USD.
+     */
+    factsheetUsd?: (number | null) | Media;
+    /**
+     * PDF media asset for Factsheet CHF Hedged.
+     */
+    factsheetChfHedged?: (number | null) | Media;
+    /**
+     * PDF media asset for Fund Commentary.
+     */
+    fundCommentary?: (number | null) | Media;
+    /**
+     * PDF media asset for Presentation.
+     */
+    presentation?: (number | null) | Media;
+  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -4698,6 +4775,14 @@ export interface FooterSelect<T extends boolean = true> {
               label?: T;
             };
         id?: T;
+      };
+  downloads?:
+    | T
+    | {
+        factsheetUsd?: T;
+        factsheetChfHedged?: T;
+        fundCommentary?: T;
+        presentation?: T;
       };
   updatedAt?: T;
   createdAt?: T;

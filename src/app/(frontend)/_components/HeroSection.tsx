@@ -7,6 +7,7 @@ export async function HeroSection() {
   const cms = await getHomeCMSContent()
   const heading = cms.hero.heading
   const subtitle = cms.hero.subtitle
+  const hasCta = Boolean(cms.hero.ctaHref && cms.hero.ctaLabel)
 
   return (
     <section
@@ -26,15 +27,19 @@ export async function HeroSection() {
       >
         <div className="container w-full">
           <AnimatedHeroHeading
-            heading={heading}
+            heading={heading || ' '}
             className="text-white text-[38px] md:text-[52px] font-semibold leading-[1.12] tracking-tight max-w-3xl"
           />
-          <p className="mt-5 text-white font-light text-[19px] md:text-[22px] max-w-md leading-[1.6] whitespace-pre-line">
-            {subtitle.replace('megatrends ', 'megatrends\n')}
-          </p>
-          <div className="mt-7">
-            <HeroCtaButton href={cms.hero.ctaHref} label={cms.hero.ctaLabel} />
-          </div>
+          {subtitle ? (
+            <p className="mt-5 text-white font-light text-[19px] md:text-[22px] max-w-md leading-[1.6] whitespace-pre-line">
+              {subtitle.replace('megatrends ', 'megatrends\n')}
+            </p>
+          ) : null}
+          {hasCta ? (
+            <div className="mt-7">
+              <HeroCtaButton href={cms.hero.ctaHref} label={cms.hero.ctaLabel} />
+            </div>
+          ) : null}
         </div>
       </div>
 

@@ -75,7 +75,7 @@ export async function importPages(
       if (options?.upsertByWixId) {
         existingByWixId = await payload.find({
           collection: 'pages',
-          where: { wixId: { equals: page.id } },
+          where: { sourceId: { equals: page.id } },
           limit: 1,
           depth: 0,
         })
@@ -124,8 +124,8 @@ export async function importPages(
       const pageData: Record<string, unknown> = {
         title,
         slug,
-        wixId: page.id,
-        wixUpdatedAt: page.updatedDate || page.publishedDate || null,
+        sourceId: page.id,
+        sourceUpdatedAt: page.updatedDate || page.publishedDate || null,
         hero: {
           type: heroMediaId ? 'mediumImpact' : 'none',
           media: heroMediaId || undefined,

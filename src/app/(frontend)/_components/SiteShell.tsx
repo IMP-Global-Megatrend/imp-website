@@ -9,13 +9,7 @@ import type { Footer, Header } from '@/payload-types'
 
 type NavItem = { href: string; label: string; newTab?: boolean }
 
-const footerNav: NavItem[] = [
-  { href: '/fund', label: 'The Fund' },
-  { href: '/megatrends', label: 'Our Megatrends' },
-  { href: '/portfolio-strategy', label: 'Portfolio Strategy' },
-  { href: '/performance-analysis', label: 'Performance Analysis' },
-  { href: '/about-us', label: 'About Us' },
-]
+const footerNav: NavItem[] = []
 
 const footerLegal: NavItem[] = [
   { href: '/legal-information', label: 'Regulatory & Legal Information' },
@@ -56,9 +50,7 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
       getCachedGlobal('header', 1)() as Promise<Header>,
       getCachedGlobal('footer', 1)() as Promise<Footer>,
     ])
-  } catch {
-    // Fall back to hardcoded nav if CMS is unavailable.
-  }
+  } catch {}
 
   const headerNavItems =
     headerData?.navItems

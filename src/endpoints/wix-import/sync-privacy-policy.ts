@@ -2,7 +2,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 
 import type { WixDataItem, WixRichContent } from './types'
-import { createWixClient } from './wix-client'
+import { createWixClient } from './source-client'
 import { plainTextToLexical, wixRichContentToLexical } from './converters/rich-text'
 
 type WixRecord = Record<string, unknown>
@@ -104,7 +104,7 @@ async function run() {
           success: true,
           action: 'updated',
           slug: 'privacy-policy',
-          wixItemId: privacyItem.id,
+          sourceItemId: privacyItem.id,
         },
         null,
         2,
@@ -125,7 +125,7 @@ async function run() {
         success: true,
         action: 'created',
         slug: 'privacy-policy',
-        wixItemId: privacyItem.id,
+        sourceItemId: privacyItem.id,
       },
       null,
       2,

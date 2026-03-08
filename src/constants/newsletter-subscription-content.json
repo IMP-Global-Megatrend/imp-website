@@ -1,0 +1,20 @@
+{
+  "form": {
+    "fields": {
+      "firstName": {
+        "label": "First name"
+      },
+      "lastName": {
+        "label": "Last name"
+      },
+      "email": {
+        "label": "Email",
+        "requiredSuffix": "(required)"
+      }
+    },
+    "consent": {
+      "heading": "Consent",
+      "checkboxLabel": "I consent to the processing of my personal data. (Required)"
+    }
+  }
+}

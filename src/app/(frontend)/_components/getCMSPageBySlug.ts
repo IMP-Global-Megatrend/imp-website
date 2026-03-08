@@ -2,12 +2,7 @@ import configPromise from '@payload-config'
 import { draftMode } from 'next/headers'
 import { getPayload } from 'payload'
 
-export async function getCMSPageBySlug(slug: string, options?: { bypassFeatureFlag?: boolean }) {
-  // Keep styled hardcoded pages as default until CMS content is modeled 1:1.
-  if (!options?.bypassFeatureFlag && process.env.ENABLE_FRONTEND_CMS_PAGES !== 'true') {
-    return null
-  }
-
+export async function getCMSPageBySlug(slug: string) {
   const { isEnabled: draft } = await draftMode()
   const payload = await getPayload({ config: configPromise })
 
@@ -32,15 +27,30 @@ export async function getCMSAboutUsVideoUrl(): Promise<string | null> {
       collection: 'pages',
       limit: 1,
       pagination: false,
-      depth: 0,
+      depth: 1,
       where: {
         slug: { equals: 'about-us' },
       },
     })
 
-    const page = result.docs?.[0] as { aboutUsVideoUrl?: unknown } | undefined
-    if (typeof page?.aboutUsVideoUrl === 'string' && page.aboutUsVideoUrl.trim()) {
-      return page.aboutUsVideoUrl.trim()
+    const page = result.docs?.[0] as
+      | {
+          aboutUsVideo?: {
+            url?: unknown
+            filename?: unknown
+          }
+        }
+      | undefined
+
+    const mediaUrl = page?.aboutUsVideo?.url
+    if (typeof mediaUrl === 'string' && mediaUrl.trim()) {
+      return mediaUrl.trim()
+    }
+
+    const mediaFilename = page?.aboutUsVideo?.filename
+    if (typeof mediaFilename === 'string' && mediaFilename.trim()) {
+      const resolvedUrl = resolveSupabasePublicMediaUrl(mediaFilename.trim())
+      if (resolvedUrl) return resolvedUrl
     }
 
     return null
@@ -96,6 +106,8 @@ export type CMSPerformancePageData = {
   annualPerformanceTitle?: string
   usdLabel?: string
   chfLabel?: string
+  exportSvgTooltip?: string
+  exportCsvTooltip?: string
   usd?: CMSPerformanceShareClassDetails
   chf?: CMSPerformanceShareClassDetails
 }
@@ -462,23 +474,74 @@ export async function getCMSFundDetails(): Promise<FundDetailItem[] | null> {
   }
 }
 
-function resolveWixImageUrl(value: string): string {
-  if (!value) return ''
-  if (value.startsWith('http://') || value.startsWith('https://')) return value
+function resolveSupabasePublicMediaUrl(filename: string): string | null {
+  if (!filename) return null
 
-  if (value.startsWith('wix:image://')) {
-    const parts = value.replace('wix:image://v1/', '').split('/')
+  const endpoint = process.env.S3_ENDPOINT
+  const bucket = process.env.S3_BUCKET
+  if (!endpoint || !bucket) return null
+
+  try {
+    const endpointUrl = new URL(endpoint)
+    const baseOrigin = endpointUrl.origin
+    const encodedFilename = filename
+      .split('/')
+      .map((segment) => encodeURIComponent(segment))
+      .join('/')
+
+    return `${baseOrigin}/storage/v1/object/public/${bucket}/${encodedFilename}`
+  } catch {
+    return null
+  }
+}
+
+function normalizeSourceForMediaLookup(source: string): string {
+  if (source.startsWith('wix:image://')) {
+    const parts = source.replace('wix:image://v1/', '').split('/')
     const fileId = parts[0]
-    if (fileId) {
-      return `https://static.wixstatic.com/media/${fileId}`
-    }
+    if (fileId) return `https://static.wixstatic.com/media/${fileId}`
+  }
+  return source
+}
+
+async function resolveCMSImageUrlFromMedia(
+  payload: Awaited<ReturnType<typeof getPayload>>,
+  source: string,
+): Promise<string> {
+  if (!source) return ''
+  if (source.startsWith('/')) return source
+
+  if (
+    (source.startsWith('http://') || source.startsWith('https://')) &&
+    source.includes('/storage/v1/object/public/')
+  ) {
+    return source
   }
 
-  if (value.includes('.')) {
-    return `https://static.wixstatic.com/media/${value}`
+  const normalizedSource = normalizeSourceForMediaLookup(source)
+  const mediaBySource = await payload.find({
+    collection: 'media',
+    limit: 1,
+    pagination: false,
+    depth: 0,
+    where: {
+      or: [{ sourceUrl: { equals: source } }, { sourceUrl: { equals: normalizedSource } }],
+    },
+  })
+
+  const mediaDoc = mediaBySource.docs?.[0] as { url?: unknown; filename?: unknown } | undefined
+  const mediaFilename = mediaDoc?.filename
+  if (typeof mediaFilename === 'string' && mediaFilename.trim() !== '') {
+    const supabaseMediaUrl = resolveSupabasePublicMediaUrl(mediaFilename)
+    if (supabaseMediaUrl) return supabaseMediaUrl
   }
 
-  return value
+  const mediaUrl = mediaDoc?.url
+  if (typeof mediaUrl === 'string' && mediaUrl.trim() !== '') {
+    return mediaUrl
+  }
+
+  return ''
 }
 
 function getTextFieldValue(
@@ -526,7 +589,7 @@ export async function getCMSMegatrendImageVariantsByTitle(): Promise<
         getTextFieldValue(doc.textFields, 'image_fld')
       if (!title || !imageSource) continue
 
-      const resolved = resolveWixImageUrl(imageSource)
+      const resolved = await resolveCMSImageUrlFromMedia(payload, imageSource)
       if (!resolved) continue
       byTitle[title] = { ...(byTitle[title] ?? {}), blue: resolved }
     }
@@ -544,7 +607,7 @@ export async function getCMSMegatrendImageVariantsByTitle(): Promise<
         getTextFieldValue(doc.textFields, 'image_fld')
       if (!title || !imageSource) continue
 
-      const resolved = resolveWixImageUrl(imageSource)
+      const resolved = await resolveCMSImageUrlFromMedia(payload, imageSource)
       if (!resolved) continue
       byTitle[title] = { ...(byTitle[title] ?? {}), white: resolved }
     }
@@ -555,7 +618,7 @@ export async function getCMSMegatrendImageVariantsByTitle(): Promise<
   }
 }
 
-function parseWixDateToISO(value: unknown): string | null {
+function parseCMSDateToISO(value: unknown): string | null {
   if (!value) return null
   if (typeof value === 'string') {
     const parsed = new Date(value)
@@ -592,11 +655,11 @@ function toPerformanceNavPoint(doc: unknown): PerformanceNavPoint | null {
   const nav = directNav ?? (typeof numberFieldNav?.value === 'number' ? numberFieldNav.value : null)
   if (typeof nav !== 'number' || !Number.isFinite(nav)) return null
 
-  const directDate = parseWixDateToISO(data.date)
+  const directDate = parseCMSDateToISO(data.date)
   const dateFieldValue = Array.isArray(record.dateFields)
     ? record.dateFields.find((entry) => entry?.key === 'date')?.value
     : null
-  const dateISO = directDate ?? parseWixDateToISO(dateFieldValue)
+  const dateISO = directDate ?? parseCMSDateToISO(dateFieldValue)
   if (!dateISO) return null
 
   return { dateISO, nav: Math.round(nav * 100) / 100 }
@@ -765,18 +828,36 @@ export async function getCMSPerformancePageData(): Promise<CMSPerformancePageDat
       depth: 0,
     })
 
-    const doc = result.docs?.[0] as { data?: Record<string, unknown> | unknown } | undefined
+    const doc = result.docs?.[0] as
+      | {
+          data?: Record<string, unknown> | unknown
+          textFields?: Array<{ key?: unknown; value?: unknown }> | null
+        }
+      | undefined
     if (!doc) return null
     const data = (doc.data && typeof doc.data === 'object' ? doc.data : {}) as Record<string, unknown>
+    const getFromDataOrTextFields = (...keys: string[]): string | undefined => {
+      const fromData = getDataString(data, ...keys)
+      if (fromData) return fromData
+
+      for (const key of keys) {
+        const fromTextFields = getTextFieldValue(doc.textFields, key)
+        if (fromTextFields) return fromTextFields
+      }
+
+      return undefined
+    }
 
     const usd = buildPerformanceShareClass(data, 'usd')
     const chf = buildPerformanceShareClass(data, 'chf')
 
     return {
-      pageTitle: getDataString(data, 'pageTitle') ?? undefined,
-      annualPerformanceTitle: getDataString(data, 'annualPerformanceTitle') ?? undefined,
-      usdLabel: getDataString(data, 'usd') ?? undefined,
-      chfLabel: getDataString(data, 'chf') ?? undefined,
+      pageTitle: getFromDataOrTextFields('pageTitle'),
+      annualPerformanceTitle: getFromDataOrTextFields('annualPerformanceTitle'),
+      usdLabel: getFromDataOrTextFields('usd'),
+      chfLabel: getFromDataOrTextFields('chf'),
+      exportSvgTooltip: getFromDataOrTextFields('exportSvgTooltip', 'exportSvgLabel'),
+      exportCsvTooltip: getFromDataOrTextFields('exportCsvTooltip', 'exportCsvLabel'),
       usd,
       chf,
     }

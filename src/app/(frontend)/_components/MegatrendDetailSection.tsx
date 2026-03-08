@@ -27,11 +27,8 @@ export function MegatrendDetailSection({
       className={`${noTopBorder ? '' : 'border-t border-[#d9def0]'} scroll-mt-24 pt-16 md:pt-20 pb-0`}
     >
       <div className="container">
-        <div
-          className={`grid lg:grid-cols-2 gap-10 lg:gap-16 items-stretch ${reverse ? 'lg:direction-rtl' : ''}`}
-          style={reverse ? { direction: 'rtl' } : undefined}
-        >
-          <div className="h-full" style={reverse ? { direction: 'ltr' } : undefined}>
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-stretch">
+          <div className={`h-full order-2 ${reverse ? 'lg:order-2' : 'lg:order-1'}`}>
             <div className="flex h-full items-stretch gap-4">
               <div className="hidden md:flex items-stretch gap-2 shrink-0 self-stretch">
                 <span
@@ -63,13 +60,12 @@ export function MegatrendDetailSection({
           </div>
 
           <div
-            className={`flex items-center justify-center ${reverse ? 'lg:pr-8' : 'lg:pl-8'}`}
-            style={reverse ? { direction: 'ltr' } : undefined}
+            className={`flex items-center justify-center order-1 ${reverse ? 'lg:order-1 lg:pr-8' : 'lg:order-2 lg:pl-8'}`}
           >
             {trend.icon ? (
               <img
                 src={trend.icon}
-                alt=""
+                alt={`${trend.title} icon`}
                 className="w-full h-auto object-contain"
               />
             ) : null}

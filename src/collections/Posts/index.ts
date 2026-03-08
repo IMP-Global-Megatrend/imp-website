@@ -191,7 +191,7 @@ export const Posts: CollectionConfig<'posts'> = {
       relationTo: 'users',
     },
     {
-      name: 'wixId',
+      name: 'sourceId',
       type: 'text',
       index: true,
       admin: {
@@ -199,7 +199,7 @@ export const Posts: CollectionConfig<'posts'> = {
       },
     },
     {
-      name: 'wixUpdatedAt',
+      name: 'sourceUpdatedAt',
       type: 'date',
       admin: {
         position: 'sidebar',
@@ -247,7 +247,7 @@ export const Posts: CollectionConfig<'posts'> = {
   },
   indexes: [
     {
-      fields: ['wixId'],
+      fields: ['sourceId'],
       unique: true,
     },
   ],

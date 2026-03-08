@@ -94,7 +94,7 @@ export async function importDataCollectionItems(
       const existing = await payload.find({
         collection: targetCollection,
         where: {
-          wixItemId: { equals: item.id },
+          sourceItemId: { equals: item.id },
         },
         limit: 1,
         depth: 0,
@@ -110,9 +110,9 @@ export async function importDataCollectionItems(
               collection: targetCollection,
               id: existingDoc.id,
               data: {
-                wixCollectionId: collectionId,
-                wixItemId: item.id,
-                wixUpdatedAt: item._updatedDate || item._createdDate || null,
+                sourceCollectionId: collectionId,
+                sourceItemId: item.id,
+                sourceUpdatedAt: item._updatedDate || item._createdDate || null,
                 ...normalizedFields,
                 data: sanitizedData,
               },
@@ -134,9 +134,9 @@ export async function importDataCollectionItems(
         await payload.create({
           collection: targetCollection,
           data: {
-            wixCollectionId: collectionId,
-            wixItemId: item.id,
-            wixUpdatedAt: item._updatedDate || item._createdDate || null,
+            sourceCollectionId: collectionId,
+            sourceItemId: item.id,
+            sourceUpdatedAt: item._updatedDate || item._createdDate || null,
             ...normalizedFields,
             data: sanitizedData,
           },

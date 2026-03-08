@@ -1,126 +1,29 @@
+import type { Metadata } from 'next'
 import { getCMSMegatrendImageVariantsByTitle, getCMSPageBySlug } from '../_components/getCMSPageBySlug'
-import { CMSPageContent } from '../_components/CMSPageContent'
 import { PageHero } from '../_components/PageHero'
 import { MegatrendDetailSection } from '../_components/MegatrendDetailSection'
 import { ActionLinkButton } from '../_components/ActionLinkButton'
+import megatrendsContent from '@/constants/megatrends-content.json'
+import fallbacks from '@/constants/fallbacks.json'
+import { generateMeta } from '@/utilities/generateMeta'
 
-const megatrends = [
-  {
-    icon: '/images/technology_icon.png',
-    title: 'Technology/Technological Advancements',
-    subtitle: "Redefining what's possible.",
-    description: [
-      'The exponential rise of technologies such as artificial intelligence (AI), machine learning, quantum computing, and the Internet of Things (IoT) is transforming not only industries but entire economic models.',
-      'Semiconductors are foundational, enabling everything from data center acceleration to edge computing and next-gen consumer devices.',
-      'Cloud computing, robotics, and automation are driving efficiency across manufacturing, logistics, and services.',
-      'Cybersecurity has become mission-critical in an interconnected world, with zero-trust architectures and behavioral threat detection technologies becoming key defensive frontiers.',
-    ],
-    conclusion:
-      'We invest in companies at the core of this innovation stack — from component suppliers to platforms and enablers — with a focus on scalable, defensible, and capital-light business models.',
-  },
-  {
-    icon: '/images/consumer_icon.png',
-    title: 'Changing Consumer Behavior/Demographics',
-    subtitle: 'A new era of demand.',
-    description: [
-      'Shifting demographics and evolving preferences are altering global consumption patterns:',
-      'Aging populations in developed markets are creating demand for healthcare, financial planning, and experience-based services.',
-      'Urbanization is redefining housing, infrastructure, and mobility needs.',
-      'The mobile-first generation, particularly in Asia and Africa, is accelerating the rise of e-commerce, digital entertainment, and decentralized service delivery.',
-      'Intergenerational wealth transfer is shaping investment behavior, sustainability preferences, and spending priorities.',
-    ],
-    conclusion:
-      'We target businesses that are successfully capturing this shift — from digital platforms and healthtech firms to premium consumer brands and urban infrastructure providers.',
-  },
-  {
-    icon: '/images/healthcare_icon.png',
-    title: 'Healthcare/Longevity Revolution',
-    subtitle: 'Investing in longer, healthier lives.',
-    description: [
-      'Medical science is evolving from reactive treatment to proactive, personalized healthcare. This revolution is underpinned by:',
-      'Biotechnology and genomics, unlocking targeted therapies and regenerative medicine.',
-      'Digital health platforms, telemedicine, and AI-powered diagnostics, bringing scalable precision to care delivery.',
-      'Advanced surgical robotics and medtech innovations enhancing patient outcomes and operational efficiency.',
-    ],
-    conclusion:
-      'We focus on companies at the forefront of life sciences, diagnostics, healthcare infrastructure, and biopharmaceutical innovation, offering scalable solutions to global healthcare challenges.',
-  },
-  {
-    icon: '/images/economic_icon.png',
-    title: 'Shift in Economic Power',
-    subtitle: 'Emerging markets at the frontier of growth.',
-    description: [
-      'The epicenter of global economic activity is moving. Asia, Latin America, and select parts of Africa are witnessing a surge in productivity, innovation, and consumption. Key drivers include:',
-      'The rise of a digitally native middle class with increasing purchasing power.',
-      'Growth in financial inclusion through mobile banking, fintech apps, and digital payment ecosystems.',
-      'Adoption of decentralized finance (DeFi) and digital currencies, which are reducing friction and increasing access in global transactions.',
-      'Local innovation hubs in cities like Bangalore, Shenzhen, and São Paulo that are shaping global technology supply chains.',
-    ],
-    conclusion:
-      'We invest in companies that are either emerging champions within these regions or global firms poised to capitalize on this rebalancing of economic power.',
-  },
-  {
-    icon: '/images/mobility_icon.png',
-    title: 'Mobility/Transportation',
-    subtitle: 'The reinvention of movement.',
-    description: [
-      'A radical redefinition of how people and goods move is underway, centered on sustainability, safety, and smart systems.',
-      'Electric vehicles (EVs) are going mainstream, supported by battery innovation, policy incentives, and charging infrastructure build-out.',
-      'Autonomous driving and mobility-as-a-service (MaaS) platforms are improving safety, accessibility, and urban efficiency.',
-      'Drone logistics and AI-based traffic optimization are pushing boundaries in last-mile delivery and infrastructure planning.',
-      'Smart cities and intelligent infrastructure are integrating mobility solutions to reduce congestion and emissions.',
-    ],
-    conclusion:
-      'We invest in companies at the core of this innovation stack — from component suppliers to platforms and enablers — with a focus on scalable, defensible, and capital-light business models.',
-  },
-  {
-    icon: '/images/infrastructure_icon.png',
-    title: 'Smart Infrastructure/Smart City',
-    subtitle: "The backbone of tomorrow's urban life.",
-    description: [
-      'Cities are transforming into intelligent, connected ecosystems, powered by digitalization, electrification, and advanced technologies.',
-      'AI, IoT, 5G, and edge computing are embedded into housing, transportation, energy grids, and public services.',
-      'Real-time analytics enable predictive maintenance, efficient resource allocation, and resilient city operations.',
-      'Data centers, transmission networks, and utility systems are scaling to meet surging connectivity and electrification demands.',
-      'Smart construction and adaptive energy systems are addressing sustainability and urban growth challenges.',
-    ],
-    conclusion:
-      'We target companies building and enabling this next-generation infrastructure — from critical components and platforms to service providers — with a focus on scalable, adaptive, and high-barrier business models.',
-  },
-]
+export async function generateMetadata(): Promise<Metadata> {
+  const cmsPage = await getCMSPageBySlug('megatrends')
+  if (cmsPage) return generateMeta({ doc: cmsPage })
 
-function getMegatrendAnchor(title: string): string {
-  const byTitle: Record<string, string> = {
-    'Technology/Technological Advancements': 'technology-technological-advancements',
-    'Changing Consumer Behavior/Demographics': 'changing-consumer-behavior-demographics',
-    'Healthcare/Longevity Revolution': 'healthcare-longevity-revolution',
-    'Shift in Economic Power': 'shift-in-economic-power',
-    'Mobility/Transportation': 'mobility-transportation',
-    'Smart Infrastructure/Smart City': 'smart-infrastructure-smart-city',
-  }
-
-  const mapped = byTitle[title]
-  if (mapped) return mapped
-
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
+  return fallbacks.metadata.megatrends
 }
+
+const megatrends = megatrendsContent.megatrends
 
 export default async function MegatrendsPage() {
   const trendImageVariantsByTitle = await getCMSMegatrendImageVariantsByTitle()
 
-  const cmsPage = await getCMSPageBySlug('megatrends')
-  if (cmsPage) {
-    return <CMSPageContent page={cmsPage as never} />
-  }
-
   return (
     <main className="bg-white text-[#0b1035]">
         <PageHero
-          title="The Six Megatrends Powering Our Portfolio"
-          subtitle="Megatrends focus on a deep, structural force reshaping the global economy. These themes are enduring, transformative, and global."
+          title={megatrendsContent.hero.title}
+          subtitle={megatrendsContent.hero.subtitle}
           palette={{ color1: '#2b3dea', color2: 'oklch(0.47 0.12 174)', color3: 'oklch(0.47 0.10 136)' }}
         />
 
@@ -129,18 +32,14 @@ export default async function MegatrendsPage() {
           <div className="container">
             <div className="max-w-5xl space-y-6">
               <h3 className="text-white font-display font-medium leading-relaxed text-[18px] md:text-[19px]">
-                Investing at the Intersection of Innovation, Demographics, and Sustainability
+                {megatrendsContent.intro.heading}
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-6 md:gap-8">
                 <blockquote className="border-l border-primary-light pl-8 pr-8 text-[#62A8FF] font-thin leading-relaxed text-[18px] md:text-[19px]">
-                  At the heart of the IMP Global Megatrend Umbrella Fund is our deep conviction in
-                  the power of structural change. We focus on six transformational megatrends that
-                  are reshaping the global economy, society, and our daily lives.
+                  {megatrendsContent.intro.leftQuote}
                 </blockquote>
                 <blockquote className="border-l border-primary-light pl-8 pr-8 text-[#62A8FF] font-thin leading-relaxed text-[18px] md:text-[19px]">
-                  These trends are not fleeting fads; they are multi-decade forces that cut across
-                  sectors and geographies - creating durable, secular growth opportunities for
-                  companies aligned with them.
+                  {megatrendsContent.intro.rightQuote}
                 </blockquote>
               </div>
             </div>
@@ -151,12 +50,16 @@ export default async function MegatrendsPage() {
         <div className="pb-16 md:pb-20">
           {megatrends.map((trend, idx) => (
             <MegatrendDetailSection
-              id={getMegatrendAnchor(trend.title)}
+              id={trend.anchor}
               key={trend.title}
               index={idx}
               trend={{
                 ...trend,
-                icon: trendImageVariantsByTitle[trend.title]?.blue ?? '',
+                icon:
+                  trendImageVariantsByTitle[trend.title]?.blue ||
+                  trendImageVariantsByTitle[trend.title]?.white ||
+                  trend.icon ||
+                  '',
               }}
               reverse={idx % 2 === 1}
               noTopBorder={idx === 0}
@@ -165,17 +68,19 @@ export default async function MegatrendsPage() {
 
           <section className="border-t border-[#d9def0] pt-10 pb-0 md:pt-12 md:pb-0">
             <div className="container">
-              <h3 className="mb-5 text-center text-[20px] md:text-[22px] text-[#0b1035]">Related Links</h3>
+              <h3 className="mb-5 text-center text-[20px] md:text-[22px] text-[#0b1035]">
+                {megatrendsContent.relatedLinks.heading}
+              </h3>
               <div className="flex flex-wrap items-center justify-center gap-4">
                 <ActionLinkButton
                   href="/portfolio-strategy"
-                  label="Explore our Portfolio"
+                  label={megatrendsContent.relatedLinks.primaryLabel}
                   icon="trendingUp"
                   buttonVariant="outlineMuted"
                 />
                 <ActionLinkButton
                   href="/portfolio-strategy"
-                  label="How we invest"
+                  label={megatrendsContent.relatedLinks.secondaryLabel}
                   icon="chartLine"
                   buttonVariant="outlineMuted"
                 />
@@ -189,18 +94,14 @@ export default async function MegatrendsPage() {
           <div className="container">
             <div className="max-w-5xl space-y-6">
               <h3 className="text-white font-display font-medium leading-relaxed text-[18px] md:text-[19px]">
-              Our Thematic Framework in Action
+                {megatrendsContent.thematicFramework.heading}
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                 <blockquote className="border-l border-primary-light pl-8 pr-8 text-[#62A8FF] font-thin leading-relaxed text-[18px] md:text-[19px]">
-                  Each company in our portfolio must demonstrate direct revenue exposure to one or
-                  more of these six megatrends. Rather than following index composition, we build a
-                  high-conviction portfolio that reflects our forward-looking thematic convictions.
+                  {megatrendsContent.thematicFramework.leftQuote}
                 </blockquote>
                 <blockquote className="border-l border-primary-light pl-8 pr-8 text-[#62A8FF] font-thin leading-relaxed text-[18px] md:text-[19px]">
-                  We believe that investing through the lens of these megatrends not only aligns
-                  capital with positive change, but also positions investors to capture asymmetric
-                  growth in a complex and rapidly evolving global economy.
+                  {megatrendsContent.thematicFramework.rightQuote}
                 </blockquote>
               </div>
             </div>

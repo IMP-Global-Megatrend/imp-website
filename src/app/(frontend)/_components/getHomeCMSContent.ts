@@ -1,6 +1,7 @@
 import configPromise from '@payload-config'
 import { cache } from 'react'
 import { getPayload } from 'payload'
+import fallbacks from '@/constants/fallbacks.json'
 
 type RegulatoryItem = {
   label: string
@@ -15,6 +16,7 @@ type TrendItem = {
 }
 
 type DownloadItem = {
+  id: 'factsheetUsd' | 'factsheetChfHedged' | 'fundCommentary' | 'presentation'
   label: string
   href: string
 }
@@ -24,9 +26,13 @@ type ExploreMegatrendsCard = {
   imageUrl: string
 }
 
-type WixRecord = Record<string, unknown>
+type CMSRecord = Record<string, unknown>
 type ParsedTrendItem = TrendItem & { manualSort: string; imageSource: string }
-type ParsedDownloadItem = DownloadItem & { source: string }
+type ParsedDownloadItem = Omit<DownloadItem, 'href'> & { source: string }
+type MediaLike = {
+  url?: unknown
+  filename?: unknown
+}
 
 export type HomeCMSContent = {
   hero: {
@@ -46,107 +52,24 @@ export type HomeCMSContent = {
   }
 }
 
-const fallbackHomeContent: HomeCMSContent = {
+const EMPTY_HOME_CONTENT: HomeCMSContent = {
   hero: {
-    heading: 'Investing in the World of Tomorrow Today',
-    subtitle: 'Harnessing global megatrends to unlock long-term growth.',
-    ctaLabel: 'Explore Our Megatrends',
-    ctaHref: '/megatrends',
+    heading: fallbacks.home.hero.heading,
+    subtitle: fallbacks.home.hero.subtitle,
+    ctaLabel: fallbacks.home.hero.ctaLabel,
+    ctaHref: fallbacks.home.hero.ctaHref,
   },
-  regulatoryItems: [
-    { label: 'Regulatory Structure', value: 'UCITS' },
-    { label: 'Portfolio Manager', value: 'MRB Fund Partners AG' },
-    { label: 'Fund Administrator', value: 'VP Fund Solutions (Liechtenstein) AG' },
-    { label: 'Custodian Bank', value: 'VP Bank (Liechtenstein) AG' },
-    { label: 'Audit Company', value: 'Grant Thornton AG' },
-    { label: 'Liechtenstein', value: 'FMA Approved' },
-    { label: 'Switzerland', value: 'FINMA Approved' },
-    { label: 'Tax Transparency', value: 'CH, LI' },
-    { label: 'Sales Restrictions', value: 'USA' },
-    { label: 'SFDR', value: 'Article 6' },
-  ],
-  trends: [
-    {
-      title: 'Technology/Technological Advancements',
-      body: 'Innovation, particularly in areas such as artificial intelligence, machine learning, quantum computing, and the Internet of Things. These technologies are not only modifying existing industries but also creating entirely new market segments. Central to these advancements are semiconductors, which underpin data processing, enable AI algorithms, and drive efficiencies in sectors ranging from cloud computing to autonomous systems and industrial automation. Cybersecurity also remains a critical focal point, safeguarding digital ecosystems from an increasingly sophisticated threat landscape.',
-      imageUrl: '/images/megatrend_technology.png',
-      tickers: [
-        ['NVDA', 'NVIDIA Corp'],
-        ['GOOG', 'Alphabet Inc'],
-      ],
-    },
-    {
-      title: 'Changing Consumer Behavior/Demographics',
-      body: 'Demographic transformations, including aging populations, urbanization, and increasingly digital-centric lifestyles are reshaping global demand dynamics. The growth of the mobile-first consumer is particularly pronounced, as smartphones and mobile applications become the preeminent medium for e-commerce, entertainment, and service delivery. These transferences are compounded by the demand for healthcare innovations driven by aging societies and the growth of intergenerational wealth transfer.',
-      imageUrl: '/images/megatrend_consumer.png',
-      tickers: [
-        ['AMZN', 'Amazon.com Inc'],
-        ['WMT', 'Walmart Inc'],
-      ],
-    },
-    {
-      title: 'Healthcare/Longevity Revolution',
-      body: 'The healthcare sector is undergoing a paradigm shift, driven by breakthroughs in biotechnology, genomics, digital health, and personalized medicine. These innovations are reshaping patient care and improving outcomes through robotic surgery, extending life expectancy, and redefining the future of wellness. The advent of gene editing, wearable health technologies, and advanced medical devices is creating exponential growth opportunities for investors in medtech, biopharma, and healthcare infrastructure.',
-      imageUrl: '/images/megatrend_healthcare.png',
-      tickers: [
-        ['GALD SW', 'Galderma Group AG'],
-        ['ISRG', 'Intuitive Surgical Inc'],
-      ],
-    },
-    {
-      title: 'Shift in Economic Power',
-      body: 'Transformation in global economic power, particularly in Asia and Latin America, is driving an unprecedented wave of growth in emerging markets. The expanding middle class in these regions is fueling an increase in consumption across a diverse array of sectors, including consumer goods, luxury, and digital services. Furthermore, the rapid adoption of digital currencies and the rise of fintech solutions are disrupting traditional financial systems, enabling cross-border economic integration and reducing friction in global transactions.',
-      imageUrl: '/images/megatrend_economic.png',
-      tickers: [
-        ['MELI', 'MercadoLibre Inc'],
-        ['700 HK', 'Tencent Holdings Ltd'],
-      ],
-    },
-    {
-      title: 'Mobility/Transportation',
-      body: 'The accessibility of fundamental transformation is driven by the adoption of electric vehicles, autonomous driving technologies, and mobility-as-a-service platforms. The deployment of self-driving cars, trucks, and drones has the potential to dramatically enhance efficiency and safety while reducing environmental impact. These innovations are complemented by the development of smart infrastructure, which aims to optimize traffic flows and reduce congestion.',
-      imageUrl: '/images/megatrend_mobility.png',
-      tickers: [
-        ['TSLA', 'Tesla Inc'],
-        ['DUK', 'Duke Energy Corp'],
-      ],
-    },
-    {
-      title: 'Smart Infrastructure/Smart City',
-      body: 'Urbanization, digitalization, and electrification are accelerating the transition toward smarter, more connected infrastructure. Advanced technologies such as artificial intelligence, Internet of Things, 5G, edge computing, and real-time analytics are increasingly embedded into smart housing, transportation systems, energy grids, utilities, and public services. As demand grows, investments are rising across key sectors including construction, data centers, transmission networks, energy, and telecommunications, highlighting the need for scalable, adaptive systems.',
-      imageUrl: '/images/megatrend_infrastructure.png',
-      tickers: [
-        ['PRY IM', 'Prysmian S.p.A'],
-        ['NBIS', 'Nebius Group N.V.'],
-      ],
-    },
-  ],
-  downloads: [
-    {
-      label: 'Factsheet USD',
-      href: '/impgmt-clone/www.impgmtfund.com/_files/ugd/037a25_e3e73c35d566433fa958a54696b69633.pdf',
-    },
-    {
-      label: 'Factsheet CHF Hedged',
-      href: '/impgmt-clone/www.impgmtfund.com/_files/ugd/037a25_671093d7123f482e9e90bf53264f0f85.pdf',
-    },
-    {
-      label: 'Fund Commentary',
-      href: '/impgmt-clone/www.impgmtfund.com/_files/ugd/037a25_4f821338d34e4ad082c86d13bd46c757.pdf',
-    },
-    {
-      label: 'Presentation',
-      href: '/impgmt-clone/www.impgmtfund.com/_files/ugd/037a25_eb4acc9f30f64bc6a3cb83cd325b4333.pdf',
-    },
-  ],
+  regulatoryItems: [],
+  trends: [],
+  downloads: [],
   exploreMegatrendsCard: {
-    title: 'Explore Our Megatrends',
-    imageUrl: 'https://static.wixstatic.com/media/c3fe54_33107dbfb46d4ababca7567af0449730~mv2.png',
+    title: fallbacks.home.exploreMegatrendsCard.title,
+    imageUrl: fallbacks.home.exploreMegatrendsCard.imageUrl,
   },
   regulatoryNotice: {
-    title: 'Regulatory Notice',
-    body: 'Portfolio management of the IMP Global Megatrend Umbrella Fund is entrusted to MRB Fund Partners AG. In this document and all related marketing materials, the pronouns "we," "us," and "our" refer exclusively to MRB Fund Partners AG in relation to any investment decisions and regulated portfolio-management activities.',
-    address: 'Fraumünsterstrasse 9 · 8001 Zürich · www.mrbpartner.ch',
+    title: fallbacks.home.regulatoryNotice.title,
+    body: fallbacks.home.regulatoryNotice.body,
+    address: fallbacks.home.regulatoryNotice.address,
   },
 }
 
@@ -179,34 +102,17 @@ function stripHtml(value: string): string {
     .trim()
 }
 
-function resolveWixDocumentUrl(value: string): string {
+function resolveCMSImageUrl(value: string): string {
   if (!value) return ''
-  if (value.startsWith('http://') || value.startsWith('https://')) return value
-
-  // Expected format: wix:document://v1/ugd/<file-id>.pdf/<human-readable-name>.pdf
-  const match = value.match(/wix:document:\/\/v1\/ugd\/([^/]+)/)
-  if (match?.[1]) {
-    return `https://www.impgmtfund.com/_files/ugd/${match[1]}`
+  if (value.startsWith('/')) return value
+  if (value.startsWith('http://') || value.startsWith('https://')) {
+    // Keep only already-migrated storage URLs; block other external image hosts.
+    return value.includes('/storage/v1/object/public/') ? value : ''
   }
 
-  return ''
-}
-
-function resolveWixImageUrl(value: string): string {
-  if (!value) return ''
-  if (value.startsWith('http://') || value.startsWith('https://')) return value
-
-  if (value.startsWith('wix:image://')) {
-    const parts = value.replace('wix:image://v1/', '').split('/')
-    const fileId = parts[0]
-    if (fileId) {
-      return `https://static.wixstatic.com/media/${fileId}`
-    }
-  }
-
-  if (value.includes('.')) {
-    return `https://static.wixstatic.com/media/${value}`
-  }
+  // Disallow Wix tokens in frontend content; CMS rows should already reference local media URLs.
+  if (value.startsWith('wix:image://') || value.startsWith('wix:document://')) return ''
+  if (value.includes('.')) return value
 
   return value
 }
@@ -265,7 +171,7 @@ function extractImageSourceFromUnknown(value: unknown, depth = 0): string | null
   if (typeof value === 'string') {
     const trimmed = value.trim()
     if (!trimmed) return null
-    return resolveWixImageUrl(trimmed)
+    return resolveCMSImageUrl(trimmed)
   }
 
   if (Array.isArray(value)) {
@@ -278,7 +184,7 @@ function extractImageSourceFromUnknown(value: unknown, depth = 0): string | null
 
   if (typeof value !== 'object') return null
 
-  const record = value as WixRecord
+  const record = value as CMSRecord
   const directStringKeys = [
     'url',
     'src',
@@ -293,7 +199,7 @@ function extractImageSourceFromUnknown(value: unknown, depth = 0): string | null
   for (const key of directStringKeys) {
     const candidate = record[key]
     if (typeof candidate === 'string' && candidate.trim() !== '') {
-      return resolveWixImageUrl(candidate)
+      return resolveCMSImageUrl(candidate)
     }
   }
 
@@ -307,19 +213,11 @@ function extractImageSourceFromUnknown(value: unknown, depth = 0): string | null
 }
 
 function fallbackTrendImageByTitle(title: string): string {
-  const fallbackMap: Record<string, string> = {
-    'Technology/Technological Advancements': '/images/megatrend_technology.png',
-    'Changing Consumer Behavior/Demographics': '/images/megatrend_consumer.png',
-    'Healthcare/Longevity Revolution': '/images/megatrend_healthcare.png',
-    'Shift in Economic Power': '/images/megatrend_economic.png',
-    'Mobility/Transportation': '/images/megatrend_mobility.png',
-    'Smart Infrastructure/Smart City': '/images/megatrend_infrastructure.png',
-  }
-
-  return fallbackMap[title] ?? '/images/megatrend_technology.png'
+  void title
+  return ''
 }
 
-function parseTrendImageSource(data: WixRecord): string | null {
+function parseTrendImageSource(data: CMSRecord): string | null {
   const textCandidates = [
     'image_fld',
     'image',
@@ -337,10 +235,10 @@ function parseTrendImageSource(data: WixRecord): string | null {
 
   for (const key of textCandidates) {
     const value = getRecordTextValue(data, key)
-    if (value) return resolveWixImageUrl(value)
+    if (value) return resolveCMSImageUrl(value)
   }
 
-  // Prefer explicit object-based image field names from Wix data first.
+  // Prefer explicit object-based image field names from source data first.
   const explicitObjectCandidates = ['image_fld', 'image', 'media', 'file', 'asset']
   for (const key of explicitObjectCandidates) {
     const value = getRecordObjectValue(data, key)
@@ -366,7 +264,7 @@ function parseTrendImageSource(data: WixRecord): string | null {
   return null
 }
 
-function getRecordSortValue(record: WixRecord): string {
+function getRecordSortValue(record: CMSRecord): string {
   const directSort = getRecordTextValue(record, '_manualSort_', '_manualSort_')
   if (directSort) return directSort
 
@@ -374,19 +272,19 @@ function getRecordSortValue(record: WixRecord): string {
   return typeof raw === 'string' ? raw : ''
 }
 
-function parseWixRichParagraphs(richContent: unknown): string[] {
+function parseCMSRichParagraphs(richContent: unknown): string[] {
   const nodes = (richContent as { nodes?: unknown[] } | null)?.nodes
   if (!Array.isArray(nodes)) return []
 
   return nodes
     .map((node) => {
-      const nodeRecord = (node ?? {}) as WixRecord
-      const children = Array.isArray(nodeRecord.nodes) ? (nodeRecord.nodes as WixRecord[]) : []
+      const nodeRecord = (node ?? {}) as CMSRecord
+      const children = Array.isArray(nodeRecord.nodes) ? (nodeRecord.nodes as CMSRecord[]) : []
       const text = children
         .map((child) => {
           const textData = (child.textData && typeof child.textData === 'object'
             ? child.textData
-            : {}) as WixRecord
+            : {}) as CMSRecord
           return typeof textData.text === 'string' ? textData.text : ''
         })
         .join('')
@@ -395,8 +293,14 @@ function parseWixRichParagraphs(richContent: unknown): string[] {
     .filter((paragraph) => paragraph.length > 0)
 }
 
+function normalizeRegulatoryLabel(label: string): string {
+  const normalized = label.trim().toLowerCase().replace(/\s+/g, ' ')
+  if (normalized === 'lichtenstein' || normalized === 'liechtenstein') return 'liechtenstein'
+  return normalized
+}
+
 function parseTrustListItems(docs: Array<Record<string, unknown>>): RegulatoryItem[] {
-  return docs
+  const sorted = docs
     .map((doc) => {
       const data = (doc.data && typeof doc.data === 'object'
         ? doc.data
@@ -415,16 +319,28 @@ function parseTrustListItems(docs: Array<Record<string, unknown>>): RegulatoryIt
     })
     .filter((item): item is RegulatoryItem & { manualSort: string } => item !== null)
     .sort((a, b) => {
-      if (a.manualSort !== b.manualSort) return a.manualSort.localeCompare(b.manualSort)
+      // Trust-list order should come from CMS _manualSort directly.
+      if (a.manualSort !== b.manualSort) return b.manualSort.localeCompare(a.manualSort)
       return a.label.localeCompare(b.label)
     })
-    .map(({ label, value }) => ({ label, value }))
+
+  const seenLabels = new Set<string>()
+  const deduped: RegulatoryItem[] = []
+
+  for (const item of sorted) {
+    const normalizedLabel = normalizeRegulatoryLabel(item.label)
+    if (!normalizedLabel || seenLabels.has(normalizedLabel)) continue
+    seenLabels.add(normalizedLabel)
+    deduped.push({ label: item.label, value: item.value })
+  }
+
+  return deduped
 }
 
-function parseTrendItems(docs: WixRecord[]): ParsedTrendItem[] {
+function parseTrendItems(docs: CMSRecord[]): ParsedTrendItem[] {
   return docs
     .map((doc) => {
-      const data = (doc.data && typeof doc.data === 'object' ? doc.data : {}) as WixRecord
+      const data = (doc.data && typeof doc.data === 'object' ? doc.data : {}) as CMSRecord
       const title = getRecordTextValue(data, 'title_fld')
       const descriptionHtml = getRecordTextValue(data, 'description_fld')
       const body = descriptionHtml ? stripHtml(descriptionHtml) : ''
@@ -459,30 +375,61 @@ function parseTrendItems(docs: WixRecord[]): ParsedTrendItem[] {
     .map((item) => item)
 }
 
-function parseDownloadItems(docs: WixRecord[]): ParsedDownloadItem[] {
+function normalizeTrendTitle(title: string): string {
+  return title.trim().toLowerCase().replace(/\s+/g, ' ')
+}
+
+function dedupeTrendItemsByTitle(trends: TrendItem[]): {
+  deduped: TrendItem[]
+  removed: number
+  duplicateTitles: string[]
+} {
+  const seenTitles = new Set<string>()
+  const duplicateTitles: string[] = []
+  const deduped: TrendItem[] = []
+
+  for (const trend of trends) {
+    const normalizedTitle = normalizeTrendTitle(trend.title)
+    if (!normalizedTitle) continue
+
+    if (seenTitles.has(normalizedTitle)) {
+      duplicateTitles.push(trend.title)
+      continue
+    }
+
+    seenTitles.add(normalizedTitle)
+    deduped.push(trend)
+  }
+
+  return {
+    deduped,
+    removed: trends.length - deduped.length,
+    duplicateTitles: Array.from(new Set(duplicateTitles)),
+  }
+}
+
+function parseDownloadItems(docs: CMSRecord[]): ParsedDownloadItem[] {
   const first = docs[0]
   if (!first) return []
 
-  const data = (first.data && typeof first.data === 'object' ? first.data : {}) as WixRecord
-  const mapping: Array<{ key: string; label: string }> = [
-    { key: 'factSheet', label: 'Factsheet USD' },
-    { key: 'factsheetChfHedged', label: 'Factsheet CHF Hedged' },
-    { key: 'fundCommentary', label: 'Fund Commentary' },
-    { key: 'presentation', label: 'Presentation' },
+  const data = (first.data && typeof first.data === 'object' ? first.data : {}) as CMSRecord
+  const mapping: Array<{ id: DownloadItem['id']; key: string; label: string }> = [
+    { id: 'factsheetUsd', key: 'factSheet', label: 'Factsheet USD' },
+    { id: 'factsheetChfHedged', key: 'factsheetChfHedged', label: 'Factsheet CHF Hedged' },
+    { id: 'fundCommentary', key: 'fundCommentary', label: 'Fund Commentary' },
+    { id: 'presentation', key: 'presentation', label: 'Presentation' },
   ]
 
   return mapping
-    .map(({ key, label }) => {
-      const raw = getRecordTextValue(data, key)
-      if (!raw) return null
-      const source = resolveWixDocumentUrl(raw)
+    .map(({ id, key, label }) => {
+      const source = getRecordTextValue(data, key)
       if (!source) return null
-      return { label, href: source, source }
+      return { id, label, source }
     })
     .filter((item): item is ParsedDownloadItem => item !== null)
 }
 
-function parseExploreMegatrendsTitle(data: WixRecord): string {
+function parseExploreMegatrendsTitle(data: CMSRecord): string {
   const candidates = [
     'exploreMegatrendsTitle',
     'exploreOurMegatrendsTitle',
@@ -497,10 +444,10 @@ function parseExploreMegatrendsTitle(data: WixRecord): string {
     if (value) return stripHtml(value)
   }
 
-  return fallbackHomeContent.exploreMegatrendsCard.title
+  return ''
 }
 
-function parseExploreMegatrendsImageSource(data: WixRecord): string {
+function parseExploreMegatrendsImageSource(data: CMSRecord): string {
   const candidates = [
     'exploreMegatrendsImage',
     'exploreOurMegatrendsImage',
@@ -512,21 +459,21 @@ function parseExploreMegatrendsImageSource(data: WixRecord): string {
 
   for (const key of candidates) {
     const value = getRecordTextValue(data, key)
-    if (value) return resolveWixImageUrl(value)
+    if (value) return resolveCMSImageUrl(value)
   }
 
-  return resolveWixImageUrl(fallbackHomeContent.exploreMegatrendsCard.imageUrl)
+  return ''
 }
 
-function parseRegulatoryNoticeFromWix(
-  legalDocs: WixRecord[],
-  contactDocs: WixRecord[],
+function parseRegulatoryNoticeFromCMS(
+  legalDocs: CMSRecord[],
+  contactDocs: CMSRecord[],
 ): HomeCMSContent['regulatoryNotice'] | null {
-  const legalData = ((legalDocs[0]?.data as WixRecord | undefined) ?? {}) as WixRecord
-  const contactData = ((contactDocs[0]?.data as WixRecord | undefined) ?? {}) as WixRecord
+  const legalData = ((legalDocs[0]?.data as CMSRecord | undefined) ?? {}) as CMSRecord
+  const contactData = ((contactDocs[0]?.data as CMSRecord | undefined) ?? {}) as CMSRecord
 
   const title = getRecordTextValue(legalData, 'title_fld')
-  const legalParagraphs = parseWixRichParagraphs(legalData.richcontent)
+  const legalParagraphs = parseCMSRichParagraphs(legalData.richcontent)
   const body =
     legalParagraphs.find((paragraph) => /portfolio management/i.test(paragraph)) ??
     legalParagraphs[0] ??
@@ -554,9 +501,9 @@ function parseRegulatoryNoticeFromWix(
   if (!title && !body && addressParts.length === 0) return null
 
   return {
-    title: title || fallbackHomeContent.regulatoryNotice.title,
-    body: body || fallbackHomeContent.regulatoryNotice.body,
-    address: addressParts.join(' · ') || fallbackHomeContent.regulatoryNotice.address,
+    title: title || '',
+    body: body || '',
+    address: addressParts.join(' · ') || '',
   }
 }
 
@@ -581,21 +528,74 @@ function resolveSupabasePublicMediaUrl(filename: string): string | null {
   }
 }
 
+function resolveMediaLikeUrl(media: unknown): string {
+  if (!media || typeof media !== 'object') return ''
+
+  const mediaRecord = media as MediaLike
+  const directUrl = mediaRecord.url
+  if (typeof directUrl === 'string' && directUrl.trim() !== '') {
+    return directUrl.trim()
+  }
+
+  const filename = mediaRecord.filename
+  if (typeof filename === 'string' && filename.trim() !== '') {
+    return resolveSupabasePublicMediaUrl(filename.trim()) || ''
+  }
+
+  return ''
+}
+
+function normalizeMediaLookupSource(source: string): string {
+  if (source.startsWith('wix:image://v1/')) {
+    const fileId = source.replace('wix:image://v1/', '').split('/')[0]
+    return fileId ? `https://static.wixstatic.com/media/${fileId}` : source
+  }
+
+  if (source.startsWith('wix:document://v1/ugd/')) {
+    const fileId = source.replace('wix:document://v1/ugd/', '').split('/')[0]
+    return fileId ? `https://www.impgmtfund.com/_files/ugd/${fileId}` : source
+  }
+
+  return source
+}
+
 async function resolveMediaUrlFromSource(
   payload: Awaited<ReturnType<typeof getPayload>>,
-  imageSource: string,
+  source: string,
 ): Promise<string> {
-  if (!imageSource || imageSource.startsWith('/')) return imageSource
+  if (!source) return ''
+  if (source.startsWith('/')) return source
+  if (
+    (source.startsWith('http://') || source.startsWith('https://')) &&
+    source.includes('/storage/v1/object/public/')
+  ) {
+    return source
+  }
 
-  const mediaBySource = await payload.find({
+  const lookupSource = normalizeMediaLookupSource(source)
+
+  let mediaBySource = await payload.find({
     collection: 'media',
     limit: 1,
     pagination: false,
     depth: 0,
     where: {
-      wixSourceUrl: { equals: imageSource },
+      sourceUrl: { equals: lookupSource },
     },
   })
+
+  // Backward-compatible fallback in case legacy rows stored raw tokens.
+  if ((mediaBySource.docs?.length ?? 0) === 0 && lookupSource !== source) {
+    mediaBySource = await payload.find({
+      collection: 'media',
+      limit: 1,
+      pagination: false,
+      depth: 0,
+      where: {
+        sourceUrl: { equals: source },
+      },
+    })
+  }
 
   const mediaDoc = mediaBySource.docs?.[0] as { url?: unknown; filename?: unknown } | undefined
   const mediaFilename = mediaDoc?.filename
@@ -609,7 +609,16 @@ async function resolveMediaUrlFromSource(
     return mediaUrl
   }
 
-  return imageSource
+  // Prefer predictable bucket object URL fallback for known UGD file identifiers.
+  const ugdMatch =
+    source.match(/wix:document:\/\/v1\/ugd\/([^/]+)/) ?? source.match(/\/_files\/ugd\/([^/?#]+)/)
+  if (ugdMatch?.[1]) {
+    const bucketUrl = resolveSupabasePublicMediaUrl(ugdMatch[1])
+    if (bucketUrl) return bucketUrl
+  }
+
+  // Never expose unresolved external/source URLs to the frontend.
+  return ''
 }
 
 export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
@@ -619,13 +628,14 @@ export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
       collection: 'pages',
       limit: 1,
       pagination: false,
+      depth: 1,
       where: {
         slug: { equals: 'home' },
       },
     })
 
     const page = result.docs?.[0]
-    if (!page) return fallbackHomeContent
+    if (!page) return EMPTY_HOME_CONTENT
 
     const trustListResult = await payload.find({
       collection: 'wix-trust-list',
@@ -637,9 +647,7 @@ export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
     const trustListItems = parseTrustListItems(trustListDocs)
 
     if (trustListItems.length === 0) {
-      payload.logger.warn(
-        'Regulatory strip fallback in use: no valid rows found in wix-trust-list.',
-      )
+      payload.logger.warn('Regulatory strip data missing: no valid rows found in payload collection wix-trust-list.')
     }
 
     const trendResult = await payload.find({
@@ -648,7 +656,7 @@ export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
       pagination: false,
       depth: 0,
     })
-    const trendDocs = (trendResult.docs ?? []) as unknown as WixRecord[]
+    const trendDocs = (trendResult.docs ?? []) as unknown as CMSRecord[]
     const trendItems = parseTrendItems(trendDocs)
     const trendsWithResolvedImages = await Promise.all(
       trendItems.map(async (trend) => {
@@ -664,68 +672,85 @@ export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
         }
       }),
     )
+    const dedupedTrendResult = dedupeTrendItemsByTitle(trendsWithResolvedImages)
+    const dedupedTrendsWithResolvedImages = dedupedTrendResult.deduped
+
+    if (dedupedTrendResult.removed > 0) {
+      payload.logger.warn(
+        `Removed ${dedupedTrendResult.removed} duplicate home megatrend entries by title: ${dedupedTrendResult.duplicateTitles.join(', ')}`,
+      )
+    }
 
     if (trendItems.length === 0) {
+      payload.logger.warn('Trend data missing: no valid rows found in payload collection wix-megatrend-dataset.')
+    }
+
+    const pageRecord = page as {
+      homeDownloads?: {
+        factsheetUsd?: unknown
+        factsheetChfHedged?: unknown
+        fundCommentary?: unknown
+        presentation?: unknown
+      }
+    }
+
+    const pageDownloads: DownloadItem[] = [
+      {
+        id: 'factsheetUsd',
+        label: 'Factsheet USD',
+        href: resolveMediaLikeUrl(pageRecord.homeDownloads?.factsheetUsd),
+      },
+      {
+        id: 'factsheetChfHedged',
+        label: 'Factsheet CHF Hedged',
+        href: resolveMediaLikeUrl(pageRecord.homeDownloads?.factsheetChfHedged),
+      },
+      {
+        id: 'fundCommentary',
+        label: 'Fund Commentary',
+        href: resolveMediaLikeUrl(pageRecord.homeDownloads?.fundCommentary),
+      },
+      {
+        id: 'presentation',
+        label: 'Presentation',
+        href: resolveMediaLikeUrl(pageRecord.homeDownloads?.presentation),
+      },
+    ].filter((item): item is DownloadItem => Boolean(item.href))
+
+    let resolvedDownloadItems = pageDownloads
+    let downloadData: CMSRecord = {}
+
+    if (resolvedDownloadItems.length === 0) {
+      const downloadResult = await payload.find({
+        collection: 'wix-homepage-links',
+        limit: 10,
+        pagination: false,
+        depth: 0,
+      })
+      const downloadDocs = (downloadResult.docs ?? []) as unknown as CMSRecord[]
+      const parsedDownloadItems = parseDownloadItems(downloadDocs)
+      const downloadItems = await Promise.all(
+        parsedDownloadItems.map(async (item) => {
+          const resolvedHref = await resolveMediaUrlFromSource(payload, item.source)
+          return { id: item.id, label: item.label, href: resolvedHref }
+        }),
+      )
+      resolvedDownloadItems = downloadItems.filter((item): item is DownloadItem => Boolean(item.href))
+      downloadData = ((downloadDocs[0]?.data as CMSRecord | undefined) ?? {}) as CMSRecord
+    }
+
+    if (resolvedDownloadItems.length === 0) {
       payload.logger.warn(
-        'Trends fallback in use: no valid rows found in wix-megatrend-dataset.',
+        'Download data missing: no valid media in page.homeDownloads and no valid rows in wix-homepage-links.',
       )
     }
 
-    const downloadResult = await payload.find({
-      collection: 'wix-homepage-links',
-      limit: 10,
-      pagination: false,
-      depth: 0,
-    })
-    const downloadDocs = (downloadResult.docs ?? []) as unknown as WixRecord[]
-    const parsedDownloadItems = parseDownloadItems(downloadDocs)
-    const downloadItems = await Promise.all(
-      parsedDownloadItems.map(async (item) => {
-        const resolvedHref = await resolveMediaUrlFromSource(payload, item.source)
-        return { label: item.label, href: resolvedHref || item.href }
-      }),
-    )
-    if (downloadItems.length === 0) {
-      payload.logger.warn(
-        'Downloads fallback in use: no valid rows found in wix-homepage-links.',
-      )
-    }
-
-    const downloadData = ((downloadDocs[0]?.data as WixRecord | undefined) ?? {}) as WixRecord
     const exploreMegatrendsTitle = parseExploreMegatrendsTitle(downloadData)
     const exploreMegatrendsImageSource = parseExploreMegatrendsImageSource(downloadData)
 
-    let exploreMegatrendsImageUrl = exploreMegatrendsImageSource
-
-    if (exploreMegatrendsImageSource) {
-      const mediaBySource = await payload.find({
-        collection: 'media',
-        limit: 1,
-        pagination: false,
-        depth: 0,
-        where: {
-          wixSourceUrl: { equals: exploreMegatrendsImageSource },
-        },
-      })
-
-      const mediaDoc = mediaBySource.docs?.[0] as { url?: unknown; filename?: unknown } | undefined
-      const mediaFilename = mediaDoc?.filename
-      if (typeof mediaFilename === 'string' && mediaFilename.trim() !== '') {
-        const supabaseMediaUrl = resolveSupabasePublicMediaUrl(mediaFilename)
-        if (supabaseMediaUrl) {
-          exploreMegatrendsImageUrl = supabaseMediaUrl
-        }
-      }
-
-      const mediaUrl = mediaDoc?.url
-      if (
-        typeof mediaUrl === 'string' &&
-        mediaUrl.trim() !== '' &&
-        !exploreMegatrendsImageUrl.includes('/storage/v1/object/public/')
-      ) {
-        exploreMegatrendsImageUrl = mediaUrl
-      }
-    }
+    const exploreMegatrendsImageUrl = exploreMegatrendsImageSource
+      ? await resolveMediaUrlFromSource(payload, exploreMegatrendsImageSource)
+      : ''
 
     const legalResult = await payload.find({
       collection: 'wix-legal-information',
@@ -733,7 +758,7 @@ export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
       pagination: false,
       depth: 0,
     })
-    const legalDocs = (legalResult.docs ?? []) as unknown as WixRecord[]
+    const legalDocs = (legalResult.docs ?? []) as unknown as CMSRecord[]
 
     const contactResult = await payload.find({
       collection: 'wix-contact-us',
@@ -741,13 +766,11 @@ export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
       pagination: false,
       depth: 0,
     })
-    const contactDocs = (contactResult.docs ?? []) as unknown as WixRecord[]
+    const contactDocs = (contactResult.docs ?? []) as unknown as CMSRecord[]
 
-    const regulatoryNoticeFromWix = parseRegulatoryNoticeFromWix(legalDocs, contactDocs)
-    if (!regulatoryNoticeFromWix) {
-      payload.logger.warn(
-        'Regulatory notice fallback in use: no valid data found in wix-legal-information / wix-contact-us.',
-      )
+    const regulatoryNoticeFromCMS = parseRegulatoryNoticeFromCMS(legalDocs, contactDocs)
+    if (!regulatoryNoticeFromCMS) {
+      payload.logger.warn('Regulatory notice data missing in payload collections wix-legal-information / wix-contact-us.')
     }
 
     const heroParagraphs = richTextToParagraphs(page.hero?.richText)
@@ -755,25 +778,27 @@ export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
     const heroSplit = heroSource.split('Harnessing')
     const heroHeading = (heroSplit[0] ?? '').replace(/\.+$/, '').trim()
     const heroSubtitle = heroSplit[1] ? `Harnessing${heroSplit[1]}`.trim() : ''
+    const heroRecord = page as { heroCtaLabel?: unknown; heroCtaHref?: unknown }
+    const heroCtaLabel = typeof heroRecord.heroCtaLabel === 'string' ? heroRecord.heroCtaLabel.trim() : ''
+    const heroCtaHref = typeof heroRecord.heroCtaHref === 'string' ? heroRecord.heroCtaHref.trim() : ''
 
     return {
       hero: {
-        heading: heroHeading || fallbackHomeContent.hero.heading,
-        subtitle: heroSubtitle || fallbackHomeContent.hero.subtitle,
-        ctaLabel: fallbackHomeContent.hero.ctaLabel,
-        ctaHref: fallbackHomeContent.hero.ctaHref,
+        heading: heroHeading || '',
+        subtitle: heroSubtitle || '',
+        ctaLabel: heroCtaLabel,
+        ctaHref: heroCtaHref,
       },
-      regulatoryItems:
-        trustListItems.length > 0 ? trustListItems : fallbackHomeContent.regulatoryItems,
-      trends: trendsWithResolvedImages.length > 0 ? trendsWithResolvedImages : fallbackHomeContent.trends,
-      downloads: downloadItems.length > 0 ? downloadItems : fallbackHomeContent.downloads,
+      regulatoryItems: trustListItems,
+      trends: dedupedTrendsWithResolvedImages,
+      downloads: resolvedDownloadItems,
       exploreMegatrendsCard: {
-        title: exploreMegatrendsTitle || fallbackHomeContent.exploreMegatrendsCard.title,
-        imageUrl: exploreMegatrendsImageUrl || fallbackHomeContent.exploreMegatrendsCard.imageUrl,
+        title: exploreMegatrendsTitle || '',
+        imageUrl: exploreMegatrendsImageUrl || '',
       },
-      regulatoryNotice: regulatoryNoticeFromWix ?? fallbackHomeContent.regulatoryNotice,
+      regulatoryNotice: regulatoryNoticeFromCMS ?? EMPTY_HOME_CONTENT.regulatoryNotice,
     }
   } catch {
-    return fallbackHomeContent
+    return EMPTY_HOME_CONTENT
   }
 })

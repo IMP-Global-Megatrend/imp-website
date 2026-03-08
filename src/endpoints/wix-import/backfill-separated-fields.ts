@@ -1,6 +1,6 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
-import { wixCollectionDefinitions } from '@/collections/WixCollections'
+import { wixCollectionDefinitions } from '@/collections/SourceCollections'
 import { normalizeWixDataFields, sanitizeWixRawData } from './normalize-data'
 
 async function backfill(): Promise<void> {

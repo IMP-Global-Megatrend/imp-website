@@ -31,6 +31,7 @@ export function MegatrendCard({
 }: MegatrendCardProps) {
   const cardRef = useRef<HTMLElement | null>(null)
   const [isVisible, setIsVisible] = useState(false)
+  const imageSrc = imageUrl.trim()
 
   useEffect(() => {
     const element = cardRef.current
@@ -82,15 +83,17 @@ export function MegatrendCard({
                 <h2 className="md:hidden text-[22px] leading-[1.3] text-[#0b1035]">{title}</h2>
 
                 {/* mobile image right after title */}
-                <div className="md:hidden flex justify-center">
-                  <Image
-                    src={imageUrl}
-                    alt={title}
-                    width={480}
-                    height={480}
-                    className="w-full max-w-[420px] h-auto object-contain"
-                  />
-                </div>
+                {imageSrc ? (
+                  <div className="md:hidden flex justify-center">
+                    <Image
+                      src={imageSrc}
+                      alt={title}
+                      width={480}
+                      height={480}
+                      className="w-full max-w-[420px] h-auto object-contain"
+                    />
+                  </div>
+                ) : null}
 
                 <p className="text-[#2b3045] text-[17px] md:text-[17px] leading-[1.7]">{body}</p>
 
@@ -107,18 +110,20 @@ export function MegatrendCard({
           </div>
 
           {/* image column */}
-          <div
-            className="hidden md:flex justify-center xl:justify-end md:order-1 xl:order-none"
-            style={reverse ? { direction: 'ltr' } : undefined}
-          >
-            <Image
-              src={imageUrl}
-              alt={title}
-              width={480}
-              height={480}
-              className="w-full max-w-[420px] h-auto object-contain"
-            />
-          </div>
+          {imageSrc ? (
+            <div
+              className="hidden md:flex justify-center xl:justify-end md:order-1 xl:order-none"
+              style={reverse ? { direction: 'ltr' } : undefined}
+            >
+              <Image
+                src={imageSrc}
+                alt={title}
+                width={480}
+                height={480}
+                className="w-full max-w-[420px] h-auto object-contain"
+              />
+            </div>
+          ) : null}
         </div>
       </div>
     </article>

@@ -1,0 +1,141 @@
+{
+  "heroTitle": "High-Conviction\nGlobal Thematic",
+  "introFallback": "Long-term above-average return through global direct and indirect equity investments.",
+  "sectionTitles": {
+    "investmentProcess": "Investment Process",
+    "portfolioOverview": "Portfolio Overview",
+    "topHoldings": "Top Holdings"
+  },
+  "allocationPanels": [
+    "Megatrend Allocations",
+    "Geographic Allocations",
+    "Sector Allocations"
+  ],
+  "strategySteps": [
+    {
+      "title": "Identifying Megatrends",
+      "src": "/images/ps_identifying_megatrends.png",
+      "items": [
+        {
+          "heading": "Global and Regional Analysis",
+          "body": "We start by keeping a close eye on long-term shifts in society, technology, demographics, economics, and the environment. We use a combination of macroeconomic data, societal indicators, and forward-looking models to identify emerging themes."
+        },
+        {
+          "heading": "Research and Thought Leadership",
+          "body": "We continuously review research reports, academic papers, and insights from leading think tanks. Conferences, white papers, and discussions with subject matter experts in various industries also help shape our view."
+        },
+        {
+          "heading": "Data-Driven Approach",
+          "body": "We also rely on data analytics, looking at historical patterns and forecasts in sectors such as renewable energy, artificial intelligence, health & wellness, and climate change, among others."
+        }
+      ]
+    },
+    {
+      "title": "Defining and Prioritizing Megatrends",
+      "src": "/images/ps_defining_prioritizing.png",
+      "items": [
+        {
+          "heading": "Long-Term Sustainability",
+          "body": "A key element in how we prioritize megatrends is their long-term sustainability. We focus on trends that will evolve over decades rather than those with short-lived hype."
+        },
+        {
+          "heading": "Market Readiness",
+          "body": "We evaluate the readiness of various markets to adapt to and adopt these megatrends. Some trends may be nascent, while others may already be in the scaling phase."
+        },
+        {
+          "heading": "Emerging Technologies",
+          "body": "Technological advancements often act as a catalyst for megatrends. For example, advancements in AI, quantum computing, or biotechnology can rapidly accelerate certain megatrends and create new opportunities."
+        }
+      ]
+    },
+    {
+      "title": "Selecting Companies within a Megatrend",
+      "src": "/images/ps_selecting_companies.png",
+      "items": [
+        {
+          "heading": "Innovation and Leadership",
+          "body": "When selecting companies within a particular megatrend, we prioritize innovation. We look for companies that are at the forefront of the trend."
+        },
+        {
+          "heading": "Financial Health and Growth Potential",
+          "body": "Companies must not only align with the megatrend but also demonstrate strong financial health and growth potential. We perform rigorous fundamental analysis."
+        },
+        {
+          "heading": "Market Share and Competitive Advantage",
+          "body": "We focus on companies that have a competitive advantage in their respective markets-whether through intellectual property, brand recognition, or operational efficiency."
+        }
+      ]
+    },
+    {
+      "title": "Regular Reassessment",
+      "src": "/images/ps_regular_reassessment.png",
+      "items": [
+        {
+          "heading": "Ongoing Monitoring",
+          "body": "We continuously monitor the megatrends and the companies we invest in, adjusting our strategy as the trends evolve and new information comes to light."
+        },
+        {
+          "heading": "Emerging Opportunities",
+          "body": "As new trends surface, we remain open to exploring opportunities outside our current scope, allowing us to adapt and grow alongside new opportunities."
+        }
+      ]
+    }
+  ],
+  "investmentProcess": [
+    "Global macroeconomic trends, selecting geographic regions and sectors/subsectors forecasted to outperform",
+    "Generate ideas and identify long-term global growth and sustainable investment opportunities",
+    "Collect transparent information and perform due diligence and research analysis",
+    "Evaluate and select investments on technical and fundamental methodology/stress testing",
+    "Assess portfolio diversification, weighting, risk tolerance/aversion, performance objectives and regulatory compliance",
+    "Ensure and analyze best execution of transaction, trading liquidity/efficiency/reliability and execution/settlement",
+    "Continuous monitoring, rebalancing, and reviewing of investments and portfolio risks",
+    "Disciplined buying/selling policy according to investment committee/management guidelines and constraints"
+  ],
+  "allocations": {
+    "megatrends": [
+      ["Technology & Technological Advancements", "24.2", "#0F3BBF"],
+      ["Changing Consumer Behavior & Demographics", "19.8", "#F6D800"],
+      ["Smart Infrastructure & Smart City", "19.2", "#FF8F00"],
+      ["Mobility & Transportation", "11.7", "#7C3BBF"],
+      ["Shift in Economic Power", "11.5", "#7EE815"],
+      ["Healthcare & Longevity Revolution", "10.7", "#FF7FBF"],
+      ["Fixed Income", "1.3", "#A86D6D"],
+      ["Cash", "1.0", "#9DB81F"]
+    ],
+    "geographic": [
+      ["USA", "64.7", "#0F3BBF"],
+      ["Italy", "7.6", "#FF8F00"],
+      ["France", "5.5", "#F6D800"],
+      ["Uruguay", "4.5", "#7EE815"],
+      ["China", "4.3", "#7C3BBF"],
+      ["Switzerland", "4.2", "#FF7FBF"],
+      ["Denmark", "2.9", "#A86D6D"],
+      ["Netherlands", "1.9", "#294736"],
+      ["Turkey", "0.7", "#FC0844"],
+      ["United Kingdom", "0.7", "#9DB81F"]
+    ],
+    "sectors": [
+      ["Consumer Discretionary", "24.7", "#0F3BBF"],
+      ["Info. Technology", "21.7", "#F6D800"],
+      ["Industrials", "12.5", "#FF8F00"],
+      ["Healthcare", "10.6", "#7C3BBF"],
+      ["Consumer Staples", "8.5", "#7EE815"],
+      ["Comm. Services", "8.3", "#FF7FBF"],
+      ["Utilities", "6.9", "#A86D6D"],
+      ["Financials", "3.9", "#9DB81F"]
+    ]
+  },
+  "topHoldings": [
+    ["NVIDIA Corp.", "8.4", "#0a2a8f"],
+    ["Apple Inc.", "7.3", "#0f3bbf"],
+    ["Tesla Inc.", "6.2", "#1a4fd4"],
+    ["Alphabet Inc.", "5.9", "#2b63e5"],
+    ["Walmart Inc.", "5.0", "#4078ed"],
+    ["Prysmian S.p.A", "4.6", "#5a8ef2"],
+    ["MercadoLibre, Inc.", "4.5", "#74a3f5"],
+    ["Galderma Group AG", "4.2", "#8eb8f8"],
+    ["Duke Energy Corp.", "3.6", "#a8ccfa"],
+    ["Intuitive Surgical Inc.", "3.6", "#c2dffc"],
+    ["Other", "46.7", "#dbeaff"]
+  ]
+}
