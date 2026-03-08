@@ -1,0 +1,286 @@
+{
+  "metadata": {
+    "aboutUs": {
+      "title": "About Us | IMP Global Megatrend",
+      "description": "Meet the team behind the IMP Global Megatrend investment strategy."
+    },
+    "contactUs": {
+      "title": "Contact Us | IMP Global Megatrend",
+      "description": "Contact MRB Fund Partners AG for fund-related inquiries."
+    },
+    "fund": {
+      "title": "The Fund | IMP Global Megatrend",
+      "description": "Fund structure, objective, and share class details for IMP Global Megatrend."
+    },
+    "megatrends": {
+      "title": "Our Megatrends | IMP Global Megatrend",
+      "description": "Explore the six structural megatrends shaping our portfolio construction."
+    },
+    "newsletterSubscription": {
+      "title": "Newsletter Subscription | IMP Global Megatrend",
+      "description": "Subscribe for periodic updates on market developments and fund news."
+    },
+    "performanceAnalysis": {
+      "title": "Performance Analysis | IMP Global Megatrend",
+      "description": "Performance charts, metrics, and share class details for the fund."
+    },
+    "portfolioStrategy": {
+      "title": "Portfolio Strategy | IMP Global Megatrend",
+      "description": "Understand our thematic investment process, allocations, and portfolio framework."
+    },
+    "posts": {
+      "title": "Posts | IMP Global Megatrend",
+      "description": "Insights, updates, and market commentary from IMP Global Megatrend."
+    },
+    "search": {
+      "title": "Search | IMP Global Megatrend",
+      "description": "Search articles and updates from the IMP Global Megatrend Umbrella Fund."
+    }
+  },
+  "ui": {
+    "blankHeroTitle": " ",
+    "emptyText": "",
+    "newsletterSubmitLabel": "Submit"
+  },
+  "pageTitles": {
+    "privacyPolicy": "Privacy Policy",
+    "legalInformation": "Regulatory & Legal Information",
+    "privacyPolicySubtitle": "Data Protection Statement of MRB Fund Partners AG"
+  },
+  "home": {
+    "hero": {
+      "heading": "Investing in the World of Tomorrow Today",
+      "subtitle": "Harnessing global megatrends to unlock long-term growth.",
+      "ctaLabel": "Explore Our Megatrends",
+      "ctaHref": "/megatrends"
+    },
+    "exploreMegatrendsCard": {
+      "title": "Explore Our Megatrends",
+      "imageUrl": "/images/downloads_icon.png"
+    },
+    "regulatoryNotice": {
+      "title": "Regulatory Notice",
+      "body": "Portfolio management of the IMP Global Megatrend Umbrella Fund is entrusted to MRB Fund Partners AG. In related marketing materials, \"we\", \"us\", and \"our\" refer exclusively to MRB Fund Partners AG regarding regulated portfolio-management activities.",
+      "address": "Fraumunsterstrasse 9 · 8001 Zurich · www.mrbpartner.ch"
+    }
+  },
+  "fund": {
+    "details": [
+      {
+        "label": "Liquidity",
+        "value": "Daily and T+3 settlement",
+        "icon": "circleDollar"
+      },
+      {
+        "label": "Asset Classes",
+        "value": "Global equities, with selective use of funds/ETFs",
+        "icon": "boxes"
+      },
+      {
+        "label": "Regulatory Distribution",
+        "value": "Switzerland",
+        "icon": "mapPinCheck"
+      },
+      {
+        "label": "Structure & Jurisdiction",
+        "value": "UCITS · Liechtenstein",
+        "icon": "shieldCheck"
+      },
+      {
+        "label": "SFDR-Classification",
+        "value": "Article 6 SFDR",
+        "icon": "graduationCap"
+      }
+    ],
+    "shareClass": {
+      "usd": {
+        "title": "USD Share Class",
+        "feeLabel": "USD Fee Structure",
+        "feeText": "Up to 1.5% all-in, sign-on fee with performance fee with high-water mark.",
+        "isin": "LI0325349897",
+        "wkn": "A2DWTX",
+        "bloomberg": "IMPGLMT LE"
+      },
+      "chf": {
+        "title": "CHF Hedged Share Class",
+        "feeLabel": "CHF Hedged Fee Structure",
+        "feeText": "Up to 1.27% all-in, waived sign-on fee with performance fee with high-water mark (Soft-Close).",
+        "isin": "LI1454290381",
+        "wkn": "A41AWF",
+        "bloomberg": "IMPGMCH LE"
+      }
+    },
+    "relatedLinks": {
+      "heading": "Related Links",
+      "items": [
+        {
+          "href": "https://www.vpbank.com/de/vpfundsolutions/fondsinformationen/fondsdokumentationen",
+          "label": "Fund documentation"
+        },
+        {
+          "href": "/performance-analysis",
+          "label": "Key Investor Infos"
+        },
+        {
+          "href": "/legal-information",
+          "label": "Regulatory Details"
+        }
+      ]
+    }
+  },
+  "performance": {
+    "shareClassDetails": {
+      "usd": {
+        "nav": "USD 192.91",
+        "perfYTD": "-0.42%",
+        "asOf": "31.01.2026",
+        "sharpe": "0.06",
+        "volatility": "19.75",
+        "sortino": "0.09",
+        "downsideRisk": "14.16",
+        "fundDetails": [
+          [
+            "Liquidity",
+            "Daily"
+          ],
+          [
+            "Trade Day",
+            "Banking Day"
+          ],
+          [
+            "Settlement",
+            "T+3"
+          ],
+          [
+            "Cut-off Subscription & Redemption (Trade Day)",
+            "12:00"
+          ],
+          [
+            "All-In Fee",
+            "up to 1.50%"
+          ],
+          [
+            "Management Fee",
+            "1.00%"
+          ],
+          [
+            "Administrative Fees",
+            "up to 0.50%"
+          ],
+          [
+            "Performance Fee",
+            "10.00% / High-Water Mark"
+          ],
+          [
+            "Crystallization Freq.",
+            "Quarterly"
+          ],
+          [
+            "Subscription Fee",
+            "1.00%"
+          ],
+          [
+            "Redemption Fee",
+            "2.00%"
+          ],
+          [
+            "Inception Date",
+            "06.09.2016"
+          ],
+          [
+            "Fund Currency",
+            "USD"
+          ],
+          [
+            "Inception Price",
+            "USD 100.00"
+          ],
+          [
+            "Min. Investment",
+            "1.00 Share"
+          ]
+        ]
+      },
+      "chf": {
+        "nav": "CHF 93.29",
+        "perfYTD": "-0.89%",
+        "asOf": "31.01.2026",
+        "sharpe": "0.06",
+        "volatility": "19.75",
+        "sortino": "0.09",
+        "downsideRisk": "14.16",
+        "fundDetails": [
+          [
+            "Liquidity",
+            "Daily"
+          ],
+          [
+            "Trade Day",
+            "Banking Day"
+          ],
+          [
+            "Settlement",
+            "T+3"
+          ],
+          [
+            "Cut-off Subscription & Redemption (Trade Day)",
+            "12:00"
+          ],
+          [
+            "All-In Fee",
+            "up to 1.27%"
+          ],
+          [
+            "Management Fee",
+            "0.50%"
+          ],
+          [
+            "Administrative Fees",
+            "up to 0.77%"
+          ],
+          [
+            "Performance Fee",
+            "10.00% / High-Water Mark"
+          ],
+          [
+            "Crystallization Freq.",
+            "Quarterly"
+          ],
+          [
+            "Subscription Fee",
+            "0.00%"
+          ],
+          [
+            "Redemption Fee",
+            "2.00%"
+          ],
+          [
+            "Inception Date",
+            "07.10.2025"
+          ],
+          [
+            "Fund Currency",
+            "CHF"
+          ],
+          [
+            "Inception Price",
+            "CHF 100.00"
+          ],
+          [
+            "Min. Investment",
+            "1.00 Share"
+          ]
+        ]
+      }
+    },
+    "labels": {
+      "chfTitle": "CHF Hedged Share Class",
+      "usdTitle": "USD Share Class",
+      "performanceTitle": "Annual Performance Graph (2016-2026)",
+      "heroTitle": "Delivering Results Over the Long Term"
+    }
+  },
+  "portfolioStrategy": {
+    "intro": "Long-term above-average return through global direct and indirect equity investments."
+  }
+}

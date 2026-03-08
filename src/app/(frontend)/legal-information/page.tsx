@@ -1,10 +1,11 @@
 import { getCMSPageBySlug } from '../_components/getCMSPageBySlug'
 import { PageHero } from '../_components/PageHero'
 import RichText from '@/components/RichText'
+import fallbacks from '@/constants/fallbacks.json'
 import { notFound } from 'next/navigation'
 
 export default async function LegalPage() {
-  const cmsPage = await getCMSPageBySlug('legal-information', { bypassFeatureFlag: true })
+  const cmsPage = await getCMSPageBySlug('legal-information')
   if (!cmsPage) notFound()
 
   const contentColumns = (Array.isArray(cmsPage.layout) ? cmsPage.layout : [])
@@ -18,7 +19,7 @@ export default async function LegalPage() {
   return (
     <main className="bg-white text-[#0b1035]">
       <PageHero
-        title={cmsPage.title || 'Regulatory & Legal Information'}
+        title={cmsPage.title || fallbacks.pageTitles.legalInformation}
         palette={{ color1: '#2b3dea', color2: 'oklch(0.45 0.12 78)', color3: 'oklch(0.45 0.10 58)' }}
       />
 

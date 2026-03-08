@@ -255,6 +255,24 @@ export interface Page {
    * Optional MP4 URL for /about-us video.
    */
   aboutUsVideoUrl?: string | null;
+  /**
+   * Homepage CTA label used in the hero section.
+   */
+  heroCtaLabel?: string | null;
+  /**
+   * Homepage CTA URL used in the hero section.
+   */
+  heroCtaHref?: string | null;
+  contactCompanyName?: string | null;
+  contactAddress?: string | null;
+  contactPhone?: string | null;
+  contactEmail?: string | null;
+  contactWebsite?: string | null;
+  contactConsentText?: string | null;
+  newsletterIntroTitle?: string | null;
+  newsletterIntroBody?: string | null;
+  newsletterConsentText?: string | null;
+  newsletterSubmitLabel?: string | null;
   meta?: {
     title?: string | null;
     /**
@@ -2898,6 +2916,18 @@ export interface PagesSelect<T extends boolean = true> {
         formBlock?: T | FormBlockSelect<T>;
       };
   aboutUsVideoUrl?: T;
+  heroCtaLabel?: T;
+  heroCtaHref?: T;
+  contactCompanyName?: T;
+  contactAddress?: T;
+  contactPhone?: T;
+  contactEmail?: T;
+  contactWebsite?: T;
+  contactConsentText?: T;
+  newsletterIntroTitle?: T;
+  newsletterIntroBody?: T;
+  newsletterConsentText?: T;
+  newsletterSubmitLabel?: T;
   meta?:
     | T
     | {

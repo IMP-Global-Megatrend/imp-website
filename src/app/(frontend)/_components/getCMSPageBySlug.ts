@@ -2,12 +2,7 @@ import configPromise from '@payload-config'
 import { draftMode } from 'next/headers'
 import { getPayload } from 'payload'
 
-export async function getCMSPageBySlug(slug: string, options?: { bypassFeatureFlag?: boolean }) {
-  // Keep styled hardcoded pages as default until CMS content is modeled 1:1.
-  if (!options?.bypassFeatureFlag && process.env.ENABLE_FRONTEND_CMS_PAGES !== 'true') {
-    return null
-  }
-
+export async function getCMSPageBySlug(slug: string) {
   const { isEnabled: draft } = await draftMode()
   const payload = await getPayload({ config: configPromise })
 
@@ -462,7 +457,7 @@ export async function getCMSFundDetails(): Promise<FundDetailItem[] | null> {
   }
 }
 
-function resolveWixImageUrl(value: string): string {
+function resolveCMSImageUrl(value: string): string {
   if (!value) return ''
   if (value.startsWith('http://') || value.startsWith('https://')) return value
 
@@ -526,7 +521,7 @@ export async function getCMSMegatrendImageVariantsByTitle(): Promise<
         getTextFieldValue(doc.textFields, 'image_fld')
       if (!title || !imageSource) continue
 
-      const resolved = resolveWixImageUrl(imageSource)
+      const resolved = resolveCMSImageUrl(imageSource)
       if (!resolved) continue
       byTitle[title] = { ...(byTitle[title] ?? {}), blue: resolved }
     }
@@ -544,7 +539,7 @@ export async function getCMSMegatrendImageVariantsByTitle(): Promise<
         getTextFieldValue(doc.textFields, 'image_fld')
       if (!title || !imageSource) continue
 
-      const resolved = resolveWixImageUrl(imageSource)
+      const resolved = resolveCMSImageUrl(imageSource)
       if (!resolved) continue
       byTitle[title] = { ...(byTitle[title] ?? {}), white: resolved }
     }
@@ -555,7 +550,7 @@ export async function getCMSMegatrendImageVariantsByTitle(): Promise<
   }
 }
 
-function parseWixDateToISO(value: unknown): string | null {
+function parseCMSDateToISO(value: unknown): string | null {
   if (!value) return null
   if (typeof value === 'string') {
     const parsed = new Date(value)
@@ -592,11 +587,11 @@ function toPerformanceNavPoint(doc: unknown): PerformanceNavPoint | null {
   const nav = directNav ?? (typeof numberFieldNav?.value === 'number' ? numberFieldNav.value : null)
   if (typeof nav !== 'number' || !Number.isFinite(nav)) return null
 
-  const directDate = parseWixDateToISO(data.date)
+  const directDate = parseCMSDateToISO(data.date)
   const dateFieldValue = Array.isArray(record.dateFields)
     ? record.dateFields.find((entry) => entry?.key === 'date')?.value
     : null
-  const dateISO = directDate ?? parseWixDateToISO(dateFieldValue)
+  const dateISO = directDate ?? parseCMSDateToISO(dateFieldValue)
   if (!dateISO) return null
 
   return { dateISO, nav: Math.round(nav * 100) / 100 }

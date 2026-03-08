@@ -3,25 +3,11 @@ import { RegulatoryStrip } from './_components/RegulatoryStrip'
 import { MegatrendCard } from './_components/MegatrendCard'
 import { BottomGrid, ExploreMegatrendsCard } from './_components/BottomGrid'
 import { getHomeCMSContent } from './_components/getHomeCMSContent'
+import megatrendsContent from '@/constants/megatrends-content.json'
 
-function getMegatrendAnchor(title: string): string {
-  const byTitle: Record<string, string> = {
-    'Technology/Technological Advancements': 'technology-technological-advancements',
-    'Changing Consumer Behavior/Demographics': 'changing-consumer-behavior-demographics',
-    'Healthcare/Longevity Revolution': 'healthcare-longevity-revolution',
-    'Shift in Economic Power': 'shift-in-economic-power',
-    'Mobility/Transportation': 'mobility-transportation',
-    'Smart Infrastructure/Smart City': 'smart-infrastructure-smart-city',
-  }
-
-  const mapped = byTitle[title]
-  if (mapped) return mapped
-
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-}
+const megatrendAnchorsByTitle = Object.fromEntries(
+  megatrendsContent.megatrends.map((trend) => [trend.title, trend.anchor]),
+) as Record<string, string>
 
 export default async function HomePage() {
   const cms = await getHomeCMSContent()
@@ -38,10 +24,10 @@ export default async function HomePage() {
         </section>
         {cms.trends.map((trend, i) => {
           return (
-            <div key={trend.title}>
+            <div key={`${trend.title}-${i}`}>
               <MegatrendCard
                 {...trend}
-                detailsHref={`/megatrends#${getMegatrendAnchor(trend.title)}`}
+                detailsHref={`/megatrends#${megatrendAnchorsByTitle[trend.title] || ''}`}
                 detailsIcon="trendingUp"
                 reverse={i % 2 === 1}
                 noTopBorder={i === 0}

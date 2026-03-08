@@ -1,0 +1,41 @@
+{
+  "form": {
+    "fields": {
+      "firstName": {
+        "label": "First name",
+        "placeholder": "Enter your first name"
+      },
+      "lastName": {
+        "label": "Last name",
+        "placeholder": "Enter your last name"
+      },
+      "phone": {
+        "label": "Phone",
+        "placeholder": "Enter your phone number"
+      },
+      "email": {
+        "label": "Email",
+        "requiredSuffix": "*",
+        "placeholder": "Enter your email"
+      },
+      "message": {
+        "label": "Your message",
+        "placeholder": "Enter your question or message"
+      }
+    },
+    "inquiryType": {
+      "legend": "Inquiry type",
+      "options": [
+        "General Inquiry",
+        "Investment Request",
+        "Request Factsheet"
+      ],
+      "defaultChecked": "General Inquiry"
+    },
+    "consent": {
+      "heading": "Consent",
+      "checkboxLabel": "I consent to the processing of my personal data."
+    },
+    "submitLabel": "Submit"
+  }
+}

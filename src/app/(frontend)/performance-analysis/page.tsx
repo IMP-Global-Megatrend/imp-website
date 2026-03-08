@@ -1,65 +1,32 @@
+import type { Metadata } from 'next'
 import {
   getCMSPageBySlug,
   getCMSPerformanceNavSeries,
   getCMSPerformancePageData,
 } from '../_components/getCMSPageBySlug'
-import { CMSPageContent } from '../_components/CMSPageContent'
+import { getHomeCMSContent } from '../_components/getHomeCMSContent'
 import { PageHero } from '../_components/PageHero'
 import { ActionLinkButton } from '../_components/ActionLinkButton'
 import { PerformanceChart } from './PerformanceChart'
+import fallbacks from '@/constants/fallbacks.json'
+import performanceContent from '@/constants/performance-analysis-content.json'
+import { generateMeta } from '@/utilities/generateMeta'
+
+export async function generateMetadata(): Promise<Metadata> {
+  const cmsPage = await getCMSPageBySlug('performance-analysis')
+  if (cmsPage) return generateMeta({ doc: cmsPage })
+
+  return fallbacks.metadata.performanceAnalysis
+}
 
 const chfFallbackDetails = {
-  nav: 'CHF 93.29',
-  perfYTD: '-0.89%',
-  asOf: '31.01.2026',
-  sharpe: '0.06',
-  volatility: '19.75',
-  sortino: '0.09',
-  downsideRisk: '14.16',
-  fundDetails: [
-    ['Liquidity', 'Daily'],
-    ['Trade Day', 'Banking Day'],
-    ['Settlement', 'T+3'],
-    ['Cut-off Subscription & Redemption (Trade Day)', '12:00'],
-    ['All-In Fee', 'up to 1.27%'],
-    ['Management Fee', '0.50%'],
-    ['Administrative Fees', 'up to 0.77%'],
-    ['Performance Fee', '10.00% / High-Water Mark'],
-    ['Crystallization Freq.', 'Quarterly'],
-    ['Subscription Fee', '0.00%'],
-    ['Redemption Fee', '2.00%'],
-    ['Inception Date', '07.10.2025'],
-    ['Fund Currency', 'CHF'],
-    ['Inception Price', 'CHF 100.00'],
-    ['Min. Investment', '1.00 Share'],
-  ],
+  ...fallbacks.performance.shareClassDetails.chf,
+  fundDetails: fallbacks.performance.shareClassDetails.chf.fundDetails as Array<[string, string]>,
 }
 
 const usdFallbackDetails = {
-  nav: 'USD 192.91',
-  perfYTD: '-0.42%',
-  asOf: '31.01.2026',
-  sharpe: '0.06',
-  volatility: '19.75',
-  sortino: '0.09',
-  downsideRisk: '14.16',
-  fundDetails: [
-    ['Liquidity', 'Daily'],
-    ['Trade Day', 'Banking Day'],
-    ['Settlement', 'T+3'],
-    ['Cut-off Subscription & Redemption (Trade Day)', '12:00'],
-    ['All-In Fee', 'up to 1.50%'],
-    ['Management Fee', '1.00%'],
-    ['Administrative Fees', 'up to 0.50%'],
-    ['Performance Fee', '10.00% / High-Water Mark'],
-    ['Crystallization Freq.', 'Quarterly'],
-    ['Subscription Fee', '1.00%'],
-    ['Redemption Fee', '2.00%'],
-    ['Inception Date', '06.09.2016'],
-    ['Fund Currency', 'USD'],
-    ['Inception Price', 'USD 100.00'],
-    ['Min. Investment', '1.00 Share'],
-  ],
+  ...fallbacks.performance.shareClassDetails.usd,
+  fundDetails: fallbacks.performance.shareClassDetails.usd.fundDetails as Array<[string, string]>,
 }
 
 type ShareClassDetails = typeof chfFallbackDetails
@@ -92,12 +59,14 @@ function mergeShareClassDetails(
 function NavUpdatesCard({ data }: { data: ShareClassDetails }) {
   return (
     <div className="font-display">
-      <h3 className="text-[14px] uppercase tracking-[0.12em] text-[#5f6477] mb-4">NAV Updates</h3>
+      <h3 className="text-[14px] uppercase tracking-[0.12em] text-[#5f6477] mb-4">
+        {performanceContent.cards.navUpdatesTitle}
+      </h3>
       <div className="flex items-baseline gap-2">
         <span className="text-[36px] font-semibold text-[#0b1035]">{data.nav}</span>
       </div>
       <p className="text-[13px] text-[#5f6477] mt-1">
-        NAV per Share <span className="text-[#0040ff]">*</span>
+        {performanceContent.cards.navPerShareLabel} <span className="text-[#0040ff]">*</span>
       </p>
     </div>
   )
@@ -107,15 +76,17 @@ function PerformanceMetricsCard({ data }: { data: ShareClassDetails }) {
   return (
     <div className="font-display">
       <div className="mb-4 h-px w-full bg-[#d9def0]" />
-      <h3 className="text-[14px] uppercase tracking-[0.12em] text-[#5f6477] mb-4">Performance Metrics</h3>
+      <h3 className="text-[14px] uppercase tracking-[0.12em] text-[#5f6477] mb-4">
+        {performanceContent.cards.performanceMetricsTitle}
+      </h3>
       <p className="text-[13px] text-[#5f6477] mb-4">
-        <span className="text-[#0040ff]">*</span> per {data.asOf}
+        <span className="text-[#0040ff]">*</span> {performanceContent.cards.asOfPrefix} {data.asOf}
       </p>
       <div className="grid grid-cols-1 gap-4">
         <div>
           <p className="text-[28px] font-semibold text-[#0b1035]">{data.perfYTD}</p>
           <p className="text-[13px] text-[#5f6477]">
-            Performance YTD <span className="text-[#0040ff]">*</span>
+            {performanceContent.cards.performanceYtdLabel} <span className="text-[#0040ff]">*</span>
           </p>
         </div>
       </div>
@@ -127,30 +98,32 @@ function RiskMetricsCard({ data }: { data: ShareClassDetails }) {
   return (
     <div className="font-display">
       <div className="mb-4 h-px w-full bg-[#d9def0]" />
-      <h3 className="text-[14px] uppercase tracking-[0.12em] text-[#5f6477] mb-4">Risk Metrics</h3>
+      <h3 className="text-[14px] uppercase tracking-[0.12em] text-[#5f6477] mb-4">
+        {performanceContent.cards.riskMetricsTitle}
+      </h3>
       <div className="grid grid-cols-2 gap-4">
         <div>
           <p className="text-[28px] font-semibold text-[#0b1035]">{data.sharpe}</p>
           <p className="text-[13px] text-[#5f6477]">
-            Sharpe Ratio <span className="text-[#0040ff]">**</span>
+            {performanceContent.cards.sharpeRatioLabel} <span className="text-[#0040ff]">**</span>
           </p>
         </div>
         <div>
           <p className="text-[28px] font-semibold text-[#0b1035]">{data.volatility}</p>
           <p className="text-[13px] text-[#5f6477]">
-            Volatility <span className="text-[#0040ff]">**</span>
+            {performanceContent.cards.volatilityLabel} <span className="text-[#0040ff]">**</span>
           </p>
         </div>
         <div>
           <p className="text-[28px] font-semibold text-[#0b1035]">{data.sortino}</p>
           <p className="text-[13px] text-[#5f6477]">
-            Sortino Ratio <span className="text-[#0040ff]">**</span>
+            {performanceContent.cards.sortinoRatioLabel} <span className="text-[#0040ff]">**</span>
           </p>
         </div>
         <div>
           <p className="text-[28px] font-semibold text-[#0b1035]">{data.downsideRisk}</p>
           <p className="text-[13px] text-[#5f6477]">
-            Downside Risk <span className="text-[#0040ff]">**</span>
+            {performanceContent.cards.downsideRiskLabel} <span className="text-[#0040ff]">**</span>
           </p>
         </div>
       </div>
@@ -161,7 +134,9 @@ function RiskMetricsCard({ data }: { data: ShareClassDetails }) {
 function FundDetailsCard({ data }: { data: ShareClassDetails }) {
   return (
     <div className="h-full border-t border-[#d9def0] pt-4 font-display">
-      <h3 className="text-[14px] uppercase tracking-[0.12em] text-[#5f6477] mb-4">Fund Details</h3>
+      <h3 className="text-[14px] uppercase tracking-[0.12em] text-[#5f6477] mb-4">
+        {performanceContent.cards.fundDetailsTitle}
+      </h3>
       <div className="divide-y divide-[#d9def0] border-b border-[#d9def0]">
         {data.fundDetails.map(([k, v]) => (
           <div key={k} className="flex justify-between gap-4 py-3">
@@ -175,24 +150,24 @@ function FundDetailsCard({ data }: { data: ShareClassDetails }) {
 }
 
 export default async function PerformancePage() {
-  const [cmsPage, cmsPerformanceSeries, cmsPerformanceData] = await Promise.all([
-    getCMSPageBySlug('performance-analysis'),
+  const [cmsPerformanceSeries, cmsPerformanceData, homeCms] = await Promise.all([
     getCMSPerformanceNavSeries(),
     getCMSPerformancePageData(),
+    getHomeCMSContent(),
   ])
-  if (cmsPage) {
-    return <CMSPageContent page={cmsPage as never} />
-  }
+  const factsheetUSD =
+    homeCms.downloads.find((item) => item.id === 'factsheetUsd')?.href || fallbacks.ui.emptyText
+  const factsheetCHF =
+    homeCms.downloads.find((item) => item.id === 'factsheetChfHedged')?.href || fallbacks.ui.emptyText
+  const fundCommentary =
+    homeCms.downloads.find((item) => item.id === 'fundCommentary')?.href || fallbacks.ui.emptyText
 
   const chfDetails = mergeShareClassDetails(chfFallbackDetails, cmsPerformanceData?.chf)
   const usdDetails = mergeShareClassDetails(usdFallbackDetails, cmsPerformanceData?.usd)
-  const chfTitle = cmsPerformanceData?.chfLabel || 'CHF Hedged Share Class'
-  const usdTitle = cmsPerformanceData?.usdLabel || 'USD Share Class'
-  const performanceTitleRaw = cmsPerformanceData?.annualPerformanceTitle || 'Annual Performance Graph (2016-2026)'
-  const performanceTitle = performanceTitleRaw
-    .replace(/2016[–-]2025/g, '2016-2026')
-    .replace(/\s*\(2016-2026\)\s*$/g, '')
-  const heroTitle = cmsPerformanceData?.pageTitle || 'Delivering Results Over the Long Term'
+  const chfTitle = cmsPerformanceData?.chfLabel || fallbacks.performance.labels.chfTitle
+  const usdTitle = cmsPerformanceData?.usdLabel || fallbacks.performance.labels.usdTitle
+  const performanceTitle = cmsPerformanceData?.annualPerformanceTitle || performanceContent.chart.title
+  const heroTitle = cmsPerformanceData?.pageTitle || fallbacks.performance.labels.heroTitle
 
   return (
     <main className="bg-white text-[#0b1035]">
@@ -214,7 +189,7 @@ export default async function PerformancePage() {
             <h2 className="mb-6 flex flex-wrap items-center gap-2 text-[22px] leading-[1.3] text-[#0b1035]">
               <span>{performanceTitle}</span>
               <span className="inline-flex items-center border border-[#d9def0] bg-white px-2.5 py-1 text-[12px] text-[#2b3045]">
-                2016-2026
+                {performanceContent.chart.yearBadge}
               </span>
             </h2>
           </div>
@@ -264,51 +239,58 @@ export default async function PerformancePage() {
         <section className="bg-white py-10">
           <div className="container text-[13px] text-[#5f6477] space-y-2">
             <p>
-              <span className="text-[#0040ff]">*</span> Net of all fees. Past performance is not indicative of
-              future results.
+              <span className="text-[#0040ff]">*</span> {performanceContent.footnotes.singleAsterisk}
             </p>
             <p>
-              <span className="text-[#0040ff]">**</span> Based on annualized data where applicable.
+              <span className="text-[#0040ff]">**</span> {performanceContent.footnotes.doubleAsterisk}
             </p>
           </div>
         </section>
 
         <section className="border-t border-[#d9def0] pt-10 pb-10 md:pt-12 md:pb-12">
           <div className="container">
-            <h3 className="mb-5 text-center text-[20px] md:text-[22px] text-[#0b1035]">Related Links</h3>
+            <h3 className="mb-5 text-center text-[20px] md:text-[22px] text-[#0b1035]">
+              {performanceContent.relatedLinks.heading}
+            </h3>
             <div className="flex flex-wrap items-center justify-center gap-4">
               <ActionLinkButton
-                href="https://www.vpbank.com/de/vpfundsolutions/fondsinformationen/fondsdokumentationen"
-                label="Full Performance History"
+                href={performanceContent.relatedLinks.fullHistory.href}
+                label={performanceContent.relatedLinks.fullHistory.label}
                 icon="chartLine"
                 external
                 iconBefore
                 buttonVariant="outlineMuted"
               />
-              <ActionLinkButton
-                href="/impgmt-clone/www.impgmtfund.com/_files/ugd/037a25_e3e73c35d566433fa958a54696b69633.pdf"
-                label="Factsheet USD"
-                icon="download"
-                external
-                iconBefore
-                buttonVariant="outlineMuted"
-              />
-              <ActionLinkButton
-                href="/impgmt-clone/www.impgmtfund.com/_files/ugd/037a25_671093d7123f482e9e90bf53264f0f85.pdf"
-                label="Factsheet CHF Hedged"
-                icon="download"
-                external
-                iconBefore
-                buttonVariant="outlineMuted"
-              />
-              <ActionLinkButton
-                href="https://www.vpbank.com/de/vpfundsolutions/fondsinformationen/fondsdokumentationen"
-                label="Latest Fund Commentary"
-                icon="trendingUp"
-                external
-                iconBefore
-                buttonVariant="outlineMuted"
-              />
+              {factsheetUSD ? (
+                <ActionLinkButton
+                  href={factsheetUSD}
+                  label={performanceContent.relatedLinks.factsheetUsdLabel}
+                  icon="download"
+                  external
+                  iconBefore
+                  buttonVariant="outlineMuted"
+                />
+              ) : null}
+              {factsheetCHF ? (
+                <ActionLinkButton
+                  href={factsheetCHF}
+                  label={performanceContent.relatedLinks.factsheetChfLabel}
+                  icon="download"
+                  external
+                  iconBefore
+                  buttonVariant="outlineMuted"
+                />
+              ) : null}
+              {fundCommentary ? (
+                <ActionLinkButton
+                  href={fundCommentary}
+                  label={performanceContent.relatedLinks.fundCommentaryLabel}
+                  icon="trendingUp"
+                  external
+                  iconBefore
+                  buttonVariant="outlineMuted"
+                />
+              ) : null}
             </div>
           </div>
         </section>

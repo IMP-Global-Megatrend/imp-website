@@ -1,0 +1,102 @@
+{
+  "hero": {
+    "title": "Meet the Team Behind the Strategy"
+  },
+  "media": {
+    "videoAriaLabel": "About us video"
+  },
+  "quote": {
+    "text": "We founded this investment strategy to offer forward-looking investors a way to benefit from the structural forces shaping the next decades - responsibly and with precision.",
+    "attributionLines": [
+      "Karin",
+      "Stefan Wiederkehr"
+    ]
+  },
+  "profiles": [
+    {
+      "name": "Karin B. Wiederkehr",
+      "paragraphs": [
+        "Karin began her career in investment management in 2002 and has developed profound expertise in both traditional financial markets and innovative investment strategies. She earned her Bachelor's and Master's degrees from universities in Boston, USA, and spent nearly 10 years abroad, gaining a global perspective on financial markets. She is fluent in German, English, and French.",
+        "Karin B. Wiederkehr is a Portfolio Manager for the IMP Global Megatrend Fund, which she manages with Stefan Wiederkehr at MRB Fund Partners AG. With over 23 years of experience in finance and asset management, she is responsible for strategic investment activities and the management of global megatrends, ensuring the fund's alignment with long-term structural trends shaping the global economy. As an experienced asset manager and certified board member, she has built a broad network through her expertise and leadership.",
+        "Previously, Karin served as a managing director at two successful asset management firms in Liechtenstein, holding a board position at one of them. Her extensive experience also includes being licensed as qualified managing director by the Financial Market Authority (FMA) since 2009. Her core competencies span traditional portfolio management, hedge fund advisory, as well as private equity and venture capital investments."
+      ],
+      "certifications": [
+        {
+          "title": "Certified Member of the Board of Directors",
+          "institution": "International Business School (ZfU), Zurich"
+        },
+        {
+          "title": "Professional Certificate in Asset Management",
+          "institution": "New York Institute of Finance"
+        },
+        {
+          "title": "Professional Certificate in Portfolio Management",
+          "institution": "New York Institute of Finance"
+        },
+        {
+          "title": "Professional Certificate in Wealth Management",
+          "institution": "New York Institute of Finance"
+        }
+      ]
+    },
+    {
+      "name": "Stefan Wiederkehr",
+      "paragraphs": [
+        "Stefan began his investment career in 2008 as a private investor and financial advisor to entrepreneurial families in Europe. He obtained his Bachelor's degree in Boston, USA, and pursued further executive financial education in London, UK. Having lived abroad for nearly six years, he is fluent in German and English and maintains a strong international network.",
+        "Stefan Wiederkehr is a Portfolio Manager for the IMP Global Megatrend Fund, which he manages with Karin Wiederkehr at MRB Fund Partners AG. He has served as a Portfolio Manager for the fund since 2016, overseeing investment strategies that capitalize on transformative global megatrends. With more than 17 years of experience in finance and asset management, he is responsible for defining the fund's strategic investment direction and managing its exposure to long-term growth themes.",
+        "Previously, Stefan was part of the executive management at two successful asset management firms in Liechtenstein and acted as a Portfolio Manager for two investment funds. His extensive experience in the asset management industry includes receiving FMA licensing as Deputy Managing Director in 2014. Additionally, he was responsible for discretionary asset allocation and global fund selection. He also founded and led his own investment advisory and portfolio management company."
+      ],
+      "certifications": [
+        {
+          "title": "Certificate Analyzing and Benchmarking Financial Information",
+          "institution": "New York Institute of Finance"
+        },
+        {
+          "title": "Certificate Money Markets and Portfolio Management",
+          "institution": "New York Institute of Finance"
+        },
+        {
+          "title": "Certificate Portfolio Management",
+          "institution": "New York Institute of Finance"
+        },
+        {
+          "title": "Certificate Portfolio Risk",
+          "institution": "New York Institute of Finance"
+        }
+      ]
+    }
+  ],
+  "highlights": [
+    {
+      "id": "owner-led",
+      "text": "Entrepreneurial, owner-led, deeply client-focused family office"
+    },
+    {
+      "id": "experience",
+      "text": "20+ years of combined experience fund management"
+    },
+    {
+      "id": "independent",
+      "text": "Independent portfolio manager"
+    },
+    {
+      "id": "location",
+      "text": "Based in Zurich, Switzerland & Vaduz, Liechtenstein",
+      "line1": "Based in Zurich",
+      "line2": "& Vaduz"
+    }
+  ],
+  "ctas": {
+    "requestCall": {
+      "href": "/contact-us",
+      "label": "Request a call"
+    },
+    "linkedin": {
+      "href": "https://www.linkedin.com/company/mrb-fund-partners-ag",
+      "label": "Connect on Linkedin"
+    }
+  },
+  "social": {
+    "linkedinAriaLabel": "MRB Fund Partners on LinkedIn"
+  }
+}

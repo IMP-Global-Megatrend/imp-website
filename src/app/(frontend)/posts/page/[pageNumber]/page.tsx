@@ -3,6 +3,7 @@ import type { Metadata } from 'next/types'
 import { CollectionArchive } from '@/components/CollectionArchive'
 import { PageRange } from '@/components/PageRange'
 import { Pagination } from '@/components/Pagination'
+import postsContent from '@/constants/posts-content.json'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import React from 'react'
@@ -38,7 +39,7 @@ export default async function Page({ params: paramsPromise }: Args) {
       <PageClient />
       <div className="container mb-16">
         <div className="prose dark:prose-invert max-w-none">
-          <h1>Posts</h1>
+          <h1>{postsContent.heading}</h1>
         </div>
       </div>
 
@@ -64,8 +65,10 @@ export default async function Page({ params: paramsPromise }: Args) {
 
 export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
   const { pageNumber } = await paramsPromise
+  const normalizedPageNumber = pageNumber || ''
   return {
-    title: `Payload Website Template Posts Page ${pageNumber || ''}`,
+    title: postsContent.pagination.titleTemplate.replace('{pageNumber}', normalizedPageNumber),
+    description: postsContent.pagination.descriptionTemplate.replace('{pageNumber}', normalizedPageNumber),
   }
 }
 

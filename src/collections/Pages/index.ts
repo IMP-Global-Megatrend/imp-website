@@ -94,6 +94,75 @@ export const Pages: CollectionConfig<'pages'> = {
           label: 'About Us',
         },
         {
+          fields: [
+            {
+              name: 'heroCtaLabel',
+              type: 'text',
+              admin: {
+                description: 'Homepage CTA label used in the hero section.',
+              },
+            },
+            {
+              name: 'heroCtaHref',
+              type: 'text',
+              admin: {
+                description: 'Homepage CTA URL used in the hero section.',
+              },
+            },
+          ],
+          label: 'Home',
+        },
+        {
+          fields: [
+            {
+              name: 'contactCompanyName',
+              type: 'text',
+            },
+            {
+              name: 'contactAddress',
+              type: 'textarea',
+            },
+            {
+              name: 'contactPhone',
+              type: 'text',
+            },
+            {
+              name: 'contactEmail',
+              type: 'text',
+            },
+            {
+              name: 'contactWebsite',
+              type: 'text',
+            },
+            {
+              name: 'contactConsentText',
+              type: 'textarea',
+            },
+          ],
+          label: 'Contact',
+        },
+        {
+          fields: [
+            {
+              name: 'newsletterIntroTitle',
+              type: 'text',
+            },
+            {
+              name: 'newsletterIntroBody',
+              type: 'textarea',
+            },
+            {
+              name: 'newsletterConsentText',
+              type: 'textarea',
+            },
+            {
+              name: 'newsletterSubmitLabel',
+              type: 'text',
+            },
+          ],
+          label: 'Newsletter',
+        },
+        {
           name: 'meta',
           label: 'SEO',
           fields: [

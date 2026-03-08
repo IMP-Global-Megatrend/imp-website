@@ -1,6 +1,7 @@
 import { getCMSPageBySlug } from '../_components/getCMSPageBySlug'
 import { PageHero } from '../_components/PageHero'
 import RichText from '@/components/RichText'
+import fallbacks from '@/constants/fallbacks.json'
 import { notFound } from 'next/navigation'
 
 function removeH1HeadingsFromRichText(richText: unknown): unknown {
@@ -25,7 +26,7 @@ function removeH1HeadingsFromRichText(richText: unknown): unknown {
 }
 
 export default async function PrivacyPage() {
-  const cmsPage = await getCMSPageBySlug('privacy-policy', { bypassFeatureFlag: true })
+  const cmsPage = await getCMSPageBySlug('privacy-policy')
   if (!cmsPage) notFound()
 
   const contentColumns = (Array.isArray(cmsPage.layout) ? cmsPage.layout : [])
@@ -39,8 +40,8 @@ export default async function PrivacyPage() {
   return (
     <main className="bg-white text-[#0b1035]">
       <PageHero
-        title={cmsPage.title || 'Privacy Policy'}
-        subtitle="Data Protection Statement of MRB Fund Partners AG"
+        title={cmsPage.title || fallbacks.pageTitles.privacyPolicy}
+        subtitle={fallbacks.pageTitles.privacyPolicySubtitle}
         palette={{ color1: '#2b3dea', color2: 'oklch(0.45 0.13 355)', color3: 'oklch(0.45 0.12 36)' }}
         subtitleClassName="max-w-none"
       />

@@ -7,6 +7,18 @@ type FrontendPageSeed = {
   hero: string
   sections: string[]
   aboutUsVideoUrl?: string
+  heroCtaLabel?: string
+  heroCtaHref?: string
+  contactCompanyName?: string
+  contactAddress?: string
+  contactPhone?: string
+  contactEmail?: string
+  contactWebsite?: string
+  contactConsentText?: string
+  newsletterIntroTitle?: string
+  newsletterIntroBody?: string
+  newsletterConsentText?: string
+  newsletterSubmitLabel?: string
 }
 
 const frontendPages: FrontendPageSeed[] = [
@@ -14,6 +26,8 @@ const frontendPages: FrontendPageSeed[] = [
     slug: 'home',
     title: 'Home',
     hero: 'Investing in the World of Tomorrow Today. Harnessing global megatrends to unlock long-term growth.',
+    heroCtaLabel: 'Explore Our Megatrends',
+    heroCtaHref: '/megatrends',
     sections: [
       [
         'Regulatory Structure: UCITS',
@@ -59,10 +73,10 @@ const frontendPages: FrontendPageSeed[] = [
       ].join('\n\n'),
       [
         'Downloads',
-        'Factsheet USD: /impgmt-clone/www.impgmtfund.com/_files/ugd/037a25_e3e73c35d566433fa958a54696b69633.pdf',
-        'Factsheet CHF Hedged: /impgmt-clone/www.impgmtfund.com/_files/ugd/037a25_671093d7123f482e9e90bf53264f0f85.pdf',
-        'Fund Commentary: /impgmt-clone/www.impgmtfund.com/_files/ugd/037a25_4f821338d34e4ad082c86d13bd46c757.pdf',
-        'Presentation: /impgmt-clone/www.impgmtfund.com/_files/ugd/037a25_eb4acc9f30f64bc6a3cb83cd325b4333.pdf',
+        'Factsheet USD: https://www.impgmtfund.com/_files/ugd/037a25_e3e73c35d566433fa958a54696b69633.pdf',
+        'Factsheet CHF Hedged: https://www.impgmtfund.com/_files/ugd/037a25_671093d7123f482e9e90bf53264f0f85.pdf',
+        'Fund Commentary: https://www.impgmtfund.com/_files/ugd/037a25_4f821338d34e4ad082c86d13bd46c757.pdf',
+        'Presentation: https://www.impgmtfund.com/_files/ugd/037a25_eb4acc9f30f64bc6a3cb83cd325b4333.pdf',
       ].join('\n'),
       [
         'Regulatory Notice',
@@ -197,8 +211,8 @@ const frontendPages: FrontendPageSeed[] = [
       [
         'Key documents',
         'Full Performance History: https://www.vpbank.com/de/vpfundsolutions/fondsinformationen/fondsdokumentationen',
-        'Factsheet USD: /impgmt-clone/www.impgmtfund.com/_files/ugd/037a25_e3e73c35d566433fa958a54696b69633.pdf',
-        'Factsheet CHF Hedged: /impgmt-clone/www.impgmtfund.com/_files/ugd/037a25_671093d7123f482e9e90bf53264f0f85.pdf',
+        'Factsheet USD: https://www.impgmtfund.com/_files/ugd/037a25_e3e73c35d566433fa958a54696b69633.pdf',
+        'Factsheet CHF Hedged: https://www.impgmtfund.com/_files/ugd/037a25_671093d7123f482e9e90bf53264f0f85.pdf',
       ].join('\n'),
       [
         'CHF Hedged Share Class',
@@ -238,6 +252,29 @@ const frontendPages: FrontendPageSeed[] = [
       'Contact details: Fraumunsterstrasse 9, 8001 Zurich, +41 44 454 25 71, info@mrbpartner.ch, www.mrbpartner.ch.',
       'Form fields: First name, Last name, Phone, Email, Inquiry type (General Inquiry, Investment Request, Request Factsheet), Message, consent to personal data processing.',
     ],
+    contactCompanyName: 'MRB Fund Partners AG',
+    contactAddress: 'Fraumünsterstrasse 9\n8001 Zürich',
+    contactPhone: '+41 44 454 25 71',
+    contactEmail: 'info@mrbpartner.ch',
+    contactWebsite: 'https://www.mrbpartner.ch/',
+    contactConsentText:
+      'By submitting this form, I agree to the storage and processing of my personal data for the purpose of responding to my inquiry, in accordance with the GDPR.',
+  },
+  {
+    slug: 'newsletter-subscription',
+    title: 'Newsletter Subscription',
+    hero: 'Newsletter Subscription. Receive periodic updates on market developments, fund news, and our latest perspectives on global megatrends.',
+    sections: [
+      'Subscribe to our newsletter',
+      'Enter your email address to subscribe to the IMP Global Megatrend newsletter.',
+      'By submitting this form, I agree to the storage and processing of my personal data for the purpose of subscribing to our newsletter, in accordance with the GDPR.',
+    ],
+    newsletterIntroTitle: 'Subscribe to our newsletter',
+    newsletterIntroBody:
+      'Enter your email address to subscribe to the IMP Global Megatrend newsletter.',
+    newsletterConsentText:
+      'By submitting this form, I agree to the storage and processing of my personal data for the purpose of subscribing to our newsletter, in accordance with the GDPR.',
+    newsletterSubmitLabel: 'Subscribe',
   },
   {
     slug: 'privacy-policy',
@@ -355,6 +392,18 @@ export async function migrateFrontendPagesToCMS(payload: Payload): Promise<{
           description: getMetaDescription(page.sections),
         },
         ...(page.aboutUsVideoUrl ? { aboutUsVideoUrl: page.aboutUsVideoUrl } : {}),
+        ...(page.heroCtaLabel ? { heroCtaLabel: page.heroCtaLabel } : {}),
+        ...(page.heroCtaHref ? { heroCtaHref: page.heroCtaHref } : {}),
+        ...(page.contactCompanyName ? { contactCompanyName: page.contactCompanyName } : {}),
+        ...(page.contactAddress ? { contactAddress: page.contactAddress } : {}),
+        ...(page.contactPhone ? { contactPhone: page.contactPhone } : {}),
+        ...(page.contactEmail ? { contactEmail: page.contactEmail } : {}),
+        ...(page.contactWebsite ? { contactWebsite: page.contactWebsite } : {}),
+        ...(page.contactConsentText ? { contactConsentText: page.contactConsentText } : {}),
+        ...(page.newsletterIntroTitle ? { newsletterIntroTitle: page.newsletterIntroTitle } : {}),
+        ...(page.newsletterIntroBody ? { newsletterIntroBody: page.newsletterIntroBody } : {}),
+        ...(page.newsletterConsentText ? { newsletterConsentText: page.newsletterConsentText } : {}),
+        ...(page.newsletterSubmitLabel ? { newsletterSubmitLabel: page.newsletterSubmitLabel } : {}),
       }
 
       if (existing.docs[0]) {

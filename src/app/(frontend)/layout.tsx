@@ -15,6 +15,28 @@ import { SiteShell } from './_components/SiteShell'
 import './globals.css'
 import { getServerSideURL } from '@/utilities/getURL'
 
+const siteUrl = getServerSideURL()
+const structuredData = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'IMP Global Megatrend Umbrella Fund',
+    url: siteUrl,
+    logo: `${siteUrl}/original-favicon-192.png`,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'IMP Global Megatrend Umbrella Fund',
+    url: siteUrl,
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: `${siteUrl}/search?q={search_term_string}`,
+      'query-input': 'required name=search_term_string',
+    },
+  },
+]
+
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html className={cn(GeistSans.variable, GeistMono.variable)} lang="en" suppressHydrationWarning>
@@ -74,6 +96,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <link rel="icon" sizes="192x192" href="/original-favicon-192.png" type="image/png" />
         <link rel="shortcut icon" href="/original-favicon-32.png" type="image/png" />
         <link rel="apple-touch-icon" href="/original-apple-touch-icon.png" type="image/png" />
+        <Script id="structured-data" type="application/ld+json">
+          {JSON.stringify(structuredData)}
+        </Script>
       </head>
       <body>
         <Providers>

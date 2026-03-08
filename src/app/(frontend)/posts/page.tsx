@@ -3,6 +3,8 @@ import type { Metadata } from 'next/types'
 import { CollectionArchive } from '@/components/CollectionArchive'
 import { PageRange } from '@/components/PageRange'
 import { Pagination } from '@/components/Pagination'
+import fallbacks from '@/constants/fallbacks.json'
+import postsContent from '@/constants/posts-content.json'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import React from 'react'
@@ -32,7 +34,7 @@ export default async function Page() {
       <PageClient />
       <div className="container mb-16">
         <div className="prose dark:prose-invert max-w-none">
-          <h1>Posts</h1>
+          <h1>{postsContent.heading}</h1>
         </div>
       </div>
 
@@ -57,7 +59,5 @@ export default async function Page() {
 }
 
 export function generateMetadata(): Metadata {
-  return {
-    title: `Payload Website Template Posts`,
-  }
+  return fallbacks.metadata.posts
 }

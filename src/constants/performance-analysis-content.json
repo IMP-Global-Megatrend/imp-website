@@ -1,0 +1,36 @@
+{
+  "cards": {
+    "navUpdatesTitle": "NAV Updates",
+    "navPerShareLabel": "NAV per Share",
+    "performanceMetricsTitle": "Performance Metrics",
+    "performanceYtdLabel": "Performance YTD",
+    "riskMetricsTitle": "Risk Metrics",
+    "sharpeRatioLabel": "Sharpe Ratio",
+    "volatilityLabel": "Volatility",
+    "sortinoRatioLabel": "Sortino Ratio",
+    "downsideRiskLabel": "Downside Risk",
+    "fundDetailsTitle": "Fund Details",
+    "asOfPrefix": "per"
+  },
+  "chart": {
+    "title": "Annual Performance Graph",
+    "yearBadge": "2016-2026"
+  },
+  "footnotes": {
+    "singleAsterisk": "Net of all fees. Past performance is not indicative of future results.",
+    "doubleAsterisk": "Based on annualized data where applicable."
+  },
+  "relatedLinks": {
+    "heading": "Related Links",
+    "fullHistory": {
+      "href": "https://www.vpbank.com/de/vpfundsolutions/fondsinformationen/fondsdokumentationen",
+      "label": "Full Performance History",
+      "icon": "chartLine",
+      "external": true,
+      "iconBefore": true
+    },
+    "factsheetUsdLabel": "Factsheet USD",
+    "factsheetChfLabel": "Factsheet CHF Hedged",
+    "fundCommentaryLabel": "Latest Fund Commentary"
+  }
+}

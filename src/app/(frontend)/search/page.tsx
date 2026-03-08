@@ -7,6 +7,8 @@ import React from 'react'
 import { Search } from '@/search/Component'
 import PageClient from './page.client'
 import { CardPostData } from '@/components/Card'
+import fallbacks from '@/constants/fallbacks.json'
+import searchContent from '@/constants/search-content.json'
 
 type Args = {
   searchParams: Promise<{
@@ -64,7 +66,7 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
       <PageClient />
       <div className="container mb-16">
         <div className="prose dark:prose-invert max-w-none text-center">
-          <h1 className="mb-8 lg:mb-16">Search</h1>
+          <h1 className="mb-8 lg:mb-16">{searchContent.heading}</h1>
 
           <div className="max-w-[50rem] mx-auto">
             <Search />
@@ -75,14 +77,12 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
       {posts.totalDocs > 0 ? (
         <CollectionArchive posts={posts.docs as CardPostData[]} />
       ) : (
-        <div className="container">No results found.</div>
+        <div className="container">{searchContent.noResults}</div>
       )}
     </div>
   )
 }
 
 export function generateMetadata(): Metadata {
-  return {
-    title: `Payload Website Template Search`,
-  }
+  return fallbacks.metadata.search
 }

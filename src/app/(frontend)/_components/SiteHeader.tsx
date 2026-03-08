@@ -5,14 +5,6 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import { usePathname } from 'next/navigation'
 import { AnimatedIcon } from './AnimatedIcon'
 
-const fallbackNav = [
-  { href: '/fund', label: ['The', 'Fund'] },
-  { href: '/megatrends', label: ['Our', 'Megatrends'] },
-  { href: '/portfolio-strategy', label: ['Portfolio', 'Strategy'] },
-  { href: '/performance-analysis', label: ['Performance', 'Analysis'] },
-  { href: '/about-us', label: ['About', 'Us'] },
-]
-
 type SiteHeaderNavItem = {
   href: string
   label: string
@@ -62,7 +54,7 @@ export function SiteHeader({ navItems }: { navItems?: SiteHeaderNavItem[] }) {
         const [line1, line2] = splitLabel(item.label)
         return { ...item, label: [line1, line2] as [string, string?] }
       })
-    : fallbackNav) as Array<{ href: string; label: [string, string?]; newTab?: boolean }>
+    : []) as Array<{ href: string; label: [string, string?]; newTab?: boolean }>
 
   useEffect(() => {
     setMenuOpen(false)
