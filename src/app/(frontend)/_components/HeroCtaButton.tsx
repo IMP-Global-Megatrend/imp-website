@@ -22,6 +22,7 @@ export function HeroCtaButton({ href, label }: HeroCtaButtonProps) {
     >
       <Link
         href={href}
+        className="group inline-flex items-center gap-2.5 text-black transition-colors hover:text-primary-light focus-visible:text-primary-light"
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         onPointerEnter={() => setHovered(true)}
@@ -29,11 +30,11 @@ export function HeroCtaButton({ href, label }: HeroCtaButtonProps) {
         onFocus={() => setHovered(true)}
         onBlur={() => setHovered(false)}
       >
-        <span className="inline-flex items-center gap-2.5 text-black mix-blend-multiply">
+        <span className="inline-flex items-center gap-2.5 text-current">
           <AnimatedIcon
             name="trendingUp"
             size={16}
-            className="shrink-0 text-black"
+            className="shrink-0 text-current transition-colors group-hover:text-primary-light group-focus-visible:text-primary-light"
             animate={hovered}
           />
           <span>{label}</span>

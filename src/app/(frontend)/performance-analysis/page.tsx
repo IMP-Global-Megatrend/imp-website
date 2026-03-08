@@ -10,13 +10,13 @@ import { ActionLinkButton } from '../_components/ActionLinkButton'
 import { PerformanceChart } from './PerformanceChart'
 import fallbacks from '@/constants/fallbacks.json'
 import performanceContent from '@/constants/performance-analysis-content.json'
-import { generateMeta } from '@/utilities/generateMeta'
+import { generateMeta, generateStaticFallbackMeta } from '@/utilities/generateMeta'
 
 export async function generateMetadata(): Promise<Metadata> {
   const cmsPage = await getCMSPageBySlug('performance-analysis')
   if (cmsPage) return generateMeta({ doc: cmsPage })
 
-  return fallbacks.metadata.performanceAnalysis
+  return generateStaticFallbackMeta('/performance-analysis', fallbacks.metadata.performanceAnalysis)
 }
 
 const chfFallbackDetails = {

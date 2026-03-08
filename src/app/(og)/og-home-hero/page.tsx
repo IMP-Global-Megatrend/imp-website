@@ -1,6 +1,13 @@
 import { getHomeCMSContent } from '@/app/(frontend)/_components/getHomeCMSContent'
+import type { Metadata } from 'next'
 
 export const revalidate = 300
+export const metadata: Metadata = {
+  robots: {
+    follow: false,
+    index: false,
+  },
+}
 
 export default async function OgHomeHeroPage() {
   const cms = await getHomeCMSContent()

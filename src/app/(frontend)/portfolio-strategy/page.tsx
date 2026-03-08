@@ -7,13 +7,13 @@ import { StrategyStepSection } from './StrategyStepSection'
 import { TopHoldingsSection } from './TopHoldingsSection'
 import fallbacks from '@/constants/fallbacks.json'
 import portfolioStrategyContent from '@/constants/portfolio-strategy-content.json'
-import { generateMeta } from '@/utilities/generateMeta'
+import { generateMeta, generateStaticFallbackMeta } from '@/utilities/generateMeta'
 
 export async function generateMetadata(): Promise<Metadata> {
   const cmsPage = await getCMSPageBySlug('portfolio-strategy')
   if (cmsPage) return generateMeta({ doc: cmsPage })
 
-  return fallbacks.metadata.portfolioStrategy
+  return generateStaticFallbackMeta('/portfolio-strategy', fallbacks.metadata.portfolioStrategy)
 }
 
 const strategySteps = portfolioStrategyContent.strategySteps

@@ -11,6 +11,7 @@ import { RenderHero } from '@/heros/RenderHero'
 import { generateMeta } from '@/utilities/generateMeta'
 import PageClient from './page.client'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
+import { redirect } from 'next/navigation'
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
@@ -47,6 +48,8 @@ export default async function Page({ params: paramsPromise }: Args) {
   const { slug = 'home' } = await paramsPromise
   // Decode to support slugs with special characters
   const decodedSlug = decodeURIComponent(slug)
+  if (decodedSlug === 'home') redirect('/')
+
   const url = '/' + decodedSlug
   let page: RequiredDataFromCollectionSlug<'pages'> | null
 

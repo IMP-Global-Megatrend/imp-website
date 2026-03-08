@@ -1,3 +1,5 @@
+import Image from 'next/image'
+
 type MegatrendDetail = {
   icon: string
   title: string
@@ -63,10 +65,14 @@ export function MegatrendDetailSection({
             className={`flex items-center justify-center order-1 ${reverse ? 'lg:order-1 lg:pr-8' : 'lg:order-2 lg:pl-8'}`}
           >
             {trend.icon ? (
-              <img
+              <Image
                 src={trend.icon}
                 alt={`${trend.title} icon`}
                 className="w-full h-auto object-contain"
+                width={1200}
+                height={1200}
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                loading="lazy"
               />
             ) : null}
           </div>

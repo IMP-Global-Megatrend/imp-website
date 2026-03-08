@@ -13,13 +13,13 @@ import { FundShareClassesSection } from '../_components/FundShareClassesSection'
 import { PageHero } from '../_components/PageHero'
 import fundContent from '@/constants/fund-content.json'
 import fallbacks from '@/constants/fallbacks.json'
-import { generateMeta } from '@/utilities/generateMeta'
+import { generateMeta, generateStaticFallbackMeta } from '@/utilities/generateMeta'
 
 export async function generateMetadata(): Promise<Metadata> {
   const cmsPage = await getCMSPageBySlug('fund')
   if (cmsPage) return generateMeta({ doc: cmsPage })
 
-  return fallbacks.metadata.fund
+  return generateStaticFallbackMeta('/fund', fallbacks.metadata.fund)
 }
 
 const fallbackDetails: Array<{ label: string; value: string; icon: AnimatedIconName }> = fallbacks.fund

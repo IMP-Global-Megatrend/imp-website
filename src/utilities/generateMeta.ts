@@ -59,19 +59,82 @@ const getImageURL = (
   return url
 }
 
+const getDocPath = (doc: Partial<Page> | Partial<Post> | null): string => {
+  if (!doc || typeof doc.slug !== 'string') return '/'
+
+  if ('layout' in doc) {
+    return doc.slug === 'home' ? '/' : `/${doc.slug}`
+  }
+
+  if ('content' in doc) {
+    return `/posts/${doc.slug}`
+  }
+
+  return '/'
+}
+
+type StaticFallbackMetadata = {
+  description?: string
+  openGraph?: Metadata['openGraph']
+  title?: string
+}
+
+export const generateStaticFallbackMeta = (
+  path: string,
+  fallback: StaticFallbackMetadata,
+): Metadata => {
+  const serverUrl = getServerSideURL()
+  const canonicalPath = path.startsWith('/') ? path : `/${path}`
+  const title = fallback.title || 'IMP Global Megatrend Umbrella Fund'
+  const description = fallback.description || ''
+  const openGraphImages = fallback.openGraph?.images
+  const firstOpenGraphImage = Array.isArray(openGraphImages) ? openGraphImages[0] : openGraphImages
+  const resolvedTwitterImage =
+    typeof firstOpenGraphImage === 'string' || firstOpenGraphImage instanceof URL
+      ? firstOpenGraphImage
+      : firstOpenGraphImage?.url
+  const twitterImages = resolvedTwitterImage ? [resolvedTwitterImage] : undefined
+
+  return {
+    alternates: {
+      canonical: canonicalPath,
+    },
+    description: fallback.description,
+    openGraph: mergeOpenGraph({
+      ...fallback.openGraph,
+      description,
+      title,
+      url: `${serverUrl}${canonicalPath}`,
+    }),
+    title,
+    twitter: {
+      card: 'summary_large_image',
+      description,
+      images: twitterImages,
+      title,
+    },
+  }
+}
+
 export const generateMeta = async (args: {
   doc: Partial<Page> | Partial<Post> | null
 }): Promise<Metadata> => {
   const { doc } = args
 
+  const serverUrl = getServerSideURL()
+  const path = getDocPath(doc)
   const ogImage = getImageURL(doc, doc?.meta?.image)
 
   const title = doc?.meta?.title || 'IMP Global Megatrend Umbrella Fund'
+  const description = doc?.meta?.description || ''
 
   return {
+    alternates: {
+      canonical: path,
+    },
     description: doc?.meta?.description,
     openGraph: mergeOpenGraph({
-      description: doc?.meta?.description || '',
+      description,
       images: ogImage
         ? [
             {
@@ -80,8 +143,14 @@ export const generateMeta = async (args: {
           ]
         : undefined,
       title,
-      url: Array.isArray(doc?.slug) ? doc?.slug.join('/') : '/',
+      url: `${serverUrl}${path}`,
     }),
     title,
+    twitter: {
+      card: 'summary_large_image',
+      description,
+      images: ogImage ? [ogImage] : undefined,
+      title,
+    },
   }
 }

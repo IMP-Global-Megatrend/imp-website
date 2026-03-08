@@ -1,12 +1,21 @@
 import canUseDOM from './canUseDOM'
 
+const DEFAULT_PRODUCTION_URL = 'https://www.impgmtfund.com'
+
+const withProtocol = (value: string) => {
+  if (value.startsWith('http://') || value.startsWith('https://')) return value
+  return `https://${value}`
+}
+
+const trimTrailingSlash = (value: string) => value.replace(/\/+$/, '')
+
 export const getServerSideURL = () => {
-  return (
-    process.env.NEXT_PUBLIC_SERVER_URL ||
-    (process.env.VERCEL_PROJECT_PRODUCTION_URL
-      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-      : 'http://localhost:3000')
-  )
+  const configuredURL = process.env.NEXT_PUBLIC_SERVER_URL || process.env.VERCEL_PROJECT_PRODUCTION_URL
+
+  if (configuredURL) return trimTrailingSlash(withProtocol(configuredURL))
+  if (process.env.NODE_ENV === 'production') return DEFAULT_PRODUCTION_URL
+
+  return 'http://localhost:3000'
 }
 
 export const getClientSideURL = () => {
@@ -18,9 +27,9 @@ export const getClientSideURL = () => {
     return `${protocol}//${domain}${port ? `:${port}` : ''}`
   }
 
-  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
-    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-  }
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) return withProtocol(process.env.VERCEL_PROJECT_PRODUCTION_URL)
 
-  return process.env.NEXT_PUBLIC_SERVER_URL || ''
+  return process.env.NEXT_PUBLIC_SERVER_URL
+    ? trimTrailingSlash(withProtocol(process.env.NEXT_PUBLIC_SERVER_URL))
+    : ''
 }

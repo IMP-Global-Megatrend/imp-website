@@ -7,13 +7,13 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import contactUsContent from '@/constants/contact-us-content.json'
 import fallbacks from '@/constants/fallbacks.json'
-import { generateMeta } from '@/utilities/generateMeta'
+import { generateMeta, generateStaticFallbackMeta } from '@/utilities/generateMeta'
 
 export async function generateMetadata(): Promise<Metadata> {
   const cmsPage = await getCMSPageBySlug('contact-us')
   if (cmsPage) return generateMeta({ doc: cmsPage })
 
-  return fallbacks.metadata.contactUs
+  return generateStaticFallbackMeta('/contact-us', fallbacks.metadata.contactUs)
 }
 
 export default async function ContactPage() {
@@ -103,7 +103,7 @@ export default async function ContactPage() {
                     <label key={opt} htmlFor={`inquiry-${idx}`} className="flex items-center gap-2 text-[14px] text-[#2b3045]">
                       <Checkbox
                         id={`inquiry-${idx}`}
-                        className="size-5 rounded-none border-[#d9def0] data-[state=checked]:border-[#0040ff] data-[state=checked]:bg-[#0040ff]"
+                        className="size-5 rounded-none border-[#d9def0] data-[state=checked]:border-[#0040ff] data-[state=checked]:bg-[#0040ff] cursor-pointer"
                         defaultChecked={opt === contactUsContent.form.inquiryType.defaultChecked}
                       />
                       {opt}
@@ -132,7 +132,7 @@ export default async function ContactPage() {
                   <Checkbox
                     id="contact-consent"
                     required
-                    className="mt-0.5 size-5 rounded-none border-[#d9def0] data-[state=checked]:border-[#0040ff] data-[state=checked]:bg-[#0040ff]"
+                    className="mt-0.5 size-5 rounded-none border-[#d9def0] data-[state=checked]:border-[#0040ff] data-[state=checked]:bg-[#0040ff] cursor-pointer"
                   />
                   {contactUsContent.form.consent.checkboxLabel}
                 </label>
@@ -142,7 +142,7 @@ export default async function ContactPage() {
                 type="submit"
                 variant="default"
                 size="clear"
-                className="rounded-none bg-[#0040ff] px-8 py-3 font-display text-[14px] text-white hover:bg-[#0035d9]"
+                className="rounded-none bg-[#0040ff] px-8 py-3 font-display text-[14px] text-white hover:bg-[#0035d9] cursor-pointer"
               >
                 {contactUsContent.form.submitLabel}
               </Button>

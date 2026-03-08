@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import Image from 'next/image'
 
 type StrategyStep = {
   title: string
@@ -67,7 +68,15 @@ export function StrategyStepSection({ step, index, total }: StrategyStepSectionP
               </div>
               <div className="flex-1 self-start pb-8 md:pb-6">
                 <div className="mb-5 flex items-center justify-center md:hidden">
-                  <img src={step.src} alt={step.title} className="w-full h-auto object-contain" />
+                  <Image
+                    src={step.src}
+                    alt={step.title}
+                    className="w-full h-auto object-contain"
+                    width={1200}
+                    height={1200}
+                    sizes="100vw"
+                    loading="lazy"
+                  />
                 </div>
                 <h2 className="md:hidden text-[24px] leading-[1.25] text-[#0b1035] mb-5">{step.title}</h2>
                 <div className="space-y-5">
@@ -86,7 +95,15 @@ export function StrategyStepSection({ step, index, total }: StrategyStepSectionP
             className={`hidden md:flex items-center justify-center ${isReversed ? 'lg:pr-8' : 'lg:pl-8'}`}
             style={isReversed ? { direction: 'ltr' } : undefined}
           >
-            <img src={step.src} alt={step.title} className="w-full h-auto object-contain" />
+            <Image
+              src={step.src}
+              alt={step.title}
+              className="w-full h-auto object-contain"
+              width={1200}
+              height={1200}
+              sizes="(max-width: 1280px) 50vw, 40vw"
+              loading="lazy"
+            />
           </div>
         </div>
       </div>

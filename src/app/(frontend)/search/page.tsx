@@ -84,5 +84,26 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
 }
 
 export function generateMetadata(): Metadata {
-  return fallbacks.metadata.search
+  const fallback = fallbacks.metadata.search
+
+  return {
+    ...fallback,
+    alternates: {
+      canonical: '/search',
+    },
+    robots: {
+      follow: true,
+      index: false,
+      googleBot: {
+        follow: true,
+        index: false,
+      },
+    },
+    twitter: {
+      card: 'summary_large_image',
+      description: fallback.description,
+      images: fallback.openGraph?.images,
+      title: fallback.title,
+    },
+  }
 }

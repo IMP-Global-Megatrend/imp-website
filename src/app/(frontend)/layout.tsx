@@ -113,6 +113,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
 export const metadata: Metadata = {
   metadataBase: new URL(getServerSideURL()),
+  alternates: {
+    canonical: '/',
+  },
   title: {
     default: 'IMP Global Megatrend Umbrella Fund',
     template: '%s | IMP Global Megatrend',
@@ -122,5 +125,9 @@ export const metadata: Metadata = {
   openGraph: mergeOpenGraph(),
   twitter: {
     card: 'summary_large_image',
+  },
+  robots: {
+    follow: true,
+    index: true,
   },
 }

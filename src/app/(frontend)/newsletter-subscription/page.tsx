@@ -5,13 +5,13 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import fallbacks from '@/constants/fallbacks.json'
 import newsletterContent from '@/constants/newsletter-subscription-content.json'
-import { generateMeta } from '@/utilities/generateMeta'
+import { generateMeta, generateStaticFallbackMeta } from '@/utilities/generateMeta'
 
 export async function generateMetadata(): Promise<Metadata> {
   const cmsPage = await getCMSPageBySlug('newsletter-subscription')
   if (cmsPage) return generateMeta({ doc: cmsPage })
 
-  return fallbacks.metadata.newsletterSubscription
+  return generateStaticFallbackMeta('/newsletter-subscription', fallbacks.metadata.newsletterSubscription)
 }
 
 export default async function NewsletterSubscriptionPage() {

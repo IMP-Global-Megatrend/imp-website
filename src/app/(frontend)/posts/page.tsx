@@ -59,5 +59,22 @@ export default async function Page() {
 }
 
 export function generateMetadata(): Metadata {
-  return fallbacks.metadata.posts
+  const fallback = fallbacks.metadata.posts
+
+  return {
+    ...fallback,
+    alternates: {
+      canonical: '/posts',
+    },
+    openGraph: {
+      ...fallback.openGraph,
+      url: '/posts',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      description: fallback.description,
+      images: fallback.openGraph?.images,
+      title: fallback.title,
+    },
+  }
 }

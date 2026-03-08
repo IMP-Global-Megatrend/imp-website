@@ -5,13 +5,13 @@ import { MegatrendDetailSection } from '../_components/MegatrendDetailSection'
 import { ActionLinkButton } from '../_components/ActionLinkButton'
 import megatrendsContent from '@/constants/megatrends-content.json'
 import fallbacks from '@/constants/fallbacks.json'
-import { generateMeta } from '@/utilities/generateMeta'
+import { generateMeta, generateStaticFallbackMeta } from '@/utilities/generateMeta'
 
 export async function generateMetadata(): Promise<Metadata> {
   const cmsPage = await getCMSPageBySlug('megatrends')
   if (cmsPage) return generateMeta({ doc: cmsPage })
 
-  return fallbacks.metadata.megatrends
+  return generateStaticFallbackMeta('/megatrends', fallbacks.metadata.megatrends)
 }
 
 const megatrends = megatrendsContent.megatrends

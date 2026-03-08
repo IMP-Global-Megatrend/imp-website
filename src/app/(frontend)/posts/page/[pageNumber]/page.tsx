@@ -8,7 +8,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import React from 'react'
 import PageClient from './page.client'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 
 export const revalidate = 600
 
@@ -24,7 +24,8 @@ export default async function Page({ params: paramsPromise }: Args) {
 
   const sanitizedPageNumber = Number(pageNumber)
 
-  if (!Number.isInteger(sanitizedPageNumber)) notFound()
+  if (!Number.isInteger(sanitizedPageNumber) || sanitizedPageNumber < 1) notFound()
+  if (sanitizedPageNumber === 1) redirect('/posts')
 
   const posts = await payload.find({
     collection: 'posts',
@@ -65,12 +66,24 @@ export default async function Page({ params: paramsPromise }: Args) {
 
 export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
   const { pageNumber } = await paramsPromise
-  const normalizedPageNumber = pageNumber || ''
+  const numericPage = Number(pageNumber)
+  const canonicalPath = Number.isInteger(numericPage) && numericPage > 1 ? `/posts/page/${numericPage}` : '/posts'
+
   return {
-    title: postsContent.pagination.titleTemplate.replace('{pageNumber}', normalizedPageNumber),
-    description: postsContent.pagination.descriptionTemplate.replace('{pageNumber}', normalizedPageNumber),
+    alternates: {
+      canonical: canonicalPath,
+    },
+    title: postsContent.pagination.titleTemplate.replace('{pageNumber}', pageNumber || ''),
+    description: postsContent.pagination.descriptionTemplate.replace('{pageNumber}', pageNumber || ''),
     openGraph: {
       images: [{ url: '/images/og/posts-og.png' }],
+      url: canonicalPath,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      description: postsContent.pagination.descriptionTemplate.replace('{pageNumber}', pageNumber || ''),
+      images: ['/images/og/posts-og.png'],
+      title: postsContent.pagination.titleTemplate.replace('{pageNumber}', pageNumber || ''),
     },
   }
 }
@@ -82,11 +95,11 @@ export async function generateStaticParams() {
     overrideAccess: false,
   })
 
-  const totalPages = Math.ceil(totalDocs / 10)
+  const totalPages = Math.ceil(totalDocs / 12)
 
   const pages: { pageNumber: string }[] = []
 
-  for (let i = 1; i <= totalPages; i++) {
+  for (let i = 2; i <= totalPages; i++) {
     pages.push({ pageNumber: String(i) })
   }
 

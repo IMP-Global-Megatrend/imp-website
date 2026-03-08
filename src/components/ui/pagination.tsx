@@ -3,6 +3,7 @@ import type { ButtonProps } from '@/components/ui/button'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/utilities/ui'
 import { ChevronLeftIcon, ChevronRightIcon, GripHorizontalIcon } from 'lucide-animated'
+import Link from 'next/link'
 import * as React from 'react'
 
 const Pagination = ({ className, ...props }: React.ComponentProps<'nav'>) => (
@@ -26,22 +27,34 @@ const PaginationItem: React.FC<
 
 type PaginationLinkProps = {
   isActive?: boolean
+  disabled?: boolean
 } & Pick<ButtonProps, 'size'> &
-  React.ComponentProps<'button'>
+  (React.ComponentProps<typeof Link> | React.ComponentProps<'button'>)
 
-const PaginationLink = ({ className, isActive, size = 'icon', ...props }: PaginationLinkProps) => (
-  <button
-    aria-current={isActive ? 'page' : undefined}
-    className={cn(
-      buttonVariants({
-        size,
-        variant: isActive ? 'outline' : 'ghost',
-      }),
-      className,
-    )}
-    {...props}
-  />
-)
+const PaginationLink = ({ className, isActive, size = 'icon', disabled, ...props }: PaginationLinkProps) => {
+  const resolvedClassName = cn(
+    buttonVariants({
+      size,
+      variant: isActive ? 'outline' : 'ghost',
+    }),
+    disabled ? 'pointer-events-none opacity-50' : undefined,
+    className,
+  )
+
+  if ('href' in props && props.href && !disabled) {
+    return <Link aria-current={isActive ? 'page' : undefined} className={resolvedClassName} {...props} />
+  }
+
+  return (
+    <button
+      aria-current={isActive ? 'page' : undefined}
+      className={resolvedClassName}
+      disabled={disabled}
+      type="button"
+      {...(props as React.ComponentProps<'button'>)}
+    />
+  )
+}
 
 const PaginationPrevious = ({
   className,

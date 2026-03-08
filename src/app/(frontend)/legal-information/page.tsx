@@ -3,7 +3,7 @@ import { getCMSPageBySlug } from '../_components/getCMSPageBySlug'
 import { PageHero } from '../_components/PageHero'
 import RichText from '@/components/RichText'
 import fallbacks from '@/constants/fallbacks.json'
-import { generateMeta } from '@/utilities/generateMeta'
+import { generateMeta, generateStaticFallbackMeta } from '@/utilities/generateMeta'
 import { notFound } from 'next/navigation'
 
 export default async function LegalPage() {
@@ -50,5 +50,5 @@ export async function generateMetadata(): Promise<Metadata> {
   const cmsPage = await getCMSPageBySlug('legal-information')
   if (cmsPage) return generateMeta({ doc: cmsPage })
 
-  return fallbacks.metadata.legalInformation
+  return generateStaticFallbackMeta('/legal-information', fallbacks.metadata.legalInformation)
 }

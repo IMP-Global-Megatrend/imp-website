@@ -6,13 +6,13 @@ import { PageHero } from '../_components/PageHero'
 import { Button } from '@/components/ui/button'
 import aboutUsContent from '@/constants/about-us-content.json'
 import fallbacks from '@/constants/fallbacks.json'
-import { generateMeta } from '@/utilities/generateMeta'
+import { generateMeta, generateStaticFallbackMeta } from '@/utilities/generateMeta'
 
 export async function generateMetadata(): Promise<Metadata> {
   const cmsPage = await getCMSPageBySlug('about-us')
   if (cmsPage) return generateMeta({ doc: cmsPage })
 
-  return fallbacks.metadata.aboutUs
+  return generateStaticFallbackMeta('/about-us', fallbacks.metadata.aboutUs)
 }
 
 function renderHighlight(item: { id: string; text: string }) {
