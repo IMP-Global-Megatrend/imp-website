@@ -26,6 +26,7 @@ import {
   PerformanceChfShareClassData,
   PerformanceUsdShareClassData,
 } from './collections/PerformanceShareClassCollections'
+import { ResendWebhookEvents } from './collections/ResendWebhookEvents'
 import { Posts } from './collections/Posts'
 import { Users } from './collections/Users'
 import { WixCollections } from './collections/SourceCollections'
@@ -78,6 +79,9 @@ export default buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URL,
     },
+    // Avoid interactive schema push prompts during app startup/dev.
+    // Run explicit migrations/schema updates in controlled steps instead.
+    push: false,
   }),
   collections: [
     Pages,
@@ -88,6 +92,7 @@ export default buildConfig({
     ContentGateSubmissions,
     ContactSubmissions,
     NewsletterSubscriptions,
+    ResendWebhookEvents,
     HomeMegatrendCards,
     MegatrendDetailBlocks,
     PerformanceNavPoints,

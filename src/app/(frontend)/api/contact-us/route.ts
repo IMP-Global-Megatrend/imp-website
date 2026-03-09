@@ -2,6 +2,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { headers } from 'next/headers'
 import { sendContactSubmissionEmails } from '@/utilities/emails/sendFormEmails'
+import { syncContactToResend } from '@/utilities/emails/syncContactToResend'
 
 type SubmissionBody = {
   firstName?: string
@@ -16,6 +17,7 @@ type SubmissionBody = {
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const PHONE_REGEX = /^\+?[0-9()\-\s]{7,}$/
+const CONTACT_SUBMISSION_COOLDOWN_MS = 10 * 60 * 1000
 
 function firstHeaderValue(value: string | null): string {
   if (!value) return ''
@@ -95,12 +97,43 @@ export async function POST(req: Request): Promise<Response> {
       return Response.json({ error: 'Invalid phone number' }, { status: 400 })
     }
 
+    const payload = await getPayload({ config })
+    const cooldownWindowStart = new Date(Date.now() - CONTACT_SUBMISSION_COOLDOWN_MS).toISOString()
+    const recentSubmission = await payload.find({
+      collection: 'contact-submissions',
+      where: {
+        and: [
+          {
+            email: {
+              equals: email,
+            },
+          },
+          {
+            submittedAt: {
+              greater_than: cooldownWindowStart,
+            },
+          },
+        ],
+      },
+      limit: 1,
+      overrideAccess: true,
+      pagination: false,
+    } as unknown as Parameters<typeof payload.find>[0])
+
+    if (recentSubmission.docs.length > 0) {
+      return Response.json(
+        {
+          error: 'You already submitted a message recently. Please wait 10 minutes before trying again.',
+        },
+        { status: 429 },
+      )
+    }
+
     const requestHeaders = await headers()
     const userAgent = requestHeaders.get('user-agent') || 'unknown'
     const ipAddress = getClientIP(requestHeaders)
     const submittedAt = new Date().toISOString()
 
-    const payload = await getPayload({ config })
     await payload.create({
       collection: 'contact-submissions',
       overrideAccess: true,
@@ -118,6 +151,17 @@ export async function POST(req: Request): Promise<Response> {
         submittedAt,
       },
     } as unknown as Parameters<typeof payload.create>[0])
+
+    try {
+      await syncContactToResend({
+        firstName,
+        lastName,
+        email,
+        inquiryTypes,
+      })
+    } catch (error) {
+      console.error('Failed to sync contact to Resend', error)
+    }
 
     try {
       await sendContactSubmissionEmails({
