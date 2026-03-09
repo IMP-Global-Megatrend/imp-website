@@ -15,7 +15,7 @@ const buttonVariants = cva(
         outlineBrand:
           'inline-flex items-center gap-2 border border-primary-light text-primary-light rounded text-[13px] uppercase tracking-[0.12em] font-medium hover:bg-primary-light/5 transition-colors',
         outlineMuted:
-          'inline-flex items-center gap-2 border border-[#d9def0] text-[#0b1035] rounded text-[13px] font-medium hover:border-primary-light hover:bg-[#edf4ff] hover:text-primary-light transition-colors',
+          'inline-flex items-center gap-2 border border-[#d9def0] text-[#0b1035] rounded text-[13px] font-medium hover:border-[#d9def0] hover:bg-transparent hover:text-primary-light transition-colors',
         headerSubscribe:
           'items-center gap-2 border border-white/70 px-4 py-2 rounded-none text-[13px] font-display font-normal uppercase tracking-[0.12em] text-white hover:bg-white hover:text-primary-light transition-colors duration-300 ease-out',
         secondary: 'bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80',

@@ -20,6 +20,14 @@ function hasTrackingConsent(): boolean {
 function loadGTM(gtmId: string): void {
   if (!gtmId || typeof window === 'undefined') return
   if (window.__impGtmLoaded) return
+  if (
+    document.querySelector(
+      `script[src^="https://www.googletagmanager.com/gtm.js?id=${encodeURIComponent(gtmId)}"]`,
+    )
+  ) {
+    window.__impGtmLoaded = true
+    return
+  }
 
   window.dataLayer = window.dataLayer || []
   window.dataLayer.push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' })
@@ -56,8 +64,7 @@ export function TrackingConsentManager() {
 
   useEffect(() => {
     if (!consent) return
-    const gtmId = process.env.NEXT_PUBLIC_GTM_ID
-    if (!gtmId) return
+    const gtmId = process.env.NEXT_PUBLIC_GTM_ID || 'GTM-TQJGNS8R'
     loadGTM(gtmId)
   }, [consent])
 

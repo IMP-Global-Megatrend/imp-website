@@ -22,7 +22,7 @@ export async function HeroSection() {
       />
 
       <div
-        className="relative z-10 flex min-h-screen items-center pt-12 pb-20 md:pt-20 md:pb-28 lg:pt-[192px]"
+        className="relative z-10 flex min-h-screen items-center pt-20 pb-28 md:pt-28 md:pb-36 lg:pt-[256px] lg:pb-44"
         data-transition-hero-content="true"
       >
         <div className="container w-full">

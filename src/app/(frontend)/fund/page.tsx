@@ -191,7 +191,6 @@ export default async function FundPage() {
                 external={isExternalLink(relatedLinks.items[0].href)}
                 iconBefore
                 buttonVariant="outlineMuted"
-                className="hover:bg-transparent hover:border-[#d9def0]"
               />
               <ActionLinkButton
                 href={relatedLinks.items[1].href}
@@ -200,7 +199,6 @@ export default async function FundPage() {
                 external={isExternalLink(relatedLinks.items[1].href)}
                 iconBefore
                 buttonVariant="outlineMuted"
-                className="hover:bg-transparent hover:border-[#d9def0]"
               />
               <ActionLinkButton
                 href={relatedLinks.items[2].href}
@@ -209,7 +207,6 @@ export default async function FundPage() {
                 external={isExternalLink(relatedLinks.items[2].href)}
                 iconBefore
                 buttonVariant="outlineMuted"
-                className="hover:bg-transparent hover:border-[#d9def0]"
               />
             </div>
           </div>

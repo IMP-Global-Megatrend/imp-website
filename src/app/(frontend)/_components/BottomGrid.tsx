@@ -3,9 +3,6 @@ import type { ReactNode } from 'react'
 import { ActionLinkButton } from './ActionLinkButton'
 import { getHomeCMSContent } from './getHomeCMSContent'
 
-const staticCtaHoverClass =
-  '!hover:bg-transparent !hover:border-[#d9def0] !hover:text-[#0b1035] !focus-visible:bg-transparent'
-
 function BottomGridColumn({
   title,
   children,
@@ -50,10 +47,8 @@ export async function BottomGrid() {
       className="relative border-t border-[#d9def0] bg-white"
       data-transition-static="true"
     >
-      <div aria-hidden className="hidden md:block absolute inset-y-0 left-1/3 w-px bg-[#e8ecf4]" />
-      <div aria-hidden className="hidden md:block absolute inset-y-0 left-2/3 w-px bg-[#e8ecf4]" />
-      <div className="w-full px-4 md:px-6 lg:container">
-        <div className="grid md:grid-cols-3 gap-10 lg:gap-14 [&>*+*]:relative [&>*+*]:before:absolute [&>*+*]:before:content-[''] [&>*+*]:before:top-0 [&>*+*]:before:-left-4 [&>*+*]:before:-right-4 [&>*+*]:before:border-t [&>*+*]:before:border-[#d9def0] md:[&>*+*]:before:hidden">
+      <div className="container">
+        <div className="grid md:grid-cols-3 md:divide-x md:divide-[#e8ecf4] gap-10 lg:gap-14 [&>*+*]:relative [&>*+*]:before:absolute [&>*+*]:before:content-[''] [&>*+*]:before:top-0 [&>*+*]:before:-left-4 [&>*+*]:before:-right-4 [&>*+*]:before:border-t [&>*+*]:before:border-[#d9def0] md:[&>*+*]:before:hidden">
           {/* See Performance */}
           <BottomGridColumn title="See Performance">
             <Image
@@ -69,7 +64,6 @@ export async function BottomGrid() {
               icon="chartLine"
               iconBefore
               buttonVariant="outlineMuted"
-              className={staticCtaHoverClass}
             />
           </BottomGridColumn>
 
@@ -88,7 +82,6 @@ export async function BottomGrid() {
               icon="mailCheck"
               iconBefore
               buttonVariant="outlineMuted"
-              className={staticCtaHoverClass}
             />
           </BottomGridColumn>
 
@@ -112,7 +105,7 @@ export async function BottomGrid() {
                     external
                     iconBefore
                     buttonVariant="outlineMuted"
-                    className={`${staticCtaHoverClass} justify-center px-3 py-2.5 text-[11px] sm:px-4 sm:text-[12px] md:px-5 md:text-[13px]`}
+                    className="justify-center px-3 py-2.5 text-[11px] sm:px-4 sm:text-[12px] md:px-5 md:text-[13px]"
                   />
                 </div>
               ))}

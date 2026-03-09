@@ -135,7 +135,7 @@ export function SiteHeader({ navItems }: { navItems?: SiteHeaderNavItem[] }) {
                     <Link
                       key={item.href}
                       href={item.href}
-                      className={`group [font-family:var(--font-display-regular)] inline-flex flex-1 min-w-0 flex-col xl:flex-row items-center justify-center whitespace-normal xl:whitespace-nowrap bg-transparent px-4 xl:px-5 py-2 xl:py-3 text-[15px] font-medium text-white text-center gap-1 xl:gap-2 border-t-[5px] border-t-secondary border-b transition-colors duration-200 ${
+                      className={`group [font-family:var(--font-display-regular)] inline-flex flex-auto min-w-0 flex-col xl:flex-row items-center justify-center whitespace-normal xl:whitespace-nowrap bg-transparent px-4 lg:px-6 xl:px-8 py-2 xl:py-3 text-[15px] font-medium text-white text-center gap-1 xl:gap-2 border-t-[5px] border-t-secondary border-b transition-colors duration-200 ${
                         index > 0 ? 'border-l border-secondary' : ''
                       } ${
                         isActive

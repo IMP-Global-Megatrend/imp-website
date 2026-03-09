@@ -15,7 +15,7 @@ function ChartTooltip({
   const d = payload[0]!.payload
   return (
     <div className="border border-[#d9def0] bg-white px-3 py-2 text-sm font-display shadow-md">
-      <p className="font-medium text-[#0b1035]">{d.name}</p>
+      {d.name ? <p className="font-medium text-[#0b1035]">{d.name}</p> : null}
       <p className="text-[#5f6477]">{d.value}%</p>
     </div>
   )

@@ -954,11 +954,15 @@ function parsePortfolioChartDocs(docs: unknown[]): PortfolioChartTuple[] {
 
       return {
         tuple: [record.name.trim(), formatPercentValue(record.weight), record.color.trim()] as PortfolioChartTuple,
+        weight: record.weight,
         sortOrder,
       }
     })
-    .filter((item): item is { tuple: PortfolioChartTuple; sortOrder: number } => Boolean(item))
-    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .filter((item): item is { tuple: PortfolioChartTuple; weight: number; sortOrder: number } => Boolean(item))
+    .sort((a, b) => {
+      if (b.weight !== a.weight) return b.weight - a.weight
+      return a.sortOrder - b.sortOrder
+    })
     .map((item) => item.tuple)
 }
 

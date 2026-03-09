@@ -29,7 +29,7 @@ function buildSupabasePublicMediaUrl(filename?: string | null): string | null {
 
 export const Media: CollectionConfig = {
   slug: 'media',
-  folders: false,
+  folders: true,
   admin: {
     defaultColumns: ['filename', 'alt', 'url', 'storageUrl', 'updatedAt'],
   },
@@ -98,6 +98,31 @@ export const Media: CollectionConfig = {
   },
   upload: {
     disableLocalStorage: true,
+    adminThumbnail: ({ doc }) => {
+      const mediaDoc = doc as {
+        sizes?: {
+          thumbnail?: {
+            filename?: string | null
+            url?: string | null
+          } | null
+        } | null
+        filename?: string | null
+        url?: string | null
+        storageUrl?: string | null
+      }
+
+      const thumbnailPublicUrl = buildSupabasePublicMediaUrl(mediaDoc.sizes?.thumbnail?.filename)
+      const originalPublicUrl = buildSupabasePublicMediaUrl(mediaDoc.filename)
+
+      return (
+        thumbnailPublicUrl ||
+        originalPublicUrl ||
+        mediaDoc.storageUrl ||
+        mediaDoc.sizes?.thumbnail?.url ||
+        mediaDoc.url ||
+        ''
+      )
+    },
     focalPoint: true,
     imageSizes: [
       {
