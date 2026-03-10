@@ -210,6 +210,25 @@ export class WixClient {
     return allItems
   }
 
+  async getLatestDataCollectionItems(
+    collectionId: string,
+    options?: {
+      limit?: number
+    },
+  ): Promise<WixDataItem[]> {
+    const limit = Math.max(1, options?.limit ?? 1)
+    const response = await this.queryDataCollection(collectionId, {
+      limit,
+      offset: 0,
+      sort: [
+        { fieldName: '_updatedDate', order: 'DESC' },
+        { fieldName: '_createdDate', order: 'DESC' },
+      ],
+    })
+
+    return response.items ?? []
+  }
+
   // -- Wix Site Pages --
 
   async listSitePages(options?: {

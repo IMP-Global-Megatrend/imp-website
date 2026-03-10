@@ -7,6 +7,10 @@ import performanceContent from '@/constants/performance-analysis-content.json'
 dotenv.config({ path: path.resolve(process.cwd(), '.env') })
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') })
 
+const SYNC_MODE = String(process.env.PERFORMANCE_PAGE_SYNC_MODE || 'full')
+  .trim()
+  .toLowerCase()
+
 function getTextFieldValue(
   textFields: Array<{ key?: unknown; value?: unknown }> | null | undefined,
   key: string,
@@ -130,6 +134,40 @@ async function main() {
   const performanceNavPoints = (navPointsResult.docs || []).map((doc) => doc.id).filter(Boolean)
   const performanceUsdShareClassData = usdShareClassResult.docs?.[0]?.id
   const performanceChfShareClassData = chfShareClassResult.docs?.[0]?.id
+
+  if (SYNC_MODE === 'charts-only') {
+    await payload.update({
+      collection: 'pages',
+      id: page.id,
+      depth: 0,
+      data: {
+        performanceNavPoints,
+        performanceUsdShareClassData,
+        performanceChfShareClassData,
+      },
+      context: {
+        disableRevalidate: true,
+      },
+    })
+
+    console.log(
+      JSON.stringify(
+        {
+          success: true,
+          mode: SYNC_MODE,
+          pageId: page.id,
+          updatedFields: {
+            performanceNavPointsCount: performanceNavPoints.length,
+            performanceUsdShareClassData: performanceUsdShareClassData ?? null,
+            performanceChfShareClassData: performanceChfShareClassData ?? null,
+          },
+        },
+        null,
+        2,
+      ),
+    )
+    return
+  }
 
   await payload.update({
     collection: 'pages',

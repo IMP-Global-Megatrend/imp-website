@@ -1,6 +1,7 @@
 // @ts-nocheck
 import dotenv from 'dotenv'
 import path from 'node:path'
+import { createWixClient } from '@/endpoints/wix-import/source-client'
 
 dotenv.config({ path: path.resolve(process.cwd(), '.env') })
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') })
@@ -9,6 +10,10 @@ type PerformanceNavPoint = {
   dateISO: string
   nav: number
 }
+
+const SOURCE_MODE = String(process.env.WIX_PERFORMANCE_SOURCE || 'wix')
+  .trim()
+  .toLowerCase()
 
 function parseCMSDateToISO(value: unknown): string | null {
   if (!value) return null
@@ -73,60 +78,94 @@ async function main() {
 
   const payload = await getPayload({ config })
 
-  const [usdResult, chfResult, existingResult] = await Promise.all([
-    payload.find({
-      collection: 'import-usd',
-      limit: 1000,
-      pagination: false,
-      depth: 0,
-    }),
-    payload.find({
-      collection: 'import-chf',
-      limit: 1000,
-      pagination: false,
-      depth: 0,
-    }),
-    payload.find({
-      collection: 'performance-nav-points',
-      limit: 5000,
-      pagination: false,
-      depth: 0,
-    }),
-  ])
+  const existingResult = await payload.find({
+    collection: 'performance-nav-points',
+    limit: 5000,
+    pagination: false,
+    depth: 0,
+  })
 
-  const existingMap = new Map<string, { id: number; nav: number }>()
+  const existingMap = new Map<string, { id: number | string; nav: number }>()
   for (const doc of existingResult.docs as Array<Record<string, unknown>>) {
     const shareClass = doc.shareClass
     const asOf = parseCMSDateToISO(doc.asOf)
     const nav = doc.nav
     if ((shareClass !== 'usd' && shareClass !== 'chf') || !asOf || typeof nav !== 'number') continue
-    existingMap.set(`${shareClass}:${stableDayKey(asOf)}`, { id: Number(doc.id), nav })
+    existingMap.set(`${shareClass}:${stableDayKey(asOf)}`, { id: doc.id as number | string, nav })
   }
 
   const rows: Array<{
     shareClass: 'usd' | 'chf'
     point: PerformanceNavPoint
     sourceItemId: string
+    sourceCollection: string
   }> = []
 
-  for (const doc of usdResult.docs as Array<Record<string, unknown>>) {
-    const point = toPerformanceNavPoint(doc)
-    if (!point) continue
-    rows.push({
-      shareClass: 'usd',
-      point,
-      sourceItemId: String(doc.sourceItemId ?? doc.id ?? ''),
-    })
-  }
+  if (SOURCE_MODE === 'wix') {
+    const wix = createWixClient()
+    const [usdItems, chfItems] = await Promise.all([
+      wix.getAllDataCollectionItems('Import1', { limit: 5000 }),
+      wix.getAllDataCollectionItems('ImportCHF', { limit: 5000 }),
+    ])
 
-  for (const doc of chfResult.docs as Array<Record<string, unknown>>) {
-    const point = toPerformanceNavPoint(doc)
-    if (!point) continue
-    rows.push({
-      shareClass: 'chf',
-      point,
-      sourceItemId: String(doc.sourceItemId ?? doc.id ?? ''),
-    })
+    for (const item of usdItems as Array<Record<string, unknown>>) {
+      const point = toPerformanceNavPoint({ data: item.data })
+      if (!point) continue
+      rows.push({
+        shareClass: 'usd',
+        point,
+        sourceItemId: String(item.id ?? ''),
+        sourceCollection: 'Import1',
+      })
+    }
+
+    for (const item of chfItems as Array<Record<string, unknown>>) {
+      const point = toPerformanceNavPoint({ data: item.data })
+      if (!point) continue
+      rows.push({
+        shareClass: 'chf',
+        point,
+        sourceItemId: String(item.id ?? ''),
+        sourceCollection: 'ImportCHF',
+      })
+    }
+  } else {
+    const [usdResult, chfResult] = await Promise.all([
+      payload.find({
+        collection: 'import-usd',
+        limit: 5000,
+        pagination: false,
+        depth: 0,
+      }),
+      payload.find({
+        collection: 'import-chf',
+        limit: 5000,
+        pagination: false,
+        depth: 0,
+      }),
+    ])
+
+    for (const doc of usdResult.docs as Array<Record<string, unknown>>) {
+      const point = toPerformanceNavPoint(doc)
+      if (!point) continue
+      rows.push({
+        shareClass: 'usd',
+        point,
+        sourceItemId: String(doc.sourceItemId ?? doc.id ?? ''),
+        sourceCollection: 'import-usd',
+      })
+    }
+
+    for (const doc of chfResult.docs as Array<Record<string, unknown>>) {
+      const point = toPerformanceNavPoint(doc)
+      if (!point) continue
+      rows.push({
+        shareClass: 'chf',
+        point,
+        sourceItemId: String(doc.sourceItemId ?? doc.id ?? ''),
+        sourceCollection: 'import-chf',
+      })
+    }
   }
 
   // Keep the latest occurrence per share-class/day key.
@@ -150,7 +189,7 @@ async function main() {
           shareClass: row.shareClass,
           asOf: row.point.dateISO,
           nav: row.point.nav,
-          sourceCollection: row.shareClass === 'usd' ? 'import-usd' : 'import-chf',
+          sourceCollection: row.sourceCollection,
           sourceItemId: row.sourceItemId,
         },
       })
@@ -169,7 +208,7 @@ async function main() {
       depth: 0,
       data: {
         nav: row.point.nav,
-        sourceCollection: row.shareClass === 'usd' ? 'import-usd' : 'import-chf',
+        sourceCollection: row.sourceCollection,
         sourceItemId: row.sourceItemId,
       },
     })
@@ -177,8 +216,9 @@ async function main() {
   }
 
   const summary = {
-    usdSourceRows: usdResult.docs.length,
-    chfSourceRows: chfResult.docs.length,
+    sourceMode: SOURCE_MODE,
+    usdSourceRows: rows.filter((r) => r.shareClass === 'usd').length,
+    chfSourceRows: rows.filter((r) => r.shareClass === 'chf').length,
     dedupedRows: deduped.size,
     created,
     updated,
