@@ -53,7 +53,7 @@ export default async function PrivacyPage() {
       />
 
       <div className="container py-16 md:py-20 max-w-4xl">
-        <div className="space-y-8 text-[#2b3045] text-[15px] leading-relaxed">
+        <div className="mx-auto max-w-[48rem] space-y-8 text-[#2b3045] text-[15px] leading-relaxed">
           {contentColumns.map((column, index) => {
             const richText = (column as { richText?: unknown }).richText
             if (!richText) return null
@@ -63,7 +63,7 @@ export default async function PrivacyPage() {
                 key={`privacy-content-${index}`}
                 data={removeH1HeadingsFromRichText(richText) as never}
                 enableGutter={false}
-                className="max-w-none prose md:prose-md text-[#2b3045]"
+                className="max-w-[48rem] mx-auto prose md:prose-md text-[#2b3045]"
               />
             )
           })}

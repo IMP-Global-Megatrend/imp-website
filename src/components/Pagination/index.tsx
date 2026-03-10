@@ -11,17 +11,19 @@ import { cn } from '@/utilities/ui'
 import React from 'react'
 
 export const Pagination: React.FC<{
+  basePath?: string
   className?: string
   page: number
   totalPages: number
 }> = (props) => {
-  const { className, page, totalPages } = props
+  const { basePath = '/posts', className, page, totalPages } = props
   const hasNextPage = page < totalPages
   const hasPrevPage = page > 1
 
   const hasExtraPrevPages = page - 1 > 1
   const hasExtraNextPages = page + 1 < totalPages
-  const getPageHref = (pageNumber: number) => (pageNumber <= 1 ? '/posts' : `/posts/page/${pageNumber}`)
+  const getPageHref = (pageNumber: number) =>
+    pageNumber <= 1 ? basePath : `${basePath}/page/${pageNumber}`
 
   return (
     <div className={cn('my-12', className)}>

@@ -38,6 +38,13 @@ export const PageRange: React.FC<{
   let indexEnd = (currentPage || 1) * (limit || 1)
   if (totalDocs && indexEnd > totalDocs) indexEnd = totalDocs
 
+  const displayedRange =
+    indexStart > 0
+      ? indexStart === indexEnd
+        ? `${indexStart}`
+        : `${indexStart} - ${indexEnd}`
+      : ''
+
   const { plural, singular } =
     collectionLabelsFromProps ||
     (collection ? defaultCollectionLabels[collection] : undefined) ||
@@ -45,11 +52,11 @@ export const PageRange: React.FC<{
     {}
 
   return (
-    <div className={[className, 'font-semibold'].filter(Boolean).join(' ')}>
+    <div className={[className, 'font-normal'].filter(Boolean).join(' ')}>
       {(typeof totalDocs === 'undefined' || totalDocs === 0) && 'Search produced no results.'}
       {typeof totalDocs !== 'undefined' &&
         totalDocs > 0 &&
-        `Showing ${indexStart}${indexStart > 0 ? ` - ${indexEnd}` : ''} of ${totalDocs} ${
+        `Showing ${displayedRange} of ${totalDocs} ${
           totalDocs > 1 ? plural : singular
         }`}
     </div>

@@ -1,5 +1,7 @@
 nextjs-portal {
   background: #fff !important;
+  left: unset !important;
+  top: unset !important;
 }
 @import 'tailwindcss';
 @import 'tw-animate-css';

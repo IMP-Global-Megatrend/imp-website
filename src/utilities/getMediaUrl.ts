@@ -1,5 +1,3 @@
-import { getClientSideURL } from '@/utilities/getURL'
-
 /**
  * Processes media resource URL to ensure proper formatting
  * @param url The original URL from the resource
@@ -9,18 +7,14 @@ import { getClientSideURL } from '@/utilities/getURL'
 export const getMediaUrl = (url: string | null | undefined, cacheTag?: string | null): string => {
   if (!url) return ''
 
+  // Next.js local image patterns can reject query strings for local routes.
+  // Keep local media URLs stable and query-free.
+  if (url.startsWith('/')) return url
+
   if (cacheTag && cacheTag !== '') {
     cacheTag = encodeURIComponent(cacheTag)
   }
 
-  // Check if URL already has http/https protocol
-  if (url.startsWith('http://') || url.startsWith('https://')) {
-    if (!cacheTag) return url
-    return `${url}${url.includes('?') ? '&' : '?'}${cacheTag}`
-  }
-
-  // Otherwise prepend client-side URL
-  const baseUrl = getClientSideURL()
-  if (!cacheTag) return `${baseUrl}${url}`
-  return `${baseUrl}${url}${url.includes('?') ? '&' : '?'}${cacheTag}`
+  if (!cacheTag) return url
+  return `${url}${url.includes('?') ? '&' : '?'}${cacheTag}`
 }

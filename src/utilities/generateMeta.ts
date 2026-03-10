@@ -59,7 +59,10 @@ const getImageURL = (
   return url
 }
 
-const getDocPath = (doc: Partial<Page> | Partial<Post> | null): string => {
+const getDocPath = (
+  doc: Partial<Page> | Partial<Post> | null,
+  postPathPrefix: string = '/posts',
+): string => {
   if (!doc || typeof doc.slug !== 'string') return '/'
 
   if ('layout' in doc) {
@@ -67,7 +70,7 @@ const getDocPath = (doc: Partial<Page> | Partial<Post> | null): string => {
   }
 
   if ('content' in doc) {
-    return `/posts/${doc.slug}`
+    return `${postPathPrefix}/${doc.slug}`
   }
 
   return '/'
@@ -118,11 +121,12 @@ export const generateStaticFallbackMeta = (
 
 export const generateMeta = async (args: {
   doc: Partial<Page> | Partial<Post> | null
+  postPathPrefix?: string
 }): Promise<Metadata> => {
-  const { doc } = args
+  const { doc, postPathPrefix } = args
 
   const serverUrl = getServerSideURL()
-  const path = getDocPath(doc)
+  const path = getDocPath(doc, postPathPrefix)
   const ogImage = getImageURL(doc, doc?.meta?.image)
 
   const title = doc?.meta?.title || 'IMP Global Megatrend Umbrella Fund'

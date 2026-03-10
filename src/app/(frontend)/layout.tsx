@@ -3,13 +3,14 @@ import type { Metadata } from 'next'
 import { cn } from '@/utilities/ui'
 import { GeistMono } from 'geist/font/mono'
 import { GeistSans } from 'geist/font/sans'
-import Script from 'next/script'
 import React from 'react'
+import Script from 'next/script'
 
 import { Providers } from '@/providers'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { PageTransition } from './_components/PageTransition'
 import { SiteShell } from './_components/SiteShell'
+import { CursorAttrSanitizer } from './_components/CursorAttrSanitizer'
 
 import './globals.css'
 import { getServerSideURL } from '@/utilities/getURL'
@@ -45,13 +46,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       suppressHydrationWarning
     >
       <head>
-        <Script id="google-tag-manager" strategy="afterInteractive">
-          {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-TQJGNS8R');`}
-        </Script>
         <link
           rel="preload"
           href="/fonts/safiro/safiro-regular-webfont.woff2"
@@ -80,37 +74,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           type="font/ttf"
           crossOrigin="anonymous"
         />
-        {process.env.NODE_ENV === 'development' && (
-          <Script id="strip-cursor-hydration-attrs" strategy="beforeInteractive">
-            {`(() => {
-  const strip = () => {
-    document
-      .querySelectorAll('[data-cursor-ref],[data-cursor-element-id]')
-      .forEach((el) => {
-        el.removeAttribute('data-cursor-ref')
-        el.removeAttribute('data-cursor-element-id')
-      })
-  }
-
-  strip()
-  const observer = new MutationObserver(strip)
-  observer.observe(document.documentElement, {
-    subtree: true,
-    attributes: true,
-    attributeFilter: ['data-cursor-ref', 'data-cursor-element-id'],
-  })
-  setTimeout(() => observer.disconnect(), 3000)
-})()`}
-          </Script>
-        )}
         <link rel="icon" sizes="192x192" href="/original-favicon-192.png" type="image/png" />
         <link rel="shortcut icon" href="/original-favicon-32.png" type="image/png" />
         <link rel="apple-touch-icon" href="/original-apple-touch-icon.png" type="image/png" />
-        <Script id="structured-data" type="application/ld+json">
-          {JSON.stringify(structuredData)}
-        </Script>
       </head>
       <body>
+        <Script id="google-tag-manager" strategy="afterInteractive">
+          {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-TQJGNS8R');`}
+        </Script>
         <noscript>
           <iframe
             src="https://www.googletagmanager.com/ns.html?id=GTM-TQJGNS8R"
@@ -119,6 +94,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             style={{ display: 'none', visibility: 'hidden' }}
           />
         </noscript>
+        {process.env.NODE_ENV === 'development' ? <CursorAttrSanitizer /> : null}
         <Providers>
           <SiteShell>
             <PageTransition>{children}</PageTransition>

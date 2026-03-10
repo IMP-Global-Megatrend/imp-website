@@ -7,19 +7,22 @@ const NEXT_PUBLIC_SERVER_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
   : undefined || process.env.__NEXT_PRIVATE_ORIGIN || 'http://localhost:3000'
 
 const S3_ENDPOINT = process.env.S3_ENDPOINT
+const STATIC_IMAGE_HOSTS = ['https://impgmtfund.com', 'https://www.impgmtfund.com']
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
     remotePatterns: [
-      ...[NEXT_PUBLIC_SERVER_URL, S3_ENDPOINT].filter(Boolean).map((item) => {
-        const url = new URL(item)
+      ...[NEXT_PUBLIC_SERVER_URL, S3_ENDPOINT, ...STATIC_IMAGE_HOSTS]
+        .filter(Boolean)
+        .map((item) => {
+          const url = new URL(item)
 
-        return {
-          hostname: url.hostname,
-          protocol: url.protocol.replace(':', ''),
-        }
-      }),
+          return {
+            hostname: url.hostname,
+            protocol: url.protocol.replace(':', ''),
+          }
+        }),
     ],
   },
   webpack: (webpackConfig) => {

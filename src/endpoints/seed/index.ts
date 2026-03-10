@@ -253,6 +253,13 @@ export const seed = async ({
           {
             link: {
               type: 'custom',
+              label: 'Articles',
+              url: '/articles',
+            },
+          },
+          {
+            link: {
+              type: 'custom',
               label: 'About Us',
               url: '/about-us',
             },
@@ -290,6 +297,13 @@ export const seed = async ({
               type: 'custom',
               label: 'Performance Analysis',
               url: '/performance-analysis',
+            },
+          },
+          {
+            link: {
+              type: 'custom',
+              label: 'Articles',
+              url: '/articles',
             },
           },
           {
