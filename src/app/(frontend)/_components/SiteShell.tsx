@@ -9,7 +9,20 @@ import type { Footer, Header } from '@/payload-types'
 
 type NavItem = { href: string; label: string; newTab?: boolean }
 
-const footerNav: NavItem[] = []
+const footerNav: NavItem[] = [
+  { href: '/fund', label: 'The Fund' },
+  { href: '/megatrends', label: 'Our Megatrends' },
+  { href: '/portfolio-strategy', label: 'Portfolio Strategy' },
+  { href: '/performance-analysis', label: 'Performance Analysis' },
+  { href: '/about-us', label: 'About Us' },
+]
+const requiredFooterOrder = [
+  'The Fund',
+  'Our Megatrends',
+  'Portfolio Strategy',
+  'Performance Analysis',
+  'About Us',
+]
 
 const footerLegal: NavItem[] = [
   { href: '/legal-information', label: 'Regulatory & Legal Information' },
@@ -40,6 +53,23 @@ function resolveCMSLink(link?: {
   return { href, label: link.label, newTab: link.newTab ?? false }
 }
 
+function buildFooterNav(footerNavItems: NavItem[]): NavItem[] {
+  const byLabel = new Map<string, NavItem>()
+  for (const item of footerNavItems) {
+    byLabel.set(item.label, item)
+  }
+  for (const item of footerNav) {
+    if (!byLabel.has(item.label)) byLabel.set(item.label, item)
+  }
+
+  const required = requiredFooterOrder
+    .map((label) => byLabel.get(label))
+    .filter((item): item is NavItem => Boolean(item))
+  const rest = Array.from(byLabel.values()).filter((item) => !requiredFooterOrder.includes(item.label))
+
+  return [...required, ...rest]
+}
+
 export async function SiteShell({ children }: { children: React.ReactNode }) {
   const currentYear = new Date().getFullYear()
   let headerData: Header | null = null
@@ -58,11 +88,12 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
       .filter(Boolean)
       .map((item) => item as NavItem) || []
 
-  const footerNavItems =
+  const cmsFooterNavItems =
     footerData?.navItems
       ?.map((item) => resolveCMSLink(item?.link))
       .filter(Boolean)
       .map((item) => item as NavItem) || footerNav
+  const footerNavItems = buildFooterNav(cmsFooterNavItems)
 
   return (
     <div className="min-h-screen bg-primary text-[#0b1035]">
