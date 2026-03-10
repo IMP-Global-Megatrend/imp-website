@@ -1,6 +1,10 @@
 import type { CollectionConfig } from 'payload'
 
 import { authenticated } from '@/access/authenticated'
+import {
+  revalidatePortfolioStrategyPage,
+  revalidatePortfolioStrategyPageOnDelete,
+} from '@/hooks/revalidatePortfolioStrategyPage'
 
 function buildPortfolioChartCollection(config: {
   slug: string
@@ -74,6 +78,10 @@ function buildPortfolioChartCollection(config: {
       read: authenticated,
       update: authenticated,
       delete: authenticated,
+    },
+    hooks: {
+      afterChange: [revalidatePortfolioStrategyPage],
+      afterDelete: [revalidatePortfolioStrategyPageOnDelete],
     },
     fields,
     defaultSort: 'sortOrder',

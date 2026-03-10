@@ -1,6 +1,10 @@
 import type { CollectionConfig } from 'payload'
 
 import { authenticated } from '@/access/authenticated'
+import {
+  revalidatePerformanceAnalysisPage,
+  revalidatePerformanceAnalysisPageOnDelete,
+} from '@/hooks/revalidatePerformanceAnalysisPage'
 
 function buildPerformanceShareClassCollection(config: {
   slug: string
@@ -23,6 +27,10 @@ function buildPerformanceShareClassCollection(config: {
       read: authenticated,
       update: authenticated,
       delete: authenticated,
+    },
+    hooks: {
+      afterChange: [revalidatePerformanceAnalysisPage],
+      afterDelete: [revalidatePerformanceAnalysisPageOnDelete],
     },
     fields: [
       {

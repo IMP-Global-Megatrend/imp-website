@@ -298,6 +298,18 @@ export class WixClient {
 }
 
 export function createWixClient(): WixClient {
+  const nodeEnv = String(process.env.NODE_ENV || '').trim().toLowerCase()
+  const vercelEnv = String(process.env.VERCEL_ENV || '').trim().toLowerCase()
+  const isCi = String(process.env.CI || '').trim().toLowerCase() === 'true'
+  const isProductionRuntime = nodeEnv === 'production'
+  const isHostedStage = vercelEnv === 'preview' || vercelEnv === 'production'
+
+  if (isProductionRuntime || isHostedStage || isCi) {
+    throw new Error(
+      'Wix sync is disabled in production/build environments. Run sync only from local development.',
+    )
+  }
+
   const apiKey = process.env.WIX_API_KEY
   const siteId = process.env.WIX_SITE_ID
   const accountId = process.env.WIX_ACCOUNT_ID

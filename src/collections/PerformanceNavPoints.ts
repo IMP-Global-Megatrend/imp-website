@@ -1,6 +1,10 @@
 import type { CollectionConfig } from 'payload'
 
 import { authenticated } from '@/access/authenticated'
+import {
+  revalidatePerformanceAnalysisPage,
+  revalidatePerformanceAnalysisPageOnDelete,
+} from '@/hooks/revalidatePerformanceAnalysisPage'
 
 export const PerformanceNavPoints: CollectionConfig = {
   slug: 'performance-nav-points',
@@ -72,5 +76,9 @@ export const PerformanceNavPoints: CollectionConfig = {
       unique: true,
     },
   ],
+  hooks: {
+    afterChange: [revalidatePerformanceAnalysisPage],
+    afterDelete: [revalidatePerformanceAnalysisPageOnDelete],
+  },
   timestamps: true,
 }
