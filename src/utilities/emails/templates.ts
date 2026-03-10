@@ -116,11 +116,13 @@ function renderLayout(title: string, bodyHtml: string): string {
   `.trim()
 }
 
-function detailRow(label: string, value: string): string {
+function detailRow(label: string, value: string, options?: { isLast?: boolean }): string {
+  const borderBottom = options?.isLast ? 'none' : `1px solid ${EMAIL_COLOR_BORDER}`
+
   return `
   <tr>
-    <td style="padding:10px 12px;width:35%;vertical-align:top;border-bottom:1px solid ${EMAIL_COLOR_BORDER};font-weight:400;color:${EMAIL_COLOR_TEXT_PRIMARY};background-color:${EMAIL_COLOR_CARD_BG};">${escapeHtml(label)}</td>
-    <td style="padding:10px 12px;border-bottom:1px solid ${EMAIL_COLOR_BORDER};color:${EMAIL_COLOR_TEXT_MUTED};background-color:${EMAIL_COLOR_CARD_BG};">${escapeHtml(value)}</td>
+    <td style="padding:10px 12px;width:35%;vertical-align:top;border-bottom:${borderBottom};font-weight:400;color:${EMAIL_COLOR_TEXT_PRIMARY};background-color:transparent;">${escapeHtml(label)}</td>
+    <td style="padding:10px 12px;border-bottom:${borderBottom};color:${EMAIL_COLOR_TEXT_MUTED};background-color:transparent;">${escapeHtml(value)}</td>
   </tr>
   `.trim()
 }
@@ -147,14 +149,14 @@ export function createContactAdminTemplate(data: ContactTemplateData): EmailTemp
     'New contact form submission',
     `
     <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:${EMAIL_COLOR_TEXT_MUTED};">A new contact request has been submitted on the website.</p>
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border:1px solid ${EMAIL_COLOR_BORDER};border-radius:8px;border-collapse:separate;border-spacing:0;background-color:${EMAIL_COLOR_CARD_BG};">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border:1px solid ${EMAIL_COLOR_BORDER};border-radius:8px;border-collapse:separate;border-spacing:0;background-color:transparent;">
       ${detailRow('Name', fullName)}
       ${detailRow('Email', data.email)}
       ${detailRow('Phone', phone)}
       ${detailRow('Inquiry Types', inquiryTypes)}
       ${detailRow('Submitted At', submittedAt)}
       ${detailRow('Path', data.path)}
-      ${detailRow('Message', data.message)}
+      ${detailRow('Message', data.message, { isLast: true })}
     </table>
     `,
   )
@@ -185,10 +187,10 @@ export function createContactSenderTemplate(data: ContactTemplateData): EmailTem
     'We received your message',
     `
     <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:${EMAIL_COLOR_TEXT_MUTED};">Hi ${escapeHtml(data.firstName)}, thank you for contacting us. This is a copy of your submission.</p>
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border:1px solid ${EMAIL_COLOR_BORDER};border-radius:8px;border-collapse:separate;border-spacing:0;background-color:${EMAIL_COLOR_CARD_BG};">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border:1px solid ${EMAIL_COLOR_BORDER};border-radius:8px;border-collapse:separate;border-spacing:0;background-color:transparent;">
       ${detailRow('Name', fullName)}
       ${detailRow('Email', data.email)}
-      ${detailRow('Message', data.message)}
+      ${detailRow('Message', data.message, { isLast: true })}
     </table>
     <p style="margin:16px 0 0;font-size:15px;line-height:1.6;color:${EMAIL_COLOR_TEXT_MUTED};">Our team will review your request and get back to you shortly.</p>
     `,
@@ -221,11 +223,11 @@ export function createNewsletterAdminTemplate(data: NewsletterTemplateData): Ema
     'New newsletter subscription',
     `
     <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:${EMAIL_COLOR_TEXT_MUTED};">A new user subscribed to the newsletter.</p>
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border:1px solid ${EMAIL_COLOR_BORDER};border-radius:8px;border-collapse:separate;border-spacing:0;background-color:${EMAIL_COLOR_CARD_BG};">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border:1px solid ${EMAIL_COLOR_BORDER};border-radius:8px;border-collapse:separate;border-spacing:0;background-color:transparent;">
       ${detailRow('Name', fullName)}
       ${detailRow('Email', data.email)}
       ${detailRow('Submitted At', submittedAt)}
-      ${detailRow('Path', data.path)}
+      ${detailRow('Path', data.path, { isLast: true })}
     </table>
     `,
   )
