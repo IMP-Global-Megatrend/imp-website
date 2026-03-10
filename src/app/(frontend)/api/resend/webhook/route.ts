@@ -1,6 +1,7 @@
 import { Webhook } from 'svix'
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import { sendIncomingResendEmailToAdmins } from '@/utilities/emails/sendFormEmails'
 
 type ResendWebhookEvent = {
   type?: string
@@ -11,6 +12,8 @@ type ResendWebhookEvent = {
     from?: string
     to?: string[]
     subject?: string
+    text?: string
+    html?: string
     [key: string]: unknown
   }
   [key: string]: unknown
@@ -46,6 +49,10 @@ function normalizeRecipients(value: unknown): string[] {
     .filter((entry): entry is string => typeof entry === 'string')
     .map((entry) => entry.trim())
     .filter(Boolean)
+}
+
+function shouldForwardInboundEmail(eventType: string): boolean {
+  return eventType === 'email.received'
 }
 
 function isUniqueConstraintError(error: unknown): boolean {
@@ -118,6 +125,26 @@ export async function POST(req: Request): Promise<Response> {
       overrideAccess: true,
       data: record,
     } as unknown as Parameters<typeof payloadClient.create>[0])
+
+    if (shouldForwardInboundEmail(record.eventType)) {
+      try {
+        await sendIncomingResendEmailToAdmins({
+          payload: payloadClient,
+          data: {
+            eventType: record.eventType,
+            from: record.from,
+            to: record.to.map((entry) => entry.address),
+            subject: record.subject,
+            text: firstString(event.data?.text),
+            html: firstString(event.data?.html),
+            emailId: record.emailId,
+            receivedAt: record.receivedAt,
+          },
+        })
+      } catch (error) {
+        console.error('Failed to forward incoming Resend webhook email to admins', error)
+      }
+    }
 
     // Keep this log concise: useful for tracing delivery failures and bounces.
     console.log('Resend webhook event stored', {
