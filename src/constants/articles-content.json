@@ -1,0 +1,8 @@
+{
+  "heading": "Articles",
+  "heroSubtitle": "Research, commentary, and long-term perspectives on structural megatrends and portfolio allocation.",
+  "pagination": {
+    "titleTemplate": "Articles Page {pageNumber} | IMP Global Megatrend",
+    "descriptionTemplate": "Paginated articles archive page {pageNumber} for IMP Global Megatrend insights."
+  }
+}

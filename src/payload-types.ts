@@ -196,6 +196,9 @@ export interface Config {
     footer: FooterSelect<false> | FooterSelect<true>;
   };
   locale: null;
+  widgets: {
+    collections: CollectionsWidget;
+  };
   user: User;
   jobs: {
     tasks: {
@@ -276,7 +279,20 @@ export interface Page {
       | null;
     media?: (number | null) | Media;
   };
-  layout?: (CallToActionBlock | ContentBlock | MediaBlock | ArchiveBlock | FormBlock)[] | null;
+  layout?:
+    | (
+        | CallToActionBlock
+        | ContentBlock
+        | {
+            media: number | Media;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'mediaBlock';
+          }
+        | ArchiveBlock
+        | FormBlock
+      )[]
+    | null;
   /**
    * Optional video file from Media Library for /about-us.
    */
@@ -532,6 +548,24 @@ export interface Page {
    * Optional explicit URL override for Latest Fund Commentary button.
    */
   performanceFundCommentaryHref?: string | null;
+  /**
+   * Single source rich text for /legal-information content and table of contents.
+   */
+  legalInformationContent?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   meta?: {
     title?: string | null;
     /**
@@ -589,6 +623,14 @@ export interface Post {
   authors?: (number | User)[] | null;
   sourceId?: string | null;
   sourceUpdatedAt?: string | null;
+  /**
+   * Color palette for the /articles hero canvas.
+   */
+  articleHeroPalette?: {
+    color1?: string | null;
+    color2?: string | null;
+    color3?: string | null;
+  };
   populatedAuthors?:
     | {
         id?: string | null;
@@ -879,16 +921,6 @@ export interface ContentBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'content';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "MediaBlock".
- */
-export interface MediaBlock {
-  media: number | Media;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'mediaBlock';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -4026,6 +4058,7 @@ export interface PagesSelect<T extends boolean = true> {
   performanceFundCommentaryLabel?: T;
   performanceFundCommentaryAsset?: T;
   performanceFundCommentaryHref?: T;
+  legalInformationContent?: T;
   meta?:
     | T
     | {
@@ -4147,6 +4180,13 @@ export interface PostsSelect<T extends boolean = true> {
   authors?: T;
   sourceId?: T;
   sourceUpdatedAt?: T;
+  articleHeroPalette?:
+    | T
+    | {
+        color1?: T;
+        color2?: T;
+        color3?: T;
+      };
   populatedAuthors?:
     | T
     | {
@@ -6293,6 +6333,16 @@ export interface FooterSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "collections_widget".
+ */
+export interface CollectionsWidget {
+  data?: {
+    [k: string]: unknown;
+  };
+  width: 'full';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "TaskSchedulePublish".
  */
 export interface TaskSchedulePublish {
@@ -6312,6 +6362,16 @@ export interface TaskSchedulePublish {
     user?: (number | null) | User;
   };
   output?: unknown;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "MediaBlock".
+ */
+export interface MediaBlock {
+  media: number | Media;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'mediaBlock';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

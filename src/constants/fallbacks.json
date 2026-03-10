@@ -63,6 +63,13 @@
         "images": [{ "url": "/images/og/posts-og.png" }]
       }
     },
+    "articles": {
+      "title": "Articles | IMP Global Megatrend",
+      "description": "Research updates and commentary on structural megatrends and portfolio positioning.",
+      "openGraph": {
+        "images": [{ "url": "/images/og/posts-og.png" }]
+      }
+    },
     "search": {
       "title": "Search | IMP Global Megatrend",
       "description": "Search articles and updates from the IMP Global Megatrend Umbrella Fund.",

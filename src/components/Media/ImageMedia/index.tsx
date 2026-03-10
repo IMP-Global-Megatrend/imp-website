@@ -80,6 +80,7 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
       filename: filenameFromResource,
       height: fullHeight,
       sourceUrl,
+      storageUrl,
       url,
       width: fullWidth,
     } = resource
@@ -93,13 +94,26 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
 
     const cacheTag = resource.updatedAt
     const normalizedSourceUrl = typeof sourceUrl === 'string' && sourceUrl.trim() ? sourceUrl.trim() : ''
+    const normalizedPublicStorageUrl =
+      typeof storageUrl === 'string' && storageUrl.trim() ? storageUrl.trim() : ''
     const normalizedStorageUrl = typeof url === 'string' && url.trim() ? url.trim() : ''
 
-    // Prefer canonical source URL from CMS. Fall back to stored file URL only when missing.
-    src = getMediaUrl(normalizedSourceUrl || normalizedStorageUrl, cacheTag)
+    const isRenderableUrl = (value: string): boolean =>
+      value.startsWith('/') || value.startsWith('http://') || value.startsWith('https://')
+
+    // Prefer Supabase public object URL, then any explicit source URL, then Payload file URL.
+    const preferredUrl = isRenderableUrl(normalizedPublicStorageUrl)
+      ? normalizedPublicStorageUrl
+      : isRenderableUrl(normalizedSourceUrl)
+        ? normalizedSourceUrl
+        : ''
+    const fallbackUrl = isRenderableUrl(normalizedStorageUrl) ? normalizedStorageUrl : ''
+    src = getMediaUrl(preferredUrl || fallbackUrl, cacheTag)
   }
 
   const loading = loadingFromProps || (!priority ? 'lazy' : undefined)
+  const isExternalSrc =
+    typeof src === 'string' && (src.startsWith('http://') || src.startsWith('https://'))
 
   // NOTE: this is used by the browser to determine which image to download at different screen sizes
   const sizes = sizeFromProps
@@ -123,6 +137,7 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
         loading={loading}
         sizes={sizes}
         src={src}
+        unoptimized={isExternalSrc}
         width={!fill ? width : undefined}
       />
     </picture>

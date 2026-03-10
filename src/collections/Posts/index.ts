@@ -6,6 +6,8 @@ import {
   HeadingFeature,
   HorizontalRuleFeature,
   InlineToolbarFeature,
+  OrderedListFeature,
+  UnorderedListFeature,
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
 
@@ -88,6 +90,8 @@ export const Posts: CollectionConfig<'posts'> = {
                 features: ({ rootFeatures }) => {
                   return [
                     ...rootFeatures,
+                    OrderedListFeature(),
+                    UnorderedListFeature(),
                     HeadingFeature({ enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4'] }),
                     BlocksFeature({ blocks: [Banner, Code, MediaBlock] }),
                     FixedToolbarFeature(),
@@ -204,6 +208,31 @@ export const Posts: CollectionConfig<'posts'> = {
       admin: {
         position: 'sidebar',
       },
+    },
+    {
+      name: 'articleHeroPalette',
+      type: 'group',
+      admin: {
+        position: 'sidebar',
+        description: 'Color palette for the /articles hero canvas.',
+      },
+      fields: [
+        {
+          name: 'color1',
+          type: 'text',
+          defaultValue: '#2b3dea',
+        },
+        {
+          name: 'color2',
+          type: 'text',
+          defaultValue: 'oklch(0.47 0.12 174)',
+        },
+        {
+          name: 'color3',
+          type: 'text',
+          defaultValue: 'oklch(0.47 0.10 136)',
+        },
+      ],
     },
     // This field is only used to populate the user data via the `populateAuthors` hook
     // This is because the `user` collection has access control locked to protect user privacy

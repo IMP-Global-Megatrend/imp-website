@@ -52,6 +52,7 @@ export async function Footer() {
               <Link href="/megatrends" className="text-sm text-foreground/60 hover:text-foreground transition-colors">Our Megatrends</Link>
               <Link href="/portfolio-strategy" className="text-sm text-foreground/60 hover:text-foreground transition-colors">Portfolio Strategy</Link>
               <Link href="/performance-analysis" className="text-sm text-foreground/60 hover:text-foreground transition-colors">Performance Analysis</Link>
+              <Link href="/articles" className="text-sm text-foreground/60 hover:text-foreground transition-colors">Articles</Link>
               <Link href="/about-us" className="text-sm text-foreground/60 hover:text-foreground transition-colors">About Us</Link>
             </nav>
           </div>
