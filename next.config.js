@@ -12,6 +12,7 @@ const STATIC_IMAGE_HOSTS = ['https://impgmtfund.com', 'https://www.impgmtfund.co
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
+    qualities: [75, 85],
     remotePatterns: [
       ...[NEXT_PUBLIC_SERVER_URL, S3_ENDPOINT, ...STATIC_IMAGE_HOSTS]
         .filter(Boolean)

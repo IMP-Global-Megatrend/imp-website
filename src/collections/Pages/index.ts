@@ -20,6 +20,14 @@ import {
   OverviewField,
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
+import {
+  FixedToolbarFeature,
+  HeadingFeature,
+  InlineToolbarFeature,
+  OrderedListFeature,
+  UnorderedListFeature,
+  lexicalEditor,
+} from '@payloadcms/richtext-lexical'
 
 const requireHomeDownload =
   (label: string) =>
@@ -1060,6 +1068,33 @@ export const Pages: CollectionConfig<'pages'> = {
           label: 'Performance Analysis',
           admin: {
             condition: (data) => data?.slug === 'performance-analysis',
+          },
+        },
+        {
+          fields: [
+            {
+              name: 'legalInformationContent',
+              type: 'richText',
+              label: 'Legal Information Content',
+              editor: lexicalEditor({
+                features: ({ rootFeatures }) => [
+                  ...rootFeatures,
+                  HeadingFeature({ enabledHeadingSizes: ['h2', 'h3', 'h4'] }),
+                  OrderedListFeature(),
+                  UnorderedListFeature(),
+                  FixedToolbarFeature(),
+                  InlineToolbarFeature(),
+                ],
+              }),
+              admin: {
+                condition: (data) => data?.slug === 'legal-information',
+                description: 'Single source rich text for /legal-information content and table of contents.',
+              },
+            },
+          ],
+          label: 'Legal Information',
+          admin: {
+            condition: (data) => data?.slug === 'legal-information',
           },
         },
         {
