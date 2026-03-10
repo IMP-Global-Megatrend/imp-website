@@ -38,6 +38,7 @@ type IncomingResendEmailPayload = {
   text?: string
   html?: string
   emailId?: string
+  messageId?: string
   receivedAt: string
 }
 
@@ -192,6 +193,7 @@ export async function sendIncomingResendEmailToAdmins({
   const toList = data.to.length > 0 ? data.to.join(', ') : '(unknown recipients)'
   const textContent = data.text?.trim() || ''
   const htmlContent = data.html?.trim() || ''
+  const hasBodyContent = Boolean(textContent || htmlContent)
 
   const subject = `Incoming email received - ${normalizedSubject}`
   const text = [
@@ -202,11 +204,16 @@ export async function sendIncomingResendEmailToAdmins({
     `To: ${toList}`,
     `Subject: ${normalizedSubject}`,
     `Email ID: ${data.emailId || 'N/A'}`,
+    `Message ID: ${data.messageId || 'N/A'}`,
     `Received At: ${data.receivedAt}`,
     '',
+    hasBodyContent ? '' : 'Note: This webhook payload did not include email body content (text/html).',
+    hasBodyContent ? '' : '',
     'Message (text):',
     textContent || '(No text content provided)',
-  ].join('\n')
+  ]
+    .filter((line, index, array) => !(line === '' && array[index - 1] === ''))
+    .join('\n')
 
   const html = `
     <div style="font-family:Arial,sans-serif;color:#111827;line-height:1.5;">
@@ -217,8 +224,14 @@ export async function sendIncomingResendEmailToAdmins({
         <tr><td style="padding:4px 0;"><strong>To:</strong> ${escapeHtml(toList)}</td></tr>
         <tr><td style="padding:4px 0;"><strong>Subject:</strong> ${escapeHtml(normalizedSubject)}</td></tr>
         <tr><td style="padding:4px 0;"><strong>Email ID:</strong> ${escapeHtml(data.emailId || 'N/A')}</td></tr>
+        <tr><td style="padding:4px 0;"><strong>Message ID:</strong> ${escapeHtml(data.messageId || 'N/A')}</td></tr>
         <tr><td style="padding:4px 0;"><strong>Received At:</strong> ${escapeHtml(data.receivedAt)}</td></tr>
       </table>
+      ${
+        hasBodyContent
+          ? ''
+          : '<p style="margin:0 0 12px;font-size:12px;color:#6b7280;">Note: This webhook payload did not include email body content (text/html).</p>'
+      }
       ${
         htmlContent
           ? `<div style="margin:0 0 14px;"><strong>Message (HTML):</strong></div><div>${htmlContent}</div>`

@@ -91,23 +91,6 @@ export async function POST(req: Request): Promise<Response> {
 
   try {
     const payloadClient = await getPayload({ config })
-
-    const existing = await payloadClient.find({
-      collection: 'resend-webhook-events',
-      where: {
-        svixId: {
-          equals: svixId,
-        },
-      },
-      limit: 1,
-      overrideAccess: true,
-      pagination: false,
-    } as unknown as Parameters<typeof payloadClient.find>[0])
-
-    if (existing.docs.length > 0) {
-      return Response.json({ ok: true, duplicate: true })
-    }
-
     const record: ResendWebhookEventDocData = {
       eventType: firstString(event.type) || 'unknown',
       webhookCreatedAt: firstString(event.created_at) ?? firstString(event.data?.created_at),
@@ -120,13 +103,41 @@ export async function POST(req: Request): Promise<Response> {
       receivedAt: new Date().toISOString(),
     }
 
-    await payloadClient.create({
-      collection: 'resend-webhook-events',
-      overrideAccess: true,
-      data: record,
-    } as unknown as Parameters<typeof payloadClient.create>[0])
+    let duplicate = false
+    let persisted = false
 
-    if (shouldForwardInboundEmail(record.eventType)) {
+    try {
+      const existing = await payloadClient.find({
+        collection: 'resend-webhook-events',
+        where: {
+          svixId: {
+            equals: svixId,
+          },
+        },
+        limit: 1,
+        overrideAccess: true,
+        pagination: false,
+      } as unknown as Parameters<typeof payloadClient.find>[0])
+
+      duplicate = existing.docs.length > 0
+
+      if (!duplicate) {
+        await payloadClient.create({
+          collection: 'resend-webhook-events',
+          overrideAccess: true,
+          data: record,
+        } as unknown as Parameters<typeof payloadClient.create>[0])
+        persisted = true
+      }
+    } catch (error) {
+      if (isUniqueConstraintError(error)) {
+        duplicate = true
+      } else {
+        console.error('Unable to persist Resend webhook event (continuing)', error)
+      }
+    }
+
+    if (shouldForwardInboundEmail(record.eventType) && !duplicate) {
       try {
         await sendIncomingResendEmailToAdmins({
           payload: payloadClient,
@@ -146,22 +157,19 @@ export async function POST(req: Request): Promise<Response> {
       }
     }
 
-    // Keep this log concise: useful for tracing delivery failures and bounces.
-    console.log('Resend webhook event stored', {
+    console.log('Resend webhook event processed', {
       type: record.eventType,
       emailId: record.emailId ?? null,
       svixId,
       to: record.to.map((entry) => entry.address),
       subject: record.subject ?? null,
+      duplicate,
+      persisted,
     })
 
-    return Response.json({ ok: true })
+    return Response.json({ ok: true, duplicate, persisted })
   } catch (error) {
-    if (isUniqueConstraintError(error)) {
-      return Response.json({ ok: true, duplicate: true })
-    }
-
-    console.error('Unable to store Resend webhook event', error)
-    return Response.json({ error: 'Unable to store webhook event' }, { status: 500 })
+    console.error('Unable to process Resend webhook event', error)
+    return Response.json({ error: 'Unable to process webhook event' }, { status: 500 })
   }
 }
