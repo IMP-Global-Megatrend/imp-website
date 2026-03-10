@@ -15,7 +15,7 @@ function buildPortfolioChartCollection(config: {
     },
     admin: {
       useAsTitle: 'name',
-      defaultColumns: ['sortOrder', 'name', 'weight', 'color', 'updatedAt'],
+      defaultColumns: ['sortOrder', 'name', 'weight', 'color', 'icon', 'updatedAt'],
       group: 'Portfolio Strategy',
     },
     access: {
@@ -47,6 +47,14 @@ function buildPortfolioChartCollection(config: {
         required: true,
         admin: {
           description: 'Hex color used in the chart legend and donut slice.',
+        },
+      },
+      {
+        name: 'icon',
+        type: 'text',
+        admin: {
+          description:
+            'Optional Phosphor icon key for list markers (e.g. cpu, heartbeat, bank, lightning).',
         },
       },
       {

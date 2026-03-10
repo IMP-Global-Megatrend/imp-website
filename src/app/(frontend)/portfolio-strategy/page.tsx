@@ -89,7 +89,7 @@ export default async function PortfolioStrategyPage() {
                 [portfolioStrategyContent.allocationPanels[2], sectorAllocations],
               ] as const
             ).map(([title, data]) => (
-              <AllocationPanel key={title} title={title} data={data as Array<[string, string, string]>} />
+              <AllocationPanel key={title} title={title} data={data as Array<[string, string, string, string?]>} />
             ))}
           </div>
         </section>

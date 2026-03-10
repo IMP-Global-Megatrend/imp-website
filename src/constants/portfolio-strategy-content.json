@@ -4,7 +4,7 @@
   "sectionTitles": {
     "investmentProcess": "Investment Process",
     "portfolioOverview": "Portfolio Overview",
-    "topHoldings": "Top Holdings"
+    "topHoldings": "Top 10 Holdings"
   },
   "allocationPanels": [
     "Megatrend Allocations",

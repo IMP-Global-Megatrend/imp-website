@@ -154,7 +154,7 @@ export type CMSFundPageData = {
   tertiaryHref?: string
 }
 
-type PortfolioChartTuple = [string, string, string]
+type PortfolioChartTuple = [string, string, string, string?]
 export type PortfolioStrategyStepItem = {
   heading: string
   body: string
@@ -935,7 +935,7 @@ export async function getCMSPerformanceNavSeries(): Promise<{
 function formatPercentValue(value: number): string {
   if (!Number.isFinite(value)) return '0'
   const rounded = Math.round(value * 100) / 100
-  return Number.isInteger(rounded) ? String(rounded) : String(rounded)
+  return rounded.toFixed(2)
 }
 
 function parsePortfolioChartDocs(docs: unknown[]): PortfolioChartTuple[] {
@@ -945,6 +945,7 @@ function parsePortfolioChartDocs(docs: unknown[]): PortfolioChartTuple[] {
         name?: unknown
         weight?: unknown
         color?: unknown
+        icon?: unknown
         sortOrder?: unknown
       }
       if (typeof record.name !== 'string' || !record.name.trim()) return null
@@ -953,7 +954,12 @@ function parsePortfolioChartDocs(docs: unknown[]): PortfolioChartTuple[] {
       const sortOrder = typeof record.sortOrder === 'number' && Number.isFinite(record.sortOrder) ? record.sortOrder : 0
 
       return {
-        tuple: [record.name.trim(), formatPercentValue(record.weight), record.color.trim()] as PortfolioChartTuple,
+        tuple: [
+          record.name.trim(),
+          formatPercentValue(record.weight),
+          record.color.trim(),
+          typeof record.icon === 'string' && record.icon.trim() ? record.icon.trim() : undefined,
+        ] as PortfolioChartTuple,
         weight: record.weight,
         sortOrder,
       }
@@ -964,6 +970,15 @@ function parsePortfolioChartDocs(docs: unknown[]): PortfolioChartTuple[] {
       return a.sortOrder - b.sortOrder
     })
     .map((item) => item.tuple)
+}
+
+function isOtherLabel(name: string): boolean {
+  const normalized = name.trim().toLowerCase()
+  return normalized === 'other' || normalized === 'others'
+}
+
+function pickTopHoldings(rows: PortfolioChartTuple[], limit = 10): PortfolioChartTuple[] {
+  return rows.filter(([name]) => !isOtherLabel(name)).slice(0, limit)
 }
 
 function parsePortfolioInvestmentProcessDocs(docs: unknown[]): string[] {
@@ -1025,7 +1040,7 @@ export async function getCMSPortfolioStrategyChartData(): Promise<{
       ? parsePortfolioChartDocs(page?.portfolioSectorAllocations as unknown[])
       : []
     const fromLinkedTopHoldings = Array.isArray(page?.portfolioTopHoldings)
-      ? parsePortfolioChartDocs(page?.portfolioTopHoldings as unknown[])
+      ? pickTopHoldings(parsePortfolioChartDocs(page?.portfolioTopHoldings as unknown[]), 10)
       : []
 
     return {

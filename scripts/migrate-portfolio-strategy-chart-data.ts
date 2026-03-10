@@ -7,7 +7,7 @@ import { createWixClient } from '@/endpoints/wix-import/source-client'
 dotenv.config({ path: path.resolve(process.cwd(), '.env') })
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') })
 
-type AllocationTuple = [string, string, string]
+type AllocationTuple = [string, string, string, string?]
 type ChartCollection =
   | 'portfolio-megatrend-allocations'
   | 'portfolio-geographic-allocations'
@@ -81,6 +81,29 @@ function normalizeChartName(value: unknown): string {
   return value
     .replace(/\s+/gu, ' ')
     .trim()
+}
+
+function normalizeLabel(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+}
+
+const sectorIconByLabel: Record<string, string> = {
+  'consumer discretionary': 'shopping-bag',
+  'info technology': 'cpu',
+  industrials: 'factory',
+  healthcare: 'heartbeat',
+  'consumer staples': 'shopping-cart-simple',
+  utilities: 'lightning',
+  'comm services': 'broadcast',
+  financials: 'bank',
+}
+
+function inferIcon(collection: ChartCollection, name: string): string | undefined {
+  if (collection !== 'portfolio-sector-allocations') return undefined
+  return sectorIconByLabel[normalizeLabel(name)]
 }
 
 function toRecord(value: unknown): Record<string, unknown> {
@@ -165,11 +188,10 @@ async function loadWixRowsByTargetCollection(): Promise<Record<ChartCollection, 
       throw new Error(`No chart rows resolved from Wix collection "${mapping.collectionId}".`)
     }
 
-    out[mapping.targetCollection] = normalized.map((row) => [
-      row.name,
-      String(row.weight),
-      row.color,
-    ]) as AllocationTuple[]
+    out[mapping.targetCollection] = normalized.map((row) => {
+      const inferredIcon = inferIcon(mapping.targetCollection, row.name)
+      return [row.name, String(row.weight), row.color, inferredIcon] as AllocationTuple
+    })
   }
 
   return out
@@ -185,11 +207,18 @@ async function upsertChartRows(args: {
   let unchanged = 0
 
   for (const [index, row] of args.rows.entries()) {
-    const [name, weight, color] = row
+    const [name, weight, color, icon] = row
+    const inferredIcon = inferIcon(args.collection, name)
     const nextData = {
       name: name.trim(),
       weight: parseWeight(weight),
       color: color.trim(),
+      icon:
+        typeof icon === 'string' && icon.trim()
+          ? icon.trim()
+          : typeof inferredIcon === 'string' && inferredIcon.trim()
+            ? inferredIcon.trim()
+            : undefined,
       sortOrder: index + 1,
     }
 
@@ -206,7 +235,7 @@ async function upsertChartRows(args: {
     })
 
     const existing = existingResult.docs?.[0] as
-      | { id: number; weight?: unknown; color?: unknown; sortOrder?: unknown }
+      | { id: number; weight?: unknown; color?: unknown; icon?: unknown; sortOrder?: unknown }
       | undefined
 
     if (!existing) {
@@ -221,11 +250,13 @@ async function upsertChartRows(args: {
 
     const existingWeight = typeof existing.weight === 'number' ? existing.weight : null
     const existingColor = typeof existing.color === 'string' ? existing.color.trim() : ''
+    const existingIcon = typeof existing.icon === 'string' ? existing.icon.trim() : ''
     const existingSort = typeof existing.sortOrder === 'number' ? existing.sortOrder : null
     const isSame =
       existingWeight !== null &&
       Math.abs(existingWeight - nextData.weight) < 0.000001 &&
       existingColor === nextData.color &&
+      existingIcon === (nextData.icon ?? '') &&
       existingSort === nextData.sortOrder
 
     if (isSame) {

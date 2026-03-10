@@ -16,7 +16,7 @@ function ChartTooltip({
   return (
     <div className="border border-[#d9def0] bg-white px-3 py-2 text-sm font-display shadow-md">
       {d.name ? <p className="font-medium text-[#0b1035]">{d.name}</p> : null}
-      <p className="text-[#5f6477]">{d.value}%</p>
+      <p className="text-[#5f6477]">{Number.isFinite(d.value) ? d.value.toFixed(2) : '0.00'}%</p>
     </div>
   )
 }
@@ -27,7 +27,7 @@ export function AllocationDonut({
   activeIndex,
   onActiveIndexChange,
 }: {
-  data: Array<[string, string, string]>
+  data: Array<[string, string, string, string?]>
   size?: number
   activeIndex?: number | null
   onActiveIndexChange?: (index: number | null) => void
