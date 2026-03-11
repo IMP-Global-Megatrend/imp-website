@@ -1,15 +1,10 @@
 import type { Metadata } from 'next/types'
 
-import { PageRange } from '@/components/PageRange'
-import { Pagination } from '@/components/Pagination'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import React from 'react'
 import { notFound } from 'next/navigation'
-import { ArticlesAlternatingList } from '../../_components/ArticlesAlternatingList'
-import { Breadcrumb } from '../../../_components/Breadcrumb'
-import PageClient from '../../../posts/page.client'
-import { PageHero } from '../../../_components/PageHero'
+import { ArticlesArchiveLayout } from '../../_components/ArticlesArchiveLayout'
 
 export const revalidate = 600
 
@@ -63,41 +58,20 @@ export default async function Page({ params: paramsPromise }: Args) {
   })
 
   return (
-    <main className="bg-white text-[#0b1035]">
-      <PageClient />
-      <PageHero
-        title={category.title || 'Category'}
-        subtitle="Browse articles in this category."
-        palette={{ color1: '#2b3dea', color2: 'oklch(0.47 0.12 174)', color3: 'oklch(0.47 0.10 136)' }}
-      />
-
-      <div className="container pt-12 md:pt-14 mb-4">
-        <Breadcrumb
-          items={[
-            { label: 'Home', href: '/' },
-            { label: 'Articles', href: '/articles' },
-            { label: category.title || 'Category' },
-          ]}
-          textClassName="text-[16px] md:text-[17px]"
-        />
-      </div>
-
-      <ArticlesAlternatingList posts={posts.docs} />
-
-      <div className="container pt-6 md:pt-8 pb-14 md:pb-16">
-        <div className="mb-8">
-          <PageRange
-            collectionLabels={{ plural: 'Articles', singular: 'Article' }}
-            currentPage={posts.page}
-            limit={PAGE_SIZE}
-            totalDocs={posts.totalDocs}
-          />
-        </div>
-        {posts.totalPages > 1 && posts.page && (
-          <Pagination basePath={`/articles/category/${decodedSlug}`} page={posts.page} totalPages={posts.totalPages} />
-        )}
-      </div>
-    </main>
+    <ArticlesArchiveLayout
+      heroTitle={category.title || 'Category'}
+      heroSubtitle="Browse articles in this category."
+      breadcrumbItems={[
+        { label: 'Home', href: '/' },
+        { label: 'Articles', href: '/articles' },
+        { label: category.title || 'Category' },
+      ]}
+      posts={posts.docs}
+      currentPage={posts.page || 1}
+      totalPages={posts.totalPages}
+      totalDocs={posts.totalDocs}
+      basePath={`/articles/category/${decodedSlug}`}
+    />
   )
 }
 

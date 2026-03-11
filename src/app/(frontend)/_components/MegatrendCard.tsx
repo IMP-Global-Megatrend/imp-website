@@ -14,7 +14,7 @@ interface MegatrendCardProps {
   reverse?: boolean
   detailsHref?: string
   detailsIcon?: AnimatedIconName
-  noTopBorder?: boolean
+  noBottomBorder?: boolean
   animationDelayMs?: number
 }
 
@@ -26,7 +26,7 @@ export function MegatrendCard({
   reverse,
   detailsHref = '/megatrends',
   detailsIcon = 'arrowUpRight',
-  noTopBorder = false,
+  noBottomBorder = false,
   animationDelayMs = 0,
 }: MegatrendCardProps) {
   const cardRef = useRef<HTMLElement | null>(null)
@@ -57,7 +57,7 @@ export function MegatrendCard({
   return (
     <article
       ref={cardRef}
-      className={`${noTopBorder ? '' : 'border-t border-[#d9def0]'} pt-16 md:pt-20 pb-0 transition-[opacity,transform] duration-700 ease-out will-change-transform motion-reduce:transition-none motion-reduce:transform-none motion-reduce:opacity-100 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+      className={`${noBottomBorder ? '' : 'border-b border-[#d9def0]'} pt-16 md:pt-20 pb-0 transition-[opacity,transform] duration-700 ease-out will-change-transform motion-reduce:transition-none motion-reduce:transform-none motion-reduce:opacity-100 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
       style={{ transitionDelay: `${animationDelayMs}ms` }}
     >
       <div className="container pb-8 md:pb-0">

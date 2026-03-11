@@ -53,7 +53,7 @@ export default async function HomePage() {
                 detailsHref={`/megatrends#${megatrendAnchorsByTitle[trend.title] || ''}`}
                 detailsIcon="trendingUp"
                 reverse={i % 2 === 1}
-                noTopBorder={i === 0}
+                noBottomBorder={i === cms.trends.length - 1}
                 animationDelayMs={i * 90}
               />
             </div>

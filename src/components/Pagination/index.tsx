@@ -29,12 +29,11 @@ export const Pagination: React.FC<{
     <div className={cn('my-12', className)}>
       <PaginationComponent>
         <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious
-              disabled={!hasPrevPage}
-              href={hasPrevPage ? getPageHref(page - 1) : undefined}
-            />
-          </PaginationItem>
+          {hasPrevPage && (
+            <PaginationItem>
+              <PaginationPrevious href={getPageHref(page - 1)} />
+            </PaginationItem>
+          )}
 
           {hasExtraPrevPages && (
             <PaginationItem>
@@ -70,12 +69,11 @@ export const Pagination: React.FC<{
             </PaginationItem>
           )}
 
-          <PaginationItem>
-            <PaginationNext
-              disabled={!hasNextPage}
-              href={hasNextPage ? getPageHref(page + 1) : undefined}
-            />
-          </PaginationItem>
+          {hasNextPage && (
+            <PaginationItem>
+              <PaginationNext href={getPageHref(page + 1)} />
+            </PaginationItem>
+          )}
         </PaginationContent>
       </PaginationComponent>
     </div>

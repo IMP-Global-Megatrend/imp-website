@@ -1,14 +1,10 @@
 import type { Metadata } from 'next/types'
 
-import { PageRange } from '@/components/PageRange'
-import { Pagination } from '@/components/Pagination'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import React from 'react'
 import { notFound, redirect } from 'next/navigation'
-import PageClient from '../../../../../posts/page.client'
-import { ArticlesAlternatingList } from '../../../../_components/ArticlesAlternatingList'
-import { Breadcrumb } from '../../../../../_components/Breadcrumb'
+import { ArticlesArchiveLayout } from '../../../../_components/ArticlesArchiveLayout'
 
 export const revalidate = 600
 
@@ -68,41 +64,22 @@ export default async function Page({ params: paramsPromise }: Args) {
   if (posts.totalDocs > 0 && sanitizedPageNumber > posts.totalPages) notFound()
 
   return (
-    <main className="bg-white text-[#0b1035]">
-      <PageClient />
-
-      <div className="container pt-12 md:pt-14 mb-4">
-        <Breadcrumb
-          items={[
-            { label: 'Home', href: '/' },
-            { label: 'Articles', href: '/articles' },
-            { label: category.title || 'Category', href: `/articles/category/${decodedSlug}` },
-            { label: `Page ${sanitizedPageNumber}` },
-          ]}
-          textClassName="text-[16px] md:text-[17px]"
-        />
-      </div>
-
-      <div className="container mb-8">
-        <h1 className="font-display text-[34px] md:text-[44px] leading-[1.1]">{category.title}</h1>
-      </div>
-
-      <ArticlesAlternatingList posts={posts.docs} startIndex={(sanitizedPageNumber - 1) * PAGE_SIZE} />
-
-      <div className="container pt-6 md:pt-8 pb-14 md:pb-16">
-        <div className="mb-8">
-          <PageRange
-            collectionLabels={{ plural: 'Articles', singular: 'Article' }}
-            currentPage={posts.page}
-            limit={PAGE_SIZE}
-            totalDocs={posts.totalDocs}
-          />
-        </div>
-        {posts.totalPages > 1 && posts.page && (
-          <Pagination basePath={`/articles/category/${decodedSlug}`} page={posts.page} totalPages={posts.totalPages} />
-        )}
-      </div>
-    </main>
+    <ArticlesArchiveLayout
+      heroTitle={category.title || 'Category'}
+      heroSubtitle="Browse articles in this category."
+      breadcrumbItems={[
+        { label: 'Home', href: '/' },
+        { label: 'Articles', href: '/articles' },
+        { label: category.title || 'Category', href: `/articles/category/${decodedSlug}` },
+        { label: `Page ${sanitizedPageNumber}` },
+      ]}
+      posts={posts.docs}
+      currentPage={posts.page || sanitizedPageNumber}
+      totalPages={posts.totalPages}
+      totalDocs={posts.totalDocs}
+      basePath={`/articles/category/${decodedSlug}`}
+      startIndex={(sanitizedPageNumber - 1) * PAGE_SIZE}
+    />
   )
 }
 

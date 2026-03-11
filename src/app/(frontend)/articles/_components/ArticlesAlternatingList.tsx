@@ -55,7 +55,7 @@ export function ArticlesAlternatingList({ posts, startIndex = 0 }: ArticlesAlter
                   <div className="flex h-full items-stretch gap-4">
                     <div className="hidden md:flex items-stretch gap-2 shrink-0 self-stretch">
                       <span
-                        className="font-display text-right text-[#0b1035] text-[18px] font-medium whitespace-nowrap"
+                        className="font-display text-right text-[#0b1035] text-[18px] font-medium whitespace-nowrap pt-0 pb-2"
                         style={{ writingMode: 'vertical-lr', transform: 'rotate(180deg)' }}
                       >
                         {authorLabel}
