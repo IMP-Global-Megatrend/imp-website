@@ -2,7 +2,11 @@ import type { ButtonProps } from '@/components/ui/button'
 
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/utilities/ui'
-import { ChevronLeftIcon, ChevronRightIcon, GripHorizontalIcon } from 'lucide-animated'
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  EllipsisHorizontalIcon,
+} from '@heroicons/react/24/outline'
 import Link from 'next/link'
 import * as React from 'react'
 
@@ -66,7 +70,7 @@ const PaginationPrevious = ({
     size="default"
     {...props}
   >
-    <ChevronLeftIcon size={16} />
+    <ChevronLeftIcon className="size-4" />
     <span>Previous</span>
   </PaginationLink>
 )
@@ -79,7 +83,7 @@ const PaginationNext = ({ className, ...props }: React.ComponentProps<typeof Pag
     {...props}
   >
     <span>Next</span>
-    <ChevronRightIcon size={16} />
+    <ChevronRightIcon className="size-4" />
   </PaginationLink>
 )
 
@@ -89,7 +93,7 @@ const PaginationEllipsis = ({ className, ...props }: React.ComponentProps<'span'
     className={cn('flex h-9 w-9 items-center justify-center', className)}
     {...props}
   >
-    <GripHorizontalIcon size={16} />
+    <EllipsisHorizontalIcon className="size-4" />
     <span className="sr-only">More pages</span>
   </span>
 )
