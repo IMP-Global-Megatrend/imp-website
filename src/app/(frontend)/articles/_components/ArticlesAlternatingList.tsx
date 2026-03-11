@@ -105,7 +105,7 @@ export function ArticlesAlternatingList({ posts, startIndex = 0 }: ArticlesAlter
                 </div>
               </div>
             </div>
-            <div className="w-screen relative left-1/2 -translate-x-1/2 border-b border-[#d9def0]" />
+            <div className="w-full border-b border-[#d9def0]" />
           </section>
         )
       })}

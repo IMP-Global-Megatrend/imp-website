@@ -7,6 +7,7 @@ import { getPayload } from 'payload'
 import { draftMode } from 'next/headers'
 import React, { cache } from 'react'
 import RichText from '@/components/RichText'
+import Link from 'next/link'
 
 import type { Post } from '@/payload-types'
 
@@ -53,6 +54,33 @@ const formatOverviewStyleDate = (value?: string | null): string => {
   return `${day}th of ${month} ${year}`
 }
 
+const toKebabCase = (value: string): string =>
+  value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '')
+
+const getCategoryMeta = (
+  categories: Post['categories'],
+): Array<{ title: string; slug: string }> => {
+  if (!Array.isArray(categories)) return []
+
+  return categories
+    .map((category) => {
+      if (typeof category === 'object' && category !== null && 'title' in category) {
+        const maybeTitle = category.title
+        const maybeSlug = 'slug' in category ? category.slug : ''
+        const title = typeof maybeTitle === 'string' ? maybeTitle.trim() : ''
+        if (!title) return null
+
+        const slug = typeof maybeSlug === 'string' && maybeSlug.trim() ? maybeSlug.trim() : toKebabCase(title)
+        return { title, slug }
+      }
+      return null
+    })
+    .filter((item): item is { title: string; slug: string } => Boolean(item?.title && item?.slug))
+}
+
 export default async function Article({ params: paramsPromise }: Args) {
   const { isEnabled: draft } = await draftMode()
   const { slug = '' } = await paramsPromise
@@ -71,6 +99,7 @@ export default async function Article({ params: paramsPromise }: Args) {
       typeof paletteSource.color3 === 'string' ? paletteSource.color3 : 'oklch(0.47 0.10 136)',
   }
   const heroSubtitle = post.meta?.description || undefined
+  const categoryMeta = getCategoryMeta(post.categories)
 
   return (
     <main className="bg-white text-[#0b1035]">
@@ -96,6 +125,19 @@ export default async function Article({ params: paramsPromise }: Args) {
               textClassName="text-[16px] md:text-[17px]"
             />
           </div>
+          {categoryMeta.length > 0 && (
+            <div className="mb-5 flex flex-wrap gap-2">
+              {categoryMeta.map((category) => (
+                <Link
+                  key={category.slug}
+                  href={`/articles/category/${category.slug}`}
+                  className="inline-flex items-center rounded-full border border-[#d9def0] bg-[#f4f6fb] px-3 py-1 font-display text-[12px] md:text-[13px] uppercase tracking-[0.08em] text-[#2b3045]"
+                >
+                  {category.title}
+                </Link>
+              ))}
+            </div>
+          )}
           <div className="flex flex-col md:flex-row gap-4 md:gap-16">
             {post.populatedAuthors && post.populatedAuthors.length > 0 && (
               <div className="flex flex-col gap-1">
