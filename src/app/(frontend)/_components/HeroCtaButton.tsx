@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { AnimatedIcon } from './AnimatedIcon'
+import { AnimatedIcon } from '@/app/(frontend)/_components/AnimatedIcon'
 
 type HeroCtaButtonProps = {
   href: string

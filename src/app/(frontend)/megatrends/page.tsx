@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
-import { getCMSMegatrendDetailBlocks, getCMSPageBySlug } from '../_components/getCMSPageBySlug'
-import { PageHero } from '../_components/PageHero'
-import { MegatrendDetailSection } from '../_components/MegatrendDetailSection'
-import { ActionLinkButton } from '../_components/ActionLinkButton'
+import { getCMSMegatrendDetailBlocks, getCMSPageBySlug } from '@/app/(frontend)/_components/getCMSPageBySlug'
+import { PageHero } from '@/app/(frontend)/_components/PageHero'
+import { MegatrendDetailSection } from '@/app/(frontend)/_components/MegatrendDetailSection'
+import { QuoteBandSection } from '@/app/(frontend)/_components/QuoteBandSection'
+import { RelatedLinksStrip } from '@/app/(frontend)/_components/RelatedLinksStrip'
 import megatrendsContent from '@/constants/megatrends-content.json'
 import fallbacks from '@/constants/fallbacks.json'
 import { generateMeta, generateStaticFallbackMeta } from '@/utilities/generateMeta'
@@ -70,23 +71,7 @@ export default async function MegatrendsPage() {
         />
 
         {/* Intro */}
-        <section className="bg-secondary py-20 md:py-24">
-          <div className="container">
-            <div className="max-w-5xl space-y-6">
-              <h3 className="text-white font-display font-medium leading-relaxed text-[18px] md:text-[19px]">
-                {introHeading}
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-6 md:gap-8">
-                <blockquote className="border-l border-primary-light pl-8 pr-8 text-[#62A8FF] font-thin leading-relaxed text-[18px] md:text-[19px]">
-                  {introLeftQuote}
-                </blockquote>
-                <blockquote className="border-l border-primary-light pl-8 pr-8 text-[#62A8FF] font-thin leading-relaxed text-[18px] md:text-[19px]">
-                  {introRightQuote}
-                </blockquote>
-              </div>
-            </div>
-          </div>
-        </section>
+        <QuoteBandSection heading={introHeading} quotes={[introLeftQuote, introRightQuote]} />
 
         {/* Megatrend sections */}
         <div className="pb-16 md:pb-20">
@@ -101,49 +86,32 @@ export default async function MegatrendsPage() {
             />
           ))}
 
-          <section className="border-t border-[#d9def0] pt-10 pb-0 md:pt-12 md:pb-0">
-            <div className="container">
-              <h3 className="mb-5 text-center text-[20px] md:text-[22px] text-[#0b1035]">
-                {relatedLinksHeading}
-              </h3>
-              <div className="flex flex-wrap items-center justify-center gap-4">
-                <ActionLinkButton
-                  href={relatedPrimaryHref}
-                  label={relatedPrimaryLabel}
-                  icon="trendingUp"
-                  buttonVariant="outlineMuted"
-                  external={relatedPrimaryHref.startsWith('http://') || relatedPrimaryHref.startsWith('https://')}
-                />
-                <ActionLinkButton
-                  href={relatedSecondaryHref}
-                  label={relatedSecondaryLabel}
-                  icon="chartLine"
-                  buttonVariant="outlineMuted"
-                  external={relatedSecondaryHref.startsWith('http://') || relatedSecondaryHref.startsWith('https://')}
-                />
-              </div>
-            </div>
-          </section>
+          <RelatedLinksStrip
+            className="pb-0 md:pb-0"
+            borderTop
+            heading={relatedLinksHeading}
+            items={[
+              {
+                href: relatedPrimaryHref,
+                label: relatedPrimaryLabel,
+                icon: 'trendingUp',
+                external: relatedPrimaryHref.startsWith('http://') || relatedPrimaryHref.startsWith('https://'),
+              },
+              {
+                href: relatedSecondaryHref,
+                label: relatedSecondaryLabel,
+                icon: 'chartLine',
+                external: relatedSecondaryHref.startsWith('http://') || relatedSecondaryHref.startsWith('https://'),
+              },
+            ]}
+          />
         </div>
 
         {/* Thematic Framework */}
-        <section className="bg-secondary py-20 md:py-24">
-          <div className="container">
-            <div className="max-w-5xl space-y-6">
-              <h3 className="text-white font-display font-medium leading-relaxed text-[18px] md:text-[19px]">
-                {thematicFrameworkHeading}
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-                <blockquote className="border-l border-primary-light pl-8 pr-8 text-[#62A8FF] font-thin leading-relaxed text-[18px] md:text-[19px]">
-                  {thematicFrameworkLeftQuote}
-                </blockquote>
-                <blockquote className="border-l border-primary-light pl-8 pr-8 text-[#62A8FF] font-thin leading-relaxed text-[18px] md:text-[19px]">
-                  {thematicFrameworkRightQuote}
-                </blockquote>
-              </div>
-            </div>
-          </div>
-        </section>
+        <QuoteBandSection
+          heading={thematicFrameworkHeading}
+          quotes={[thematicFrameworkLeftQuote, thematicFrameworkRightQuote]}
+        />
     </main>
   )
 }

@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
-import { Checkbox } from '@/components/ui/checkbox'
+import { ConsentField, TextField } from '@/app/(frontend)/_components/forms/FrontendFormFields'
 import newsletterContent from '@/constants/newsletter-subscription-content.json'
 
 type NewsletterSubscriptionFormProps = {
@@ -125,121 +125,69 @@ export function NewsletterSubscriptionForm({ consentText, submitLabel }: Newslet
   return (
     <form className="mt-7 space-y-5" noValidate onSubmit={handleSubmit}>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <div>
-          <label
-            htmlFor="newsletter-first-name"
-            className="mb-1.5 block font-display text-[15px] leading-[1.3] text-[#4f566f]"
-          >
-            {newsletterContent.form.fields.firstName.label}
-          </label>
-          <input
-            id="newsletter-first-name"
-            name="firstName"
-            type="text"
-            className="w-full border border-[#d9def0] bg-white px-4 py-3 text-[15px] text-[#0b1035] placeholder:text-[#b0b5c8] transition-colors focus:border-[#0040ff] focus:outline-none aria-[invalid=true]:border-red-500"
-            value={values.firstName}
-            onChange={(event) => setFieldValue('firstName', event.target.value)}
-            onBlur={() => handleBlur('firstName')}
-            aria-invalid={Boolean(errors.firstName)}
-            aria-describedby={errors.firstName ? 'newsletter-first-name-error' : undefined}
-          />
-          {errors.firstName ? (
-            <p id="newsletter-first-name-error" className="mt-1 text-[13px] text-red-600">
-              {errors.firstName}
-            </p>
-          ) : null}
-        </div>
-
-        <div>
-          <label
-            htmlFor="newsletter-last-name"
-            className="mb-1.5 block font-display text-[15px] leading-[1.3] text-[#4f566f]"
-          >
-            {newsletterContent.form.fields.lastName.label}
-          </label>
-          <input
-            id="newsletter-last-name"
-            name="lastName"
-            type="text"
-            className="w-full border border-[#d9def0] bg-white px-4 py-3 text-[15px] text-[#0b1035] placeholder:text-[#b0b5c8] transition-colors focus:border-[#0040ff] focus:outline-none aria-[invalid=true]:border-red-500"
-            value={values.lastName}
-            onChange={(event) => setFieldValue('lastName', event.target.value)}
-            onBlur={() => handleBlur('lastName')}
-            aria-invalid={Boolean(errors.lastName)}
-            aria-describedby={errors.lastName ? 'newsletter-last-name-error' : undefined}
-          />
-          {errors.lastName ? (
-            <p id="newsletter-last-name-error" className="mt-1 text-[13px] text-red-600">
-              {errors.lastName}
-            </p>
-          ) : null}
-        </div>
-      </div>
-
-      <div>
-        <label
-          htmlFor="newsletter-email"
-          className="mb-1.5 block font-display text-[15px] leading-[1.3] text-[#4f566f]"
-        >
-          {newsletterContent.form.fields.email.label}{' '}
-          <span className="text-[#7f879b]">{newsletterContent.form.fields.email.requiredSuffix}</span>
-        </label>
-        <input
-          id="newsletter-email"
-          name="email"
-          type="email"
-          className="w-full border border-[#d9def0] bg-white px-4 py-3 text-[15px] text-[#0b1035] placeholder:text-[#b0b5c8] transition-colors focus:border-[#0040ff] focus:outline-none aria-[invalid=true]:border-red-500"
-          value={values.email}
-          onChange={(event) => setFieldValue('email', event.target.value)}
-          onBlur={() => handleBlur('email')}
-          aria-invalid={Boolean(errors.email)}
-          aria-describedby={errors.email ? 'newsletter-email-error' : undefined}
+        <TextField
+          id="newsletter-first-name"
+          name="firstName"
+          label={newsletterContent.form.fields.firstName.label}
+          value={values.firstName}
+          onChange={(value) => setFieldValue('firstName', value)}
+          onBlur={() => handleBlur('firstName')}
+          error={errors.firstName}
         />
-        {errors.email ? (
-          <p id="newsletter-email-error" className="mt-1 text-[13px] text-red-600">
-            {errors.email}
-          </p>
-        ) : null}
+
+        <TextField
+          id="newsletter-last-name"
+          name="lastName"
+          label={newsletterContent.form.fields.lastName.label}
+          value={values.lastName}
+          onChange={(value) => setFieldValue('lastName', value)}
+          onBlur={() => handleBlur('lastName')}
+          error={errors.lastName}
+        />
       </div>
 
-      <div>
-        <h3 className="text-[16px] font-medium text-[#0b1035]">{newsletterContent.form.consent.heading}</h3>
-        {consentText ? <p className="mt-2 text-[14px] leading-relaxed text-[#4f566f]">{consentText}</p> : null}
+      <TextField
+        id="newsletter-email"
+        name="email"
+        type="email"
+        label={newsletterContent.form.fields.email.label}
+        requiredSuffix={newsletterContent.form.fields.email.requiredSuffix}
+        requiredSuffixClassName="text-[#7f879b]"
+        value={values.email}
+        onChange={(value) => setFieldValue('email', value)}
+        onBlur={() => handleBlur('email')}
+        error={errors.email}
+      />
 
-        <label htmlFor="newsletter-consent" className="mt-3 flex items-start gap-2 text-[14px] text-[#2b3045]">
-          <Checkbox
-            id="newsletter-consent"
-            name="consent"
-            checked={consent}
-            onCheckedChange={(checked) => {
-              const isChecked = checked === true
-              setConsent(isChecked)
-              if (touched.consent) {
-                setErrors((prev) => ({
-                  ...prev,
-                  consent: isChecked ? undefined : 'Please accept this checkbox to continue.',
-                }))
-              }
-            }}
-            onBlur={() => {
-              setTouched((prev) => ({ ...prev, consent: true }))
-              setErrors((prev) => ({
-                ...prev,
-                consent: consent ? undefined : 'Please accept this checkbox to continue.',
-              }))
-            }}
-            className="mt-0.5 size-5 cursor-pointer rounded-none border-[#d9def0] data-[state=checked]:border-[#0040ff] data-[state=checked]:bg-[#0040ff]"
-            aria-invalid={Boolean(errors.consent)}
-            aria-describedby={errors.consent ? 'newsletter-consent-error' : undefined}
-          />
-          {newsletterContent.form.consent.checkboxLabel}
-        </label>
-        {errors.consent ? (
-          <p id="newsletter-consent-error" className="mt-2 text-[13px] text-red-600">
-            {errors.consent}
-          </p>
-        ) : null}
-      </div>
+      <ConsentField
+        id="newsletter-consent"
+        heading={newsletterContent.form.consent.heading}
+        headingClassName="text-[16px] font-medium text-[#0b1035]"
+        description={consentText}
+        descriptionClassName="mt-2 text-[14px] leading-relaxed text-[#4f566f]"
+        checkboxLabel={newsletterContent.form.consent.checkboxLabel}
+        labelClassName="mt-3 flex items-start gap-2 text-[14px] text-[#2b3045]"
+        checked={consent}
+        showTopBorder={false}
+        onCheckedChange={(checked) => {
+          const isChecked = checked === true
+          setConsent(isChecked)
+          if (touched.consent) {
+            setErrors((prev) => ({
+              ...prev,
+              consent: isChecked ? undefined : 'Please accept this checkbox to continue.',
+            }))
+          }
+        }}
+        onBlur={() => {
+          setTouched((prev) => ({ ...prev, consent: true }))
+          setErrors((prev) => ({
+            ...prev,
+            consent: consent ? undefined : 'Please accept this checkbox to continue.',
+          }))
+        }}
+        error={errors.consent}
+      />
 
       {submitError ? <p className="text-[14px] text-red-600">{submitError}</p> : null}
       {submitSuccess ? (

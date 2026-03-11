@@ -4,6 +4,12 @@ import React, { useMemo, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
+import {
+  ConsentField,
+  FieldError,
+  TextareaField,
+  TextField,
+} from '@/app/(frontend)/_components/forms/FrontendFormFields'
 import contactUsContent from '@/constants/contact-us-content.json'
 
 type ContactFormProps = {
@@ -163,91 +169,47 @@ export function ContactForm({ consentText }: ContactFormProps) {
   return (
     <form className="space-y-5" noValidate onSubmit={handleSubmit}>
       <div className="grid sm:grid-cols-2 gap-5">
-        <div>
-          <label htmlFor="contact-first-name" className="mb-1.5 block font-display text-[15px] leading-[1.3] text-[#4f566f]">
-            {contactUsContent.form.fields.firstName.label}
-          </label>
-          <input
-            id="contact-first-name"
-            className="w-full border border-[#d9def0] px-4 py-3 text-[15px] text-[#0b1035] bg-white placeholder:text-[#b0b5c8] focus:outline-none focus:border-[#0040ff] transition-colors aria-[invalid=true]:border-red-500"
-            placeholder={contactUsContent.form.fields.firstName.placeholder}
-            value={values.firstName}
-            onChange={(event) => setFieldValue('firstName', event.target.value)}
-            onBlur={() => handleFieldBlur('firstName')}
-            aria-invalid={Boolean(errors.firstName)}
-            aria-describedby={errors.firstName ? 'contact-first-name-error' : undefined}
-          />
-          {errors.firstName ? (
-            <p id="contact-first-name-error" className="mt-1 text-[13px] text-red-600">
-              {errors.firstName}
-            </p>
-          ) : null}
-        </div>
-        <div>
-          <label htmlFor="contact-last-name" className="mb-1.5 block font-display text-[15px] leading-[1.3] text-[#4f566f]">
-            {contactUsContent.form.fields.lastName.label}
-          </label>
-          <input
-            id="contact-last-name"
-            className="w-full border border-[#d9def0] px-4 py-3 text-[15px] text-[#0b1035] bg-white placeholder:text-[#b0b5c8] focus:outline-none focus:border-[#0040ff] transition-colors aria-[invalid=true]:border-red-500"
-            placeholder={contactUsContent.form.fields.lastName.placeholder}
-            value={values.lastName}
-            onChange={(event) => setFieldValue('lastName', event.target.value)}
-            onBlur={() => handleFieldBlur('lastName')}
-            aria-invalid={Boolean(errors.lastName)}
-            aria-describedby={errors.lastName ? 'contact-last-name-error' : undefined}
-          />
-          {errors.lastName ? (
-            <p id="contact-last-name-error" className="mt-1 text-[13px] text-red-600">
-              {errors.lastName}
-            </p>
-          ) : null}
-        </div>
+        <TextField
+          id="contact-first-name"
+          label={contactUsContent.form.fields.firstName.label}
+          placeholder={contactUsContent.form.fields.firstName.placeholder}
+          value={values.firstName}
+          onChange={(value) => setFieldValue('firstName', value)}
+          onBlur={() => handleFieldBlur('firstName')}
+          error={errors.firstName}
+        />
+        <TextField
+          id="contact-last-name"
+          label={contactUsContent.form.fields.lastName.label}
+          placeholder={contactUsContent.form.fields.lastName.placeholder}
+          value={values.lastName}
+          onChange={(value) => setFieldValue('lastName', value)}
+          onBlur={() => handleFieldBlur('lastName')}
+          error={errors.lastName}
+        />
       </div>
 
-      <div>
-        <label htmlFor="contact-phone" className="mb-1.5 block font-display text-[15px] leading-[1.3] text-[#4f566f]">
-          {contactUsContent.form.fields.phone.label}
-        </label>
-        <input
-          id="contact-phone"
-          className="w-full border border-[#d9def0] px-4 py-3 text-[15px] text-[#0b1035] bg-white placeholder:text-[#b0b5c8] focus:outline-none focus:border-[#0040ff] transition-colors aria-[invalid=true]:border-red-500"
-          placeholder={contactUsContent.form.fields.phone.placeholder}
-          value={values.phone}
-          onChange={(event) => setFieldValue('phone', event.target.value)}
-          onBlur={() => handleFieldBlur('phone')}
-          aria-invalid={Boolean(errors.phone)}
-          aria-describedby={errors.phone ? 'contact-phone-error' : undefined}
-        />
-        {errors.phone ? (
-          <p id="contact-phone-error" className="mt-1 text-[13px] text-red-600">
-            {errors.phone}
-          </p>
-        ) : null}
-      </div>
+      <TextField
+        id="contact-phone"
+        label={contactUsContent.form.fields.phone.label}
+        placeholder={contactUsContent.form.fields.phone.placeholder}
+        value={values.phone}
+        onChange={(value) => setFieldValue('phone', value)}
+        onBlur={() => handleFieldBlur('phone')}
+        error={errors.phone}
+      />
 
-      <div>
-        <label htmlFor="contact-email" className="mb-1.5 block font-display text-[15px] leading-[1.3] text-[#4f566f]">
-          {contactUsContent.form.fields.email.label}{' '}
-          <span className="text-red-500">{contactUsContent.form.fields.email.requiredSuffix}</span>
-        </label>
-        <input
-          id="contact-email"
-          type="email"
-          className="w-full border border-[#d9def0] px-4 py-3 text-[15px] text-[#0b1035] bg-white placeholder:text-[#b0b5c8] focus:outline-none focus:border-[#0040ff] transition-colors aria-[invalid=true]:border-red-500"
-          placeholder={contactUsContent.form.fields.email.placeholder}
-          value={values.email}
-          onChange={(event) => setFieldValue('email', event.target.value)}
-          onBlur={() => handleFieldBlur('email')}
-          aria-invalid={Boolean(errors.email)}
-          aria-describedby={errors.email ? 'contact-email-error' : undefined}
-        />
-        {errors.email ? (
-          <p id="contact-email-error" className="mt-1 text-[13px] text-red-600">
-            {errors.email}
-          </p>
-        ) : null}
-      </div>
+      <TextField
+        id="contact-email"
+        type="email"
+        label={contactUsContent.form.fields.email.label}
+        requiredSuffix={contactUsContent.form.fields.email.requiredSuffix}
+        placeholder={contactUsContent.form.fields.email.placeholder}
+        value={values.email}
+        onChange={(value) => setFieldValue('email', value)}
+        onBlur={() => handleFieldBlur('email')}
+        error={errors.email}
+      />
 
       <fieldset>
         <legend className="mb-3 font-display text-[15px] leading-[1.3] text-[#4f566f]">
@@ -275,71 +237,44 @@ export function ContactForm({ consentText }: ContactFormProps) {
             </label>
           ))}
         </div>
-        {errors.inquiryType ? (
-          <p id="contact-inquiry-error" className="mt-2 text-[13px] text-red-600">
-            {errors.inquiryType}
-          </p>
-        ) : null}
+        <FieldError id="contact-inquiry-error" message={errors.inquiryType} />
       </fieldset>
 
-      <div>
-        <label htmlFor="contact-message" className="mb-1.5 block font-display text-[15px] leading-[1.3] text-[#4f566f]">
-          {contactUsContent.form.fields.message.label}
-        </label>
-        <textarea
-          id="contact-message"
-          rows={5}
-          className="w-full border border-[#d9def0] px-4 py-3 text-[15px] text-[#0b1035] bg-white placeholder:text-[#b0b5c8] focus:outline-none focus:border-[#0040ff] transition-colors resize-none aria-[invalid=true]:border-red-500"
-          placeholder={contactUsContent.form.fields.message.placeholder}
-          value={values.message}
-          onChange={(event) => setFieldValue('message', event.target.value)}
-          onBlur={() => handleFieldBlur('message')}
-          aria-invalid={Boolean(errors.message)}
-          aria-describedby={errors.message ? 'contact-message-error' : undefined}
-        />
-        {errors.message ? (
-          <p id="contact-message-error" className="mt-1 text-[13px] text-red-600">
-            {errors.message}
-          </p>
-        ) : null}
-      </div>
+      <TextareaField
+        id="contact-message"
+        label={contactUsContent.form.fields.message.label}
+        placeholder={contactUsContent.form.fields.message.placeholder}
+        value={values.message}
+        onChange={(value) => setFieldValue('message', value)}
+        onBlur={() => handleFieldBlur('message')}
+        error={errors.message}
+      />
 
-      <div className="border-t border-[#d9def0] pt-5">
-        <h3 className="text-[15px] font-medium text-[#0b1035] mb-2">{contactUsContent.form.consent.heading}</h3>
-        {consentText ? <p className="mb-3 text-[14px] leading-relaxed text-[#5f6477]">{consentText}</p> : null}
-        <label htmlFor="contact-consent" className="flex items-start gap-2 text-[14px] text-[#2b3045]">
-          <Checkbox
-            id="contact-consent"
-            checked={consent}
-            onCheckedChange={(checked) => {
-              const isChecked = checked === true
-              setConsent(isChecked)
-              if (touched.consent) {
-                setErrors((prev) => ({
-                  ...prev,
-                  consent: isChecked ? undefined : 'Please accept this checkbox to continue.',
-                }))
-              }
-            }}
-            onBlur={() => {
-              setTouched((prev) => ({ ...prev, consent: true }))
-              setErrors((prev) => ({
-                ...prev,
-                consent: consent ? undefined : 'Please accept this checkbox to continue.',
-              }))
-            }}
-            className="mt-0.5 size-5 rounded-none border-[#d9def0] data-[state=checked]:border-[#0040ff] data-[state=checked]:bg-[#0040ff] cursor-pointer"
-            aria-invalid={Boolean(errors.consent)}
-            aria-describedby={errors.consent ? 'contact-consent-error' : undefined}
-          />
-          {contactUsContent.form.consent.checkboxLabel}
-        </label>
-        {errors.consent ? (
-          <p id="contact-consent-error" className="mt-2 text-[13px] text-red-600">
-            {errors.consent}
-          </p>
-        ) : null}
-      </div>
+      <ConsentField
+        id="contact-consent"
+        heading={contactUsContent.form.consent.heading}
+        description={consentText}
+        checkboxLabel={contactUsContent.form.consent.checkboxLabel}
+        checked={consent}
+        onCheckedChange={(checked) => {
+          const isChecked = checked === true
+          setConsent(isChecked)
+          if (touched.consent) {
+            setErrors((prev) => ({
+              ...prev,
+              consent: isChecked ? undefined : 'Please accept this checkbox to continue.',
+            }))
+          }
+        }}
+        onBlur={() => {
+          setTouched((prev) => ({ ...prev, consent: true }))
+          setErrors((prev) => ({
+            ...prev,
+            consent: consent ? undefined : 'Please accept this checkbox to continue.',
+          }))
+        }}
+        error={errors.consent}
+      />
 
       {submitError ? <p className="text-[14px] text-red-600">{submitError}</p> : null}
       {submitSuccess ? (

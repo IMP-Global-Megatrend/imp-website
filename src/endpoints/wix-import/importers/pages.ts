@@ -1,12 +1,12 @@
 import type { Payload } from 'payload'
-import type { ImportEntityResult, ImportIdMap, WixSitePage } from '../types'
+import type { ImportEntityResult, ImportIdMap, WixSitePage } from '@/endpoints/wix-import/types'
 import {
   extractImagesFromRichContent,
   plainTextToLexical,
   resolveWixImageUrl,
   wixRichContentToLexical,
-} from '../converters/rich-text'
-import { importMediaBatch, importMediaByUrl } from './media'
+} from '@/endpoints/wix-import/converters/rich-text'
+import { importMediaBatch, importMediaByUrl } from '@/endpoints/wix-import/importers/media'
 
 function toKebabCase(str: string): string {
   return str

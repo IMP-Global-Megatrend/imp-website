@@ -9,10 +9,10 @@ import {
 } from '@/components/ui/select'
 import React, { useState } from 'react'
 
-import type { Theme } from './types'
+import type { Theme } from '@/providers/Theme/ThemeSelector/types'
 
-import { useTheme } from '..'
-import { themeLocalStorageKey } from './types'
+import { useTheme } from '@/providers/Theme'
+import { themeLocalStorageKey } from '@/providers/Theme/ThemeSelector/types'
 
 export const ThemeSelector: React.FC = () => {
   const { setTheme } = useTheme()

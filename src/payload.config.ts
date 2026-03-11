@@ -5,36 +5,36 @@ import path from 'path'
 import { buildConfig, PayloadRequest } from 'payload'
 import { fileURLToPath } from 'url'
 
-import { Categories } from './collections/Categories'
-import { ContactSubmissions } from './collections/ContactSubmissions'
-import { ContentGateSubmissions } from './collections/ContentGateSubmissions'
-import { HomeMegatrendCards } from './collections/HomeMegatrendCards'
-import { MegatrendDetailBlocks } from './collections/MegatrendDetailBlocks'
-import { Media } from './collections/Media'
-import { NewsletterSubscriptions } from './collections/NewsletterSubscriptions'
-import { Pages } from './collections/Pages'
+import { Categories } from '@/collections/Categories'
+import { ContactSubmissions } from '@/collections/ContactSubmissions'
+import { ContentGateSubmissions } from '@/collections/ContentGateSubmissions'
+import { HomeMegatrendCards } from '@/collections/HomeMegatrendCards'
+import { MegatrendDetailBlocks } from '@/collections/MegatrendDetailBlocks'
+import { Media } from '@/collections/Media'
+import { NewsletterSubscriptions } from '@/collections/NewsletterSubscriptions'
+import { Pages } from '@/collections/Pages'
 import {
   PortfolioGeographicAllocations,
   PortfolioMegatrendAllocations,
   PortfolioSectorAllocations,
   PortfolioTopHoldings,
-} from './collections/PortfolioStrategyChartCollections'
-import { PortfolioInvestmentProcessItems } from './collections/PortfolioInvestmentProcessItems'
-import { PortfolioStrategySteps } from './collections/PortfolioStrategySteps'
-import { PerformanceNavPoints } from './collections/PerformanceNavPoints'
+} from '@/collections/PortfolioStrategyChartCollections'
+import { PortfolioInvestmentProcessItems } from '@/collections/PortfolioInvestmentProcessItems'
+import { PortfolioStrategySteps } from '@/collections/PortfolioStrategySteps'
+import { PerformanceNavPoints } from '@/collections/PerformanceNavPoints'
 import {
   PerformanceChfShareClassData,
   PerformanceUsdShareClassData,
-} from './collections/PerformanceShareClassCollections'
-import { ResendWebhookEvents } from './collections/ResendWebhookEvents'
-import { Posts } from './collections/Posts'
-import { Users } from './collections/Users'
-import { WixCollections } from './collections/SourceCollections'
-import { Footer } from './Footer/config'
-import { Header } from './Header/config'
-import { plugins } from './plugins'
+} from '@/collections/PerformanceShareClassCollections'
+import { ResendWebhookEvents } from '@/collections/ResendWebhookEvents'
+import { Posts } from '@/collections/Posts'
+import { Users } from '@/collections/Users'
+import { WixCollections } from '@/collections/SourceCollections'
+import { Footer } from '@/Footer/config'
+import { Header } from '@/Header/config'
+import { plugins } from '@/plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
-import { getServerSideURL } from './utilities/getURL'
+import { getServerSideURL } from '@/utilities/getURL'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)

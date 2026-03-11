@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { AllocationDonut } from './AllocationCharts'
+import { AllocationDonut } from '@/app/(frontend)/portfolio-strategy/AllocationCharts'
 
 type TopHolding = [string, string, string, string?]
 

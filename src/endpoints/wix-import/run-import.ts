@@ -1,7 +1,7 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
-import { wixImport } from './index'
-import type { WixImportOptions } from './types'
+import { wixImport } from '@/endpoints/wix-import/index'
+import type { WixImportOptions } from '@/endpoints/wix-import/types'
 
 function parseOptionsFromArg(): WixImportOptions {
   const raw = process.argv[2]

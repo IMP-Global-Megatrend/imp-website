@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
-import { getCMSPageBySlug } from '../_components/getCMSPageBySlug'
-import { PageHero } from '../_components/PageHero'
+import { getCMSPageBySlug } from '@/app/(frontend)/_components/getCMSPageBySlug'
+import { PageHero } from '@/app/(frontend)/_components/PageHero'
 import fallbacks from '@/constants/fallbacks.json'
 import { generateMeta, generateStaticFallbackMeta } from '@/utilities/generateMeta'
 import { notFound } from 'next/navigation'

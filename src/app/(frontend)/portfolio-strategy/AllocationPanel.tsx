@@ -12,7 +12,7 @@ import {
   ShoppingCartSimple,
   type Icon,
 } from '@phosphor-icons/react'
-import { AllocationDonut } from './AllocationCharts'
+import { AllocationDonut } from '@/app/(frontend)/portfolio-strategy/AllocationCharts'
 
 type AllocationDatum = [string, string, string, string?]
 

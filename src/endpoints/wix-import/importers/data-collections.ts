@@ -1,7 +1,7 @@
 import type { Payload } from 'payload'
-import type { ImportEntityResult, ImportIdMap, WixDataItem } from '../types'
-import { importMediaBatch } from './media'
-import { normalizeWixDataFields, sanitizeWixRawData } from '../normalize-data'
+import type { ImportEntityResult, ImportIdMap, WixDataItem } from '@/endpoints/wix-import/types'
+import { importMediaBatch } from '@/endpoints/wix-import/importers/media'
+import { normalizeWixDataFields, sanitizeWixRawData } from '@/endpoints/wix-import/normalize-data'
 
 function isLikelyAssetUrl(value: string): boolean {
   try {

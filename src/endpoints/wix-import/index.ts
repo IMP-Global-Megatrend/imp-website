@@ -1,10 +1,10 @@
 import type { Payload } from 'payload'
-import type { WixImportOptions, WixImportResult, ImportIdMap, ImportEntityResult } from './types'
-import { createWixClient } from './source-client'
-import { importCategories } from './importers/categories'
-import { importPosts } from './importers/posts'
-import { importPages } from './importers/pages'
-import { importDataCollectionItems } from './importers/data-collections'
+import type { WixImportOptions, WixImportResult, ImportIdMap, ImportEntityResult } from '@/endpoints/wix-import/types'
+import { createWixClient } from '@/endpoints/wix-import/source-client'
+import { importCategories } from '@/endpoints/wix-import/importers/categories'
+import { importPosts } from '@/endpoints/wix-import/importers/posts'
+import { importPages } from '@/endpoints/wix-import/importers/pages'
+import { importDataCollectionItems } from '@/endpoints/wix-import/importers/data-collections'
 import { wixCollectionSlugById } from '@/collections/SourceCollections'
 
 /**

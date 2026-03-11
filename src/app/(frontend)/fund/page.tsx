@@ -6,10 +6,11 @@ import {
   getCMSFundShareClassMeta,
   getCMSHeroCopyBySlug,
   getCMSPageBySlug,
-} from '../_components/getCMSPageBySlug'
-import { ActionLinkButton } from '../_components/ActionLinkButton'
-import { FundShareClassesSection } from '../_components/FundShareClassesSection'
-import { PageHero } from '../_components/PageHero'
+} from '@/app/(frontend)/_components/getCMSPageBySlug'
+import { FundShareClassesSection } from '@/app/(frontend)/_components/FundShareClassesSection'
+import { PageHero } from '@/app/(frontend)/_components/PageHero'
+import { QuoteBandSection } from '@/app/(frontend)/_components/QuoteBandSection'
+import { RelatedLinksStrip } from '@/app/(frontend)/_components/RelatedLinksStrip'
 import fundContent from '@/constants/fund-content.json'
 import fallbacks from '@/constants/fallbacks.json'
 import { generateMeta, generateStaticFallbackMeta } from '@/utilities/generateMeta'
@@ -100,7 +101,7 @@ export default async function FundPage() {
   const isExternalLink = (href: string): boolean => href.startsWith('http://') || href.startsWith('https://')
 
   return (
-    <main className="bg-white text-[#0b1035]">
+    <main className="bg-white text-[#0b1035] overflow-x-clip">
         <PageHero
           title={heroTitle}
           subtitle={heroSubtitle}
@@ -109,22 +110,7 @@ export default async function FundPage() {
           sectionClassName="relative overflow-hidden"
         />
 
-        {introQuotes?.first ? (
-          <section className="bg-secondary py-20 md:py-24">
-            <div className="container">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-                <blockquote className="border-l border-primary-light pl-8 pr-8 text-[#62A8FF] font-thin leading-relaxed text-[18px] md:text-[19px] whitespace-pre-line">
-                  {introQuotes.first}
-                </blockquote>
-                {introQuotes.second ? (
-                  <blockquote className="border-l border-primary-light pl-8 pr-8 text-[#62A8FF] font-thin leading-relaxed text-[18px] md:text-[19px] whitespace-pre-line">
-                    {introQuotes.second}
-                  </blockquote>
-                ) : null}
-              </div>
-            </div>
-          </section>
-        ) : null}
+        <QuoteBandSection quotes={[introQuotes?.first || '', introQuotes?.second || '']} />
 
         <section className="container pt-16 md:pt-20 pb-0 text-center">
             <h2 className="text-[13px] md:text-[14px] uppercase tracking-[0.12em] text-primary font-light mb-4">
@@ -144,7 +130,7 @@ export default async function FundPage() {
         </div>
 
         <div>
-          <section className="relative left-1/2 right-1/2 -mx-[50vw] w-screen">
+          <section className="relative">
             <div className="w-full border-l border-t border-[#d9def0]">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-0">
                 {firstDetailsRow.map(({ label, value }) => (
@@ -178,39 +164,32 @@ export default async function FundPage() {
           </section>
         </div>
 
-        <section className="pt-10 pb-10 md:pt-12 md:pb-12">
-          <div className="container">
-            <h3 className="mb-5 text-center text-[20px] md:text-[22px] text-[#0b1035]">
-              {relatedLinks.heading}
-            </h3>
-            <div className="flex flex-wrap items-center justify-center gap-4">
-              <ActionLinkButton
-                href={relatedLinks.items[0].href}
-                label={relatedLinks.items[0].label}
-                icon="download"
-                external={isExternalLink(relatedLinks.items[0].href)}
-                iconBefore
-                buttonVariant="outlineMuted"
-              />
-              <ActionLinkButton
-                href={relatedLinks.items[1].href}
-                label={relatedLinks.items[1].label}
-                icon="chartLine"
-                external={isExternalLink(relatedLinks.items[1].href)}
-                iconBefore
-                buttonVariant="outlineMuted"
-              />
-              <ActionLinkButton
-                href={relatedLinks.items[2].href}
-                label={relatedLinks.items[2].label}
-                icon="trendingUp"
-                external={isExternalLink(relatedLinks.items[2].href)}
-                iconBefore
-                buttonVariant="outlineMuted"
-              />
-            </div>
-          </div>
-        </section>
+        <RelatedLinksStrip
+          heading={relatedLinks.heading}
+          items={[
+            {
+              href: relatedLinks.items[0].href,
+              label: relatedLinks.items[0].label,
+              icon: 'download',
+              external: isExternalLink(relatedLinks.items[0].href),
+              iconBefore: true,
+            },
+            {
+              href: relatedLinks.items[1].href,
+              label: relatedLinks.items[1].label,
+              icon: 'chartLine',
+              external: isExternalLink(relatedLinks.items[1].href),
+              iconBefore: true,
+            },
+            {
+              href: relatedLinks.items[2].href,
+              label: relatedLinks.items[2].label,
+              icon: 'trendingUp',
+              external: isExternalLink(relatedLinks.items[2].href),
+              iconBefore: true,
+            },
+          ]}
+        />
     </main>
   )
 }

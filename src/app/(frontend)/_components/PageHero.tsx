@@ -1,7 +1,7 @@
 import React from 'react'
 import { cn } from '@/utilities/ui'
-import { AnimatedHeroHeading } from './AnimatedHeroHeading'
-import { PageHeroSilkBackground, type PageHeroPalette } from './PageHeroSilkBackground'
+import { AnimatedHeroHeading } from '@/app/(frontend)/_components/AnimatedHeroHeading'
+import { PageHeroSilkBackground, type PageHeroPalette } from '@/app/(frontend)/_components/PageHeroSilkBackground'
 
 type PageHeroSubtitleProps = React.ComponentProps<'p'>
 

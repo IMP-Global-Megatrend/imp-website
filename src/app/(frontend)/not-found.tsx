@@ -1,8 +1,8 @@
 import Link from 'next/link'
 import React from 'react'
 
-import { AnimatedIcon } from './_components/AnimatedIcon'
-import { PageHero } from './_components/PageHero'
+import { AnimatedIcon } from '@/app/(frontend)/_components/AnimatedIcon'
+import { PageHero } from '@/app/(frontend)/_components/PageHero'
 import { Button } from '@/components/ui/button'
 
 export default function NotFound() {

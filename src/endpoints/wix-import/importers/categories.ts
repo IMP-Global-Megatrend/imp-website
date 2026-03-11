@@ -1,5 +1,5 @@
 import type { Payload } from 'payload'
-import type { WixBlogCategory, ImportEntityResult, ImportIdMap } from '../types'
+import type { WixBlogCategory, ImportEntityResult, ImportIdMap } from '@/endpoints/wix-import/types'
 
 function toKebabCase(str: string): string {
   return str

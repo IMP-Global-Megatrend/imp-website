@@ -1,4 +1,4 @@
-import canUseDOM from './canUseDOM'
+import canUseDOM from '@/utilities/canUseDOM'
 
 const DEFAULT_PRODUCTION_URL = 'https://www.impgmtfund.com'
 

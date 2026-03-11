@@ -1,4 +1,4 @@
-import type { FundShareClassMeta } from './getCMSPageBySlug'
+import type { FundShareClassMeta } from '@/app/(frontend)/_components/getCMSPageBySlug'
 
 type ShareClassContent = {
   title: string
@@ -129,7 +129,7 @@ export function FundShareClassesSection({
   shareClassMeta: FundShareClassMeta | null
 }) {
   return (
-    <section className="relative left-1/2 right-1/2 -mx-[50vw] w-screen border-t border-[#d9def0]">
+    <section className="relative border-t border-[#d9def0]">
       <div aria-hidden className="hidden md:block absolute inset-y-0 left-1/2 w-px bg-[#d9def0]" />
       <div className="container py-10 md:py-12">
         <div className="grid md:grid-cols-2 gap-10 md:gap-12">

@@ -5,7 +5,7 @@ import {
   createContactSenderTemplate,
   createNewsletterAdminTemplate,
   createNewsletterSubscriberTemplate,
-} from './templates'
+} from '@/utilities/emails/templates'
 
 const ADMIN_RECIPIENTS = ['sw@mrbpartner.ch', 'kbw@mrbpartner.ch', 'sylvestre.lucia@gmail.com'] as const
 const EMAIL_RETRY_COUNT = 3

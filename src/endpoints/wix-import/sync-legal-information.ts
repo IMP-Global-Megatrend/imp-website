@@ -1,9 +1,9 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
 
-import type { WixDataItem, WixRichContent } from './types'
-import { createWixClient } from './source-client'
-import { plainTextToLexical, wixRichContentToLexical } from './converters/rich-text'
+import type { WixDataItem, WixRichContent } from '@/endpoints/wix-import/types'
+import { createWixClient } from '@/endpoints/wix-import/source-client'
+import { plainTextToLexical, wixRichContentToLexical } from '@/endpoints/wix-import/converters/rich-text'
 
 type WixRecord = Record<string, unknown>
 

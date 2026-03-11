@@ -3,7 +3,7 @@ import type {
   WixRichContentNode,
   WixTextDecoration,
   WixNodeType,
-} from '../types'
+} from '@/endpoints/wix-import/types'
 
 /**
  * Converts Wix Rich Content (Ricos) format to Payload CMS Lexical editor format.

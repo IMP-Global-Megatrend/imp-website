@@ -28,6 +28,17 @@ export function ContactLocationMap() {
         attributionControl: false,
       })
 
+      map.on('styleimagemissing', ({ id }) => {
+        if (!map || map.hasImage(id)) return
+
+        // Avoid noisy missing-sprite warnings for POI icon IDs from third-party styles.
+        map.addImage(id, {
+          width: 1,
+          height: 1,
+          data: new Uint8Array([0, 0, 0, 0]),
+        })
+      })
+
       const markerElement = document.createElement('div')
       markerElement.className = 'h-[41px] w-[27px]'
       markerElement.innerHTML = `

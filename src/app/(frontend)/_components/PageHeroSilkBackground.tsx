@@ -1,6 +1,6 @@
 'use client'
 
-import { HeroGrainientBackground } from './HeroGrainientBackground'
+import { HeroGrainientBackground } from '@/app/(frontend)/_components/HeroGrainientBackground'
 
 export type PageHeroPalette = {
   color1: string

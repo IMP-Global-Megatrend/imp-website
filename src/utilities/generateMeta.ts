@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
 
-import type { Media, Page, Post, Config } from '../payload-types'
+import type { Media, Page, Post, Config } from '@/payload-types'
 
-import { mergeOpenGraph } from './mergeOpenGraph'
-import { getServerSideURL } from './getURL'
+import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
+import { getServerSideURL } from '@/utilities/getURL'
 
 const pageOgImageBySlug: Record<string, string> = {
   home: '/images/og/home-hero-og.png',

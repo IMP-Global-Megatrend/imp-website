@@ -5,8 +5,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import React from 'react'
 
-import { Error } from '../Error'
-import { Width } from '../Width'
+import { Error } from '@/blocks/Form/Error'
+import { Width } from '@/blocks/Form/Width'
 export const Number: React.FC<
   TextField & {
     errors: Partial<FieldErrorsImpl>

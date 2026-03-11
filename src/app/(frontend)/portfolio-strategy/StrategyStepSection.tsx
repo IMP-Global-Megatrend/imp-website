@@ -47,7 +47,7 @@ export function StrategyStepSection({ step, index, total }: StrategyStepSectionP
   return (
     <section
       ref={sectionRef}
-      className={`${index === 0 ? '' : 'border-t border-[#d9def0]'} ${index === total - 1 ? 'border-b border-[#d9def0]' : ''} scroll-mt-24 pt-16 md:pt-20 pb-0 transition-[opacity,transform] duration-700 ease-out will-change-transform motion-reduce:transition-none motion-reduce:transform-none motion-reduce:opacity-100 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+      className={`border-b border-[#d9def0] scroll-mt-24 pt-16 md:pt-20 pb-0 transition-[opacity,transform] duration-700 ease-out will-change-transform motion-reduce:transition-none motion-reduce:transform-none motion-reduce:opacity-100 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
       style={{ transitionDelay: `${index * 90}ms` }}
     >
       <div className="container">

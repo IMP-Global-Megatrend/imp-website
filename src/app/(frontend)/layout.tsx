@@ -8,9 +8,9 @@ import Script from 'next/script'
 
 import { Providers } from '@/providers'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
-import { PageTransition } from './_components/PageTransition'
-import { SiteShell } from './_components/SiteShell'
-import { CursorAttrSanitizer } from './_components/CursorAttrSanitizer'
+import { PageTransition } from '@/app/(frontend)/_components/PageTransition'
+import { SiteShell } from '@/app/(frontend)/_components/SiteShell'
+import { CursorAttrSanitizer } from '@/app/(frontend)/_components/CursorAttrSanitizer'
 
 import './globals.css'
 import { getServerSideURL } from '@/utilities/getURL'

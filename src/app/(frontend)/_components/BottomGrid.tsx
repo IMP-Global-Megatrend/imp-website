@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import type { ReactNode } from 'react'
-import { ActionLinkButton } from './ActionLinkButton'
-import { getHomeCMSContent } from './getHomeCMSContent'
+import { ActionLinkButton } from '@/app/(frontend)/_components/ActionLinkButton'
+import { getHomeCMSContent } from '@/app/(frontend)/_components/getHomeCMSContent'
 
 function BottomGridColumn({
   title,
@@ -13,7 +13,7 @@ function BottomGridColumn({
   className?: string
 }) {
   return (
-    <div className={`flex flex-col items-center text-center py-10 md:py-12 ${className}`}>
+    <div className={`flex flex-col items-center text-center px-4 py-10 md:px-6 md:py-12 ${className}`}>
       <h3 className="text-[20px] md:text-[22px] text-[#0b1035] mb-4">{title}</h3>
       {children}
     </div>
@@ -48,7 +48,7 @@ export async function BottomGrid() {
       data-transition-static="true"
     >
       <div className="container">
-        <div className="grid md:grid-cols-3 md:divide-x md:divide-[#e8ecf4] gap-10 lg:gap-14 [&>*+*]:relative [&>*+*]:before:absolute [&>*+*]:before:content-[''] [&>*+*]:before:top-0 [&>*+*]:before:-left-4 [&>*+*]:before:-right-4 [&>*+*]:before:border-t [&>*+*]:before:border-[#d9def0] md:[&>*+*]:before:hidden">
+        <div className="grid md:grid-cols-3 divide-y divide-[#d9def0] md:divide-y-0 md:divide-x md:divide-[#e8ecf4]">
           {/* See Performance */}
           <BottomGridColumn title="See Performance">
             <Image

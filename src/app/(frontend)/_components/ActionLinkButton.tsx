@@ -2,8 +2,8 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import type { ButtonProps } from '@/components/ui/button'
 import { cn } from '@/utilities/ui'
-import type { AnimatedIconName } from './AnimatedIcon'
-import { AnimatedIcon } from './AnimatedIcon'
+import type { AnimatedIconName } from '@/app/(frontend)/_components/AnimatedIcon'
+import { AnimatedIcon } from '@/app/(frontend)/_components/AnimatedIcon'
 
 interface ActionLinkButtonProps {
   href: string

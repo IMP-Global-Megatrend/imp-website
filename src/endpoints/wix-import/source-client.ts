@@ -7,7 +7,7 @@ import type {
   WixDataItem,
   WixSitePage,
   WixPaginatedResponse,
-} from './types'
+} from '@/endpoints/wix-import/types'
 
 const WIX_API_BASE = 'https://www.wixapis.com'
 

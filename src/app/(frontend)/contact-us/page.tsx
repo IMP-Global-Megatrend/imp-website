@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
-import { getCMSPageBySlug } from '../_components/getCMSPageBySlug'
-import { PageHero } from '../_components/PageHero'
-import { AnimatedIcon } from '../_components/AnimatedIcon'
-import { ContactLocationMap } from '../_components/ContactLocationMap'
-import { ContactForm } from './ContactForm'
+import { AnimatedIcon } from '@/app/(frontend)/_components/AnimatedIcon'
+import { getCMSPageBySlug } from '@/app/(frontend)/_components/getCMSPageBySlug'
+import { ContactLocationMap } from '@/app/(frontend)/_components/ContactLocationMap'
+import { FormLandingLayout } from '@/app/(frontend)/_components/FormLandingLayout'
+import { ContactForm } from '@/app/(frontend)/contact-us/ContactForm'
 import fallbacks from '@/constants/fallbacks.json'
 import { generateMeta, generateStaticFallbackMeta } from '@/utilities/generateMeta'
 
@@ -36,14 +36,18 @@ export default async function ContactPage() {
   const websiteLabel = website
     ? website.replace(/^https?:\/\//, '').replace(/\/$/, '')
     : ''
-  return (
-    <main className="bg-white text-[#0b1035]">
-        <PageHero
-          title={heroTitle}
-          titleClassName="max-w-none"
-          palette={{ color1: '#2b3dea', color2: 'oklch(0.47 0.11 128)', color3: 'oklch(0.47 0.10 176)' }}
-        />
 
+  return (
+    <FormLandingLayout
+      heroTitle={heroTitle}
+      heroTitleClassName="max-w-none"
+      palette={{ color1: '#2b3dea', color2: 'oklch(0.47 0.11 128)', color3: 'oklch(0.47 0.10 176)' }}
+      afterContent={
+        <section className="w-full">
+          <ContactLocationMap />
+        </section>
+      }
+    >
         <div className="container py-16 md:py-20 grid lg:grid-cols-[1fr_380px] gap-12">
           {/* Form */}
           <section>
@@ -98,10 +102,6 @@ export default async function ContactPage() {
             </div>
           </aside>
         </div>
-
-        <section className="w-full">
-          <ContactLocationMap />
-        </section>
-    </main>
+    </FormLandingLayout>
   )
 }

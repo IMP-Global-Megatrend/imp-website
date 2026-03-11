@@ -1,10 +1,10 @@
 import type { Metadata } from 'next'
-import { HeroSection } from './_components/HeroSection'
-import { RegulatoryStrip } from './_components/RegulatoryStrip'
-import { MegatrendCard } from './_components/MegatrendCard'
-import { BottomGrid, ExploreMegatrendsCard } from './_components/BottomGrid'
-import { getCMSPageBySlug } from './_components/getCMSPageBySlug'
-import { getHomeCMSContent } from './_components/getHomeCMSContent'
+import { HeroSection } from '@/app/(frontend)/_components/HeroSection'
+import { RegulatoryStrip } from '@/app/(frontend)/_components/RegulatoryStrip'
+import { MegatrendCard } from '@/app/(frontend)/_components/MegatrendCard'
+import { BottomGrid, ExploreMegatrendsCard } from '@/app/(frontend)/_components/BottomGrid'
+import { getCMSPageBySlug } from '@/app/(frontend)/_components/getCMSPageBySlug'
+import { getHomeCMSContent } from '@/app/(frontend)/_components/getHomeCMSContent'
 import fallbacks from '@/constants/fallbacks.json'
 import megatrendsContent from '@/constants/megatrends-content.json'
 import { generateMeta, generateStaticFallbackMeta } from '@/utilities/generateMeta'
@@ -53,7 +53,7 @@ export default async function HomePage() {
                 detailsHref={`/megatrends#${megatrendAnchorsByTitle[trend.title] || ''}`}
                 detailsIcon="trendingUp"
                 reverse={i % 2 === 1}
-                noTopBorder={i === 0}
+                noBottomBorder={i === cms.trends.length - 1}
                 animationDelayMs={i * 90}
               />
             </div>

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { HeroGrainientBackground } from './HeroGrainientBackground'
+import { HeroGrainientBackground } from '@/app/(frontend)/_components/HeroGrainientBackground'
 
 type GradientMotionBackgroundProps = {
   seed?: number

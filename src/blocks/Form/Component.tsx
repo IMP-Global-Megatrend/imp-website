@@ -8,7 +8,7 @@ import RichText from '@/components/RichText'
 import { Button } from '@/components/ui/button'
 import type { DefaultTypedEditorState } from '@payloadcms/richtext-lexical'
 
-import { fields } from './fields'
+import { fields } from '@/blocks/Form/fields'
 import { getClientSideURL } from '@/utilities/getURL'
 
 export type FormBlockType = {

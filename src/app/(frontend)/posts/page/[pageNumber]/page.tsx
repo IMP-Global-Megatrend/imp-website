@@ -4,11 +4,14 @@ import { CollectionArchive } from '@/components/CollectionArchive'
 import { PageRange } from '@/components/PageRange'
 import { Pagination } from '@/components/Pagination'
 import postsContent from '@/constants/posts-content.json'
+import { buildStaticPageParams, parsePositivePageOr404 } from '@/app/(frontend)/_lib/archivePagination'
+import { buildPaginatedArchiveMetadata } from '@/app/(frontend)/_lib/archiveMetadata'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import React from 'react'
-import PageClient from './page.client'
+import PageClient from '@/app/(frontend)/posts/page/[pageNumber]/page.client'
 import { notFound, redirect } from 'next/navigation'
+import { POSTS_ARCHIVE_PAGE_SIZE, POSTS_ARCHIVE_SELECT } from '@/app/(frontend)/posts/_lib/constants'
 
 export const revalidate = 600
 
@@ -22,18 +25,18 @@ export default async function Page({ params: paramsPromise }: Args) {
   const { pageNumber } = await paramsPromise
   const payload = await getPayload({ config: configPromise })
 
-  const sanitizedPageNumber = Number(pageNumber)
-
-  if (!Number.isInteger(sanitizedPageNumber) || sanitizedPageNumber < 1) notFound()
+  const sanitizedPageNumber = parsePositivePageOr404(pageNumber)
   if (sanitizedPageNumber === 1) redirect('/posts')
 
   const posts = await payload.find({
     collection: 'posts',
     depth: 1,
-    limit: 12,
+    limit: POSTS_ARCHIVE_PAGE_SIZE,
     page: sanitizedPageNumber,
     overrideAccess: false,
+    select: POSTS_ARCHIVE_SELECT,
   })
+  if (posts.totalDocs > 0 && sanitizedPageNumber > posts.totalPages) notFound()
 
   return (
     <div className="pt-24 pb-24">
@@ -48,7 +51,7 @@ export default async function Page({ params: paramsPromise }: Args) {
         <PageRange
           collection="posts"
           currentPage={posts.page}
-          limit={12}
+          limit={POSTS_ARCHIVE_PAGE_SIZE}
           totalDocs={posts.totalDocs}
         />
       </div>
@@ -66,26 +69,13 @@ export default async function Page({ params: paramsPromise }: Args) {
 
 export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
   const { pageNumber } = await paramsPromise
-  const numericPage = Number(pageNumber)
-  const canonicalPath = Number.isInteger(numericPage) && numericPage > 1 ? `/posts/page/${numericPage}` : '/posts'
-
-  return {
-    alternates: {
-      canonical: canonicalPath,
-    },
-    title: postsContent.pagination.titleTemplate.replace('{pageNumber}', pageNumber || ''),
-    description: postsContent.pagination.descriptionTemplate.replace('{pageNumber}', pageNumber || ''),
-    openGraph: {
-      images: [{ url: '/images/og/posts-og.png' }],
-      url: canonicalPath,
-    },
-    twitter: {
-      card: 'summary_large_image',
-      description: postsContent.pagination.descriptionTemplate.replace('{pageNumber}', pageNumber || ''),
-      images: ['/images/og/posts-og.png'],
-      title: postsContent.pagination.titleTemplate.replace('{pageNumber}', pageNumber || ''),
-    },
-  }
+  return buildPaginatedArchiveMetadata({
+    basePath: '/posts',
+    pageNumber,
+    titleTemplate: postsContent.pagination.titleTemplate,
+    descriptionTemplate: postsContent.pagination.descriptionTemplate,
+    openGraphImageUrl: '/images/og/posts-og.png',
+  })
 }
 
 export async function generateStaticParams() {
@@ -95,13 +85,5 @@ export async function generateStaticParams() {
     overrideAccess: false,
   })
 
-  const totalPages = Math.ceil(totalDocs / 12)
-
-  const pages: { pageNumber: string }[] = []
-
-  for (let i = 2; i <= totalPages; i++) {
-    pages.push({ pageNumber: String(i) })
-  }
-
-  return pages
+  return buildStaticPageParams(totalDocs, POSTS_ARCHIVE_PAGE_SIZE)
 }

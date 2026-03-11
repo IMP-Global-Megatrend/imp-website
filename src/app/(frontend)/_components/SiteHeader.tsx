@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { usePathname } from 'next/navigation'
-import { AnimatedIcon } from './AnimatedIcon'
+import { AnimatedIcon } from '@/app/(frontend)/_components/AnimatedIcon'
 
 type SiteHeaderNavItem = {
   href: string

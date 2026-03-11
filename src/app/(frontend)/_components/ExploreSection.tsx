@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { AnimatedIcon } from './AnimatedIcon'
+import { AnimatedIcon } from '@/app/(frontend)/_components/AnimatedIcon'
 
 export function ExploreSection() {
   return (

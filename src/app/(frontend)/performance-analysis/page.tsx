@@ -4,10 +4,10 @@ import {
   getCMSPerformanceNavSeries,
   getCMSPerformancePageData,
   getCMSPerformanceShareClassCards,
-} from '../_components/getCMSPageBySlug'
-import { PageHero } from '../_components/PageHero'
-import { ActionLinkButton } from '../_components/ActionLinkButton'
-import { PerformanceChart } from './PerformanceChart'
+} from '@/app/(frontend)/_components/getCMSPageBySlug'
+import { PageHero } from '@/app/(frontend)/_components/PageHero'
+import { RelatedLinksStrip } from '@/app/(frontend)/_components/RelatedLinksStrip'
+import { PerformanceChart } from '@/app/(frontend)/performance-analysis/PerformanceChart'
 import fallbacks from '@/constants/fallbacks.json'
 import performanceContent from '@/constants/performance-analysis-content.json'
 import { generateMeta, generateStaticFallbackMeta } from '@/utilities/generateMeta'
@@ -245,7 +245,7 @@ export default async function PerformancePage() {
 
         {/* Regulatory footnotes */}
         <section className="bg-white py-10">
-          <div className="container text-[13px] text-[#5f6477] space-y-2">
+          <div className="container text-[13px] text-[#5f6477] italic space-y-2">
             <p>
               <span className="text-[#0040ff]">*</span> {singleAsteriskFootnote}
             </p>
@@ -255,53 +255,52 @@ export default async function PerformancePage() {
           </div>
         </section>
 
-        <section className="border-t border-[#d9def0] pt-10 pb-10 md:pt-12 md:pb-12">
-          <div className="container">
-            <h3 className="mb-5 text-center text-[20px] md:text-[22px] text-[#0b1035]">
-              {relatedLinksHeading}
-            </h3>
-            <div className="flex flex-wrap items-center justify-center gap-4">
-              <ActionLinkButton
-                href={fullHistoryHref}
-                label={fullHistoryLabel}
-                icon="chartLine"
-                external
-                iconBefore
-                buttonVariant="outlineMuted"
-              />
-              {factsheetUSD ? (
-                <ActionLinkButton
-                  href={factsheetUSD}
-                  label={factsheetUsdLabel}
-                  icon="download"
-                  external
-                  iconBefore
-                  buttonVariant="outlineMuted"
-                />
-              ) : null}
-              {factsheetCHF ? (
-                <ActionLinkButton
-                  href={factsheetCHF}
-                  label={factsheetChfLabel}
-                  icon="download"
-                  external
-                  iconBefore
-                  buttonVariant="outlineMuted"
-                />
-              ) : null}
-              {fundCommentary ? (
-                <ActionLinkButton
-                  href={fundCommentary}
-                  label={fundCommentaryLabel}
-                  icon="trendingUp"
-                  external
-                  iconBefore
-                  buttonVariant="outlineMuted"
-                />
-              ) : null}
-            </div>
-          </div>
-        </section>
+        <RelatedLinksStrip
+          borderTop
+          heading={relatedLinksHeading}
+          items={[
+            {
+              href: fullHistoryHref,
+              label: fullHistoryLabel,
+              icon: 'chartLine',
+              external: true,
+              iconBefore: true,
+            },
+            ...(factsheetUSD
+              ? [
+                  {
+                    href: factsheetUSD,
+                    label: factsheetUsdLabel,
+                    icon: 'download' as const,
+                    external: true,
+                    iconBefore: true,
+                  },
+                ]
+              : []),
+            ...(factsheetCHF
+              ? [
+                  {
+                    href: factsheetCHF,
+                    label: factsheetChfLabel,
+                    icon: 'download' as const,
+                    external: true,
+                    iconBefore: true,
+                  },
+                ]
+              : []),
+            ...(fundCommentary
+              ? [
+                  {
+                    href: fundCommentary,
+                    label: fundCommentaryLabel,
+                    icon: 'trendingUp' as const,
+                    external: true,
+                    iconBefore: true,
+                  },
+                ]
+              : []),
+          ]}
+        />
     </main>
   )
 }

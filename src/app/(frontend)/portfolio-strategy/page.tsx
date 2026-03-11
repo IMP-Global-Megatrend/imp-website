@@ -4,12 +4,13 @@ import {
   getCMSPortfolioInvestmentProcessItems,
   getCMSPortfolioStrategySteps,
   getCMSPortfolioStrategyChartData,
-} from '../_components/getCMSPageBySlug'
-import { PageHero } from '../_components/PageHero'
-import { AllocationPanel } from './AllocationPanel'
-import { InvestmentProcessTimeline } from './InvestmentProcessTimeline'
-import { StrategyStepSection } from './StrategyStepSection'
-import { TopHoldingsSection } from './TopHoldingsSection'
+} from '@/app/(frontend)/_components/getCMSPageBySlug'
+import { PageHero } from '@/app/(frontend)/_components/PageHero'
+import { AllocationPanel } from '@/app/(frontend)/portfolio-strategy/AllocationPanel'
+import { InvestmentProcessTimeline } from '@/app/(frontend)/portfolio-strategy/InvestmentProcessTimeline'
+import { QuoteBandSection } from '@/app/(frontend)/_components/QuoteBandSection'
+import { StrategyStepSection } from '@/app/(frontend)/portfolio-strategy/StrategyStepSection'
+import { TopHoldingsSection } from '@/app/(frontend)/portfolio-strategy/TopHoldingsSection'
 import fallbacks from '@/constants/fallbacks.json'
 import portfolioStrategyContent from '@/constants/portfolio-strategy-content.json'
 import { generateMeta, generateStaticFallbackMeta } from '@/utilities/generateMeta'
@@ -49,15 +50,7 @@ export default async function PortfolioStrategyPage() {
           palette={{ color1: '#2b3dea', color2: 'oklch(0.46 0.16 24)', color3: 'oklch(0.46 0.12 62)' }}
         />
 
-        <section className="bg-secondary py-20 md:py-24">
-          <div className="container">
-            <div className="max-w-5xl">
-              <blockquote className="border-l border-primary-light pl-8 pr-8 text-[#62A8FF] font-thin leading-relaxed text-[18px] md:text-[19px] whitespace-pre-line">
-                {portfolioStrategyIntro}
-              </blockquote>
-            </div>
-          </div>
-        </section>
+        <QuoteBandSection quotes={[portfolioStrategyIntro]} />
 
         {/* Strategy Steps */}
         <div className="pb-0">

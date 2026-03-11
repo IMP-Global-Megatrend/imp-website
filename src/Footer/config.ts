@@ -1,7 +1,7 @@
 import type { GlobalConfig } from 'payload'
 
 import { link } from '@/fields/link'
-import { revalidateFooter } from './hooks/revalidateFooter'
+import { revalidateFooter } from '@/Footer/hooks/revalidateFooter'
 
 export const Footer: GlobalConfig = {
   slug: 'footer',

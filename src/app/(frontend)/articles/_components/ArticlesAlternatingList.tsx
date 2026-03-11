@@ -1,14 +1,11 @@
 import Link from 'next/link'
 
 import { Media } from '@/components/Media'
-import type { Post } from '@/payload-types'
 import { formatAuthors } from '@/utilities/formatAuthors'
-import { ActionLinkButton } from '../../_components/ActionLinkButton'
-
-type ArticleListItem = Pick<
-  Post,
-  'id' | 'slug' | 'title' | 'meta' | 'heroImage' | 'populatedAuthors' | 'publishedAt'
->
+import { AlternatingFeatureLayout } from '@/app/(frontend)/_components/AlternatingFeatureLayout'
+import { ActionLinkButton } from '@/app/(frontend)/_components/ActionLinkButton'
+import { formatArticleDate } from '@/app/(frontend)/articles/_lib/formatArticleDate'
+import type { ArticleListItem } from '@/app/(frontend)/articles/_lib/types'
 
 type ArticlesAlternatingListProps = {
   posts: ArticleListItem[]
@@ -16,16 +13,6 @@ type ArticlesAlternatingListProps = {
 }
 
 export function ArticlesAlternatingList({ posts, startIndex = 0 }: ArticlesAlternatingListProps) {
-  const formatBylineDate = (value?: string | null): string => {
-    if (!value) return ''
-    const parsed = new Date(value)
-    if (Number.isNaN(parsed.getTime())) return ''
-    const day = parsed.getDate()
-    const month = parsed.toLocaleString('en-US', { month: 'long' })
-    const year = parsed.getFullYear()
-    return `${day}th of ${month} ${year}`
-  }
-
   return (
     <div>
       {posts.map((post, idx) => {
@@ -42,20 +29,21 @@ export function ArticlesAlternatingList({ posts, startIndex = 0 }: ArticlesAlter
           post.populatedAuthors && post.populatedAuthors.length > 0
             ? formatAuthors(post.populatedAuthors)
             : `Article ${globalIndex + 1}`
-        const bylineLabel = formatBylineDate(post.publishedAt) || authorLabel
+        const bylineLabel = formatArticleDate(post.publishedAt) || authorLabel
 
         return (
-          <section
-            key={post.id}
-            className="scroll-mt-24 pt-16 md:pt-20 pb-0"
-          >
+          <section key={post.id} className="scroll-mt-24 pt-16 md:pt-20 pb-0">
             <div className="container">
-              <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-stretch">
-                <div className={`h-full order-2 ${reverse ? 'lg:order-2' : 'lg:order-1'}`}>
+              <AlternatingFeatureLayout
+                className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-stretch"
+                reverse={reverse}
+                contentClassName="h-full order-2"
+                mediaClassName={`flex items-center justify-center order-1 ${reverse ? 'lg:pr-8' : 'lg:pl-8'}`}
+                content={
                   <div className="flex h-full items-stretch gap-4">
                     <div className="hidden md:flex items-stretch gap-2 shrink-0 self-stretch">
                       <span
-                        className="font-display text-right text-[#0b1035] text-[18px] font-medium whitespace-nowrap"
+                        className="font-display text-right text-[#0b1035] text-[18px] font-medium whitespace-nowrap pt-0 pb-2"
                         style={{ writingMode: 'vertical-lr', transform: 'rotate(180deg)' }}
                       >
                         {authorLabel}
@@ -84,11 +72,8 @@ export function ArticlesAlternatingList({ posts, startIndex = 0 }: ArticlesAlter
                       />
                     </div>
                   </div>
-                </div>
-
-                <div
-                  className={`flex items-center justify-center order-1 ${reverse ? 'lg:order-1 lg:pr-8' : 'lg:order-2 lg:pl-8'}`}
-                >
+                }
+                media={
                   <div className="w-full">
                     <Link href={href} className="block w-full">
                       {image ? (
@@ -102,8 +87,8 @@ export function ArticlesAlternatingList({ posts, startIndex = 0 }: ArticlesAlter
                       )}
                     </Link>
                   </div>
-                </div>
-              </div>
+                }
+              />
             </div>
             <div className="w-full border-b border-[#d9def0]" />
           </section>

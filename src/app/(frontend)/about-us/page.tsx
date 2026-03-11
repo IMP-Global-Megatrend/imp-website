@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
-import { getCMSAboutUsVideoUrl, getCMSPageBySlug } from '../_components/getCMSPageBySlug'
-import { ActionLinkButton } from '../_components/ActionLinkButton'
-import { AnimatedIcon } from '../_components/AnimatedIcon'
-import { PageHero } from '../_components/PageHero'
+import { getCMSAboutUsVideoUrl, getCMSPageBySlug } from '@/app/(frontend)/_components/getCMSPageBySlug'
+import { AnimatedIcon } from '@/app/(frontend)/_components/AnimatedIcon'
+import { PageHero } from '@/app/(frontend)/_components/PageHero'
+import { RelatedLinksStrip } from '@/app/(frontend)/_components/RelatedLinksStrip'
 import { Button } from '@/components/ui/button'
 import aboutUsContent from '@/constants/about-us-content.json'
 import fallbacks from '@/constants/fallbacks.json'
@@ -202,15 +202,18 @@ export default async function AboutUsPage() {
         </div>
       </div>
 
-      <section className="container border-t border-[#d9def0] py-16 md:py-20 text-center">
-        <div className="flex flex-wrap justify-center gap-4">
-          <ActionLinkButton
-            href={requestCallHref}
-            label={requestCallLabel}
-            icon="users"
-            iconBefore
-            buttonVariant="outlineMuted"
-          />
+      <RelatedLinksStrip
+        className="py-16 md:py-20"
+        borderTop
+        items={[
+          {
+            href: requestCallHref,
+            label: requestCallLabel,
+            icon: 'users',
+            iconBefore: true,
+          },
+        ]}
+        extraActions={
           <Button
             asChild
             variant="outlineMuted"
@@ -230,8 +233,8 @@ export default async function AboutUsPage() {
               {linkedinLabel}
             </a>
           </Button>
-        </div>
-      </section>
+        }
+      />
 
       <section className="bg-secondary py-20 md:py-24">
         <div className="container">

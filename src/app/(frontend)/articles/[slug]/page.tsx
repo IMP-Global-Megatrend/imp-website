@@ -2,40 +2,27 @@ import type { Metadata } from 'next'
 
 import { RelatedPosts } from '@/blocks/RelatedPosts/Component'
 import { PayloadRedirects } from '@/components/PayloadRedirects'
-import configPromise from '@payload-config'
-import { getPayload } from 'payload'
 import { draftMode } from 'next/headers'
-import React, { cache } from 'react'
+import React from 'react'
 import RichText from '@/components/RichText'
-import Link from 'next/link'
-
-import type { Post } from '@/payload-types'
 
 import { generateMeta } from '@/utilities/generateMeta'
-import PageClient from '../../posts/page.client'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { formatAuthors } from '@/utilities/formatAuthors'
-import { PageHero } from '../../_components/PageHero'
-import { Breadcrumb } from '../../_components/Breadcrumb'
+import LightHeaderPageClient from '@/app/(frontend)/_components/LightHeaderPageClient'
+import { PageHero } from '@/app/(frontend)/_components/PageHero'
+import { Breadcrumb } from '@/app/(frontend)/_components/Breadcrumb'
+import { ArticleCategoryChips } from '@/app/(frontend)/articles/_components/ArticleCategoryChips'
+import { formatArticleDate } from '@/app/(frontend)/articles/_lib/formatArticleDate'
+import {
+  decodeSlugParam,
+  getCollectionSlugParams,
+  queryCollectionDocBySlug,
+} from '@/app/(frontend)/_lib/contentQueries'
+import { getArticleCategoryMeta } from '@/app/(frontend)/articles/_lib/getArticleCategoryLinks'
 
 export async function generateStaticParams() {
-  const payload = await getPayload({ config: configPromise })
-  const posts = await payload.find({
-    collection: 'posts',
-    draft: false,
-    limit: 1000,
-    overrideAccess: false,
-    pagination: false,
-    select: {
-      slug: true,
-    },
-  })
-
-  const params = posts.docs.map(({ slug }) => {
-    return { slug }
-  })
-
-  return params
+  return getCollectionSlugParams('posts')
 }
 
 type Args = {
@@ -44,49 +31,12 @@ type Args = {
   }>
 }
 
-const formatOverviewStyleDate = (value?: string | null): string => {
-  if (!value) return ''
-  const parsed = new Date(value)
-  if (Number.isNaN(parsed.getTime())) return ''
-  const day = parsed.getDate()
-  const month = parsed.toLocaleString('en-US', { month: 'long' })
-  const year = parsed.getFullYear()
-  return `${day}th of ${month} ${year}`
-}
-
-const toKebabCase = (value: string): string =>
-  value
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '')
-
-const getCategoryMeta = (
-  categories: Post['categories'],
-): Array<{ title: string; slug: string }> => {
-  if (!Array.isArray(categories)) return []
-
-  return categories
-    .map((category) => {
-      if (typeof category === 'object' && category !== null && 'title' in category) {
-        const maybeTitle = category.title
-        const maybeSlug = 'slug' in category ? category.slug : ''
-        const title = typeof maybeTitle === 'string' ? maybeTitle.trim() : ''
-        if (!title) return null
-
-        const slug = typeof maybeSlug === 'string' && maybeSlug.trim() ? maybeSlug.trim() : toKebabCase(title)
-        return { title, slug }
-      }
-      return null
-    })
-    .filter((item): item is { title: string; slug: string } => Boolean(item?.title && item?.slug))
-}
-
 export default async function Article({ params: paramsPromise }: Args) {
   const { isEnabled: draft } = await draftMode()
   const { slug = '' } = await paramsPromise
-  const decodedSlug = decodeURIComponent(slug)
+  const decodedSlug = decodeSlugParam(slug)
   const url = '/articles/' + decodedSlug
-  const post = await queryPostBySlug({ slug: decodedSlug })
+  const post = await queryCollectionDocBySlug({ collection: 'posts', slug: decodedSlug })
 
   if (!post) return <PayloadRedirects url={url} />
   const paletteSource =
@@ -99,11 +49,11 @@ export default async function Article({ params: paramsPromise }: Args) {
       typeof paletteSource.color3 === 'string' ? paletteSource.color3 : 'oklch(0.47 0.10 136)',
   }
   const heroSubtitle = post.meta?.description || undefined
-  const categoryMeta = getCategoryMeta(post.categories)
+  const categoryMeta = getArticleCategoryMeta(post.categories)
 
   return (
     <main className="bg-white text-[#0b1035]">
-      <PageClient />
+      <LightHeaderPageClient />
       <PayloadRedirects disableNotFound url={url} />
       {draft && <LivePreviewListener />}
 
@@ -125,19 +75,7 @@ export default async function Article({ params: paramsPromise }: Args) {
               textClassName="text-[16px] md:text-[17px]"
             />
           </div>
-          {categoryMeta.length > 0 && (
-            <div className="mb-5 flex flex-wrap gap-2">
-              {categoryMeta.map((category) => (
-                <Link
-                  key={category.slug}
-                  href={`/articles/category/${category.slug}`}
-                  className="inline-flex items-center rounded-full border border-[#d9def0] bg-[#f4f6fb] px-3 py-1 font-display text-[12px] md:text-[13px] uppercase tracking-[0.08em] text-[#2b3045]"
-                >
-                  {category.title}
-                </Link>
-              ))}
-            </div>
-          )}
+          <ArticleCategoryChips categories={categoryMeta} className="mb-5" />
           <div className="flex flex-col md:flex-row gap-4 md:gap-16">
             {post.populatedAuthors && post.populatedAuthors.length > 0 && (
               <div className="flex flex-col gap-1">
@@ -148,7 +86,7 @@ export default async function Article({ params: paramsPromise }: Args) {
             {post.publishedAt && (
               <div className="flex flex-col gap-1">
                 <p className="text-sm text-[#5f6477]">Date Published</p>
-                <time dateTime={post.publishedAt}>{formatOverviewStyleDate(post.publishedAt)}</time>
+                <time dateTime={post.publishedAt}>{formatArticleDate(post.publishedAt)}</time>
               </div>
             )}
           </div>
@@ -172,29 +110,8 @@ export default async function Article({ params: paramsPromise }: Args) {
 
 export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
   const { slug = '' } = await paramsPromise
-  const decodedSlug = decodeURIComponent(slug)
-  const post = await queryPostBySlug({ slug: decodedSlug })
+  const decodedSlug = decodeSlugParam(slug)
+  const post = await queryCollectionDocBySlug({ collection: 'posts', slug: decodedSlug })
 
   return generateMeta({ doc: post, postPathPrefix: '/articles' })
 }
-
-const queryPostBySlug = cache(async ({ slug }: { slug: string }) => {
-  const { isEnabled: draft } = await draftMode()
-
-  const payload = await getPayload({ config: configPromise })
-
-  const result = await payload.find({
-    collection: 'posts',
-    draft,
-    limit: 1,
-    overrideAccess: draft,
-    pagination: false,
-    where: {
-      slug: {
-        equals: slug,
-      },
-    },
-  })
-
-  return result.docs?.[0] || null
-})

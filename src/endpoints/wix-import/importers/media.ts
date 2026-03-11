@@ -1,6 +1,6 @@
 import type { Payload, File } from 'payload'
-import type { ImportEntityResult, ImportIdMap } from '../types'
-import { resolveWixImageUrl } from '../converters/rich-text'
+import type { ImportEntityResult, ImportIdMap } from '@/endpoints/wix-import/types'
+import { resolveWixImageUrl } from '@/endpoints/wix-import/converters/rich-text'
 
 /**
  * Downloads a file from a URL and returns a Payload-compatible File object.

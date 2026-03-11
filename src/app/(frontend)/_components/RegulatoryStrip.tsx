@@ -1,5 +1,5 @@
-import { getHomeCMSContent } from './getHomeCMSContent'
-import { RegulatoryFlagTooltips } from './RegulatoryFlagTooltips'
+import { getHomeCMSContent } from '@/app/(frontend)/_components/getHomeCMSContent'
+import { RegulatoryFlagTooltips } from '@/app/(frontend)/_components/RegulatoryFlagTooltips'
 
 function renderRegulatoryValue(value: string) {
   if (value === 'CH, LI') {

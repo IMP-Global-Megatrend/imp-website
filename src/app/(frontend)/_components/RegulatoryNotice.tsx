@@ -1,4 +1,4 @@
-import { getHomeCMSContent } from './getHomeCMSContent'
+import { getHomeCMSContent } from '@/app/(frontend)/_components/getHomeCMSContent'
 
 export async function RegulatoryNotice() {
   const cms = await getHomeCMSContent()

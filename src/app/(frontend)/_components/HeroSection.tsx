@@ -1,7 +1,7 @@
-import { AnimatedHeroHeading } from './AnimatedHeroHeading'
-import { HeroGrainientBackground } from './HeroGrainientBackground'
-import { getHomeCMSContent } from './getHomeCMSContent'
-import { HeroCtaButton } from './HeroCtaButton'
+import { AnimatedHeroHeading } from '@/app/(frontend)/_components/AnimatedHeroHeading'
+import { HeroGrainientBackground } from '@/app/(frontend)/_components/HeroGrainientBackground'
+import { getHomeCMSContent } from '@/app/(frontend)/_components/getHomeCMSContent'
+import { HeroCtaButton } from '@/app/(frontend)/_components/HeroCtaButton'
 
 export async function HeroSection() {
   const cms = await getHomeCMSContent()

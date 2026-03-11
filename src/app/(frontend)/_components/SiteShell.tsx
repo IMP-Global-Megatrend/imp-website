@@ -1,9 +1,9 @@
 import Link from 'next/link'
 import React from 'react'
-import { ContentGatePopup } from './ContentGatePopup'
-import { RegulatoryNotice } from './RegulatoryNotice'
-import { SiteHeader } from './SiteHeader'
-import { TrackingConsentManager } from './TrackingConsentManager'
+import { ContentGatePopup } from '@/app/(frontend)/_components/ContentGatePopup'
+import { RegulatoryNotice } from '@/app/(frontend)/_components/RegulatoryNotice'
+import { SiteHeader } from '@/app/(frontend)/_components/SiteHeader'
+import { TrackingConsentManager } from '@/app/(frontend)/_components/TrackingConsentManager'
 import { getCachedGlobal } from '@/utilities/getGlobals'
 import type { Footer, Header } from '@/payload-types'
 
