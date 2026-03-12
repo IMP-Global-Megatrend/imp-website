@@ -1,0 +1,14 @@
+---
+description: Enforce branch-based workflow from main
+alwaysApply: true
+---
+
+# Branch Workflow
+
+- Treat `main` as the stable integration branch.
+- Never make code changes directly on `main`.
+- Before any code edit, create or switch to a feature/fix branch from `main`.
+- Use branch names like `feature/...`, `fix/...`, or `chore/...`.
+- Open pull requests into `main` for all changes.
+- Merge via PR after checks pass; do not bypass PR flow.
+- Do not recreate or use `develop` as a working branch.

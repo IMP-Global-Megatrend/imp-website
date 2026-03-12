@@ -1,15 +1,11 @@
 'use client'
 
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react'
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ReferenceLine,
-} from 'recharts'
+import { AxisBottom, AxisLeft } from '@visx/axis'
+import { Brush } from '@visx/brush'
+import { Group } from '@visx/group'
+import { scaleLinear, scaleTime } from '@visx/scale'
+import { LinePath } from '@visx/shape'
 
 type PerformanceNavPoint = {
   dateISO: string
@@ -175,37 +171,6 @@ function getMonthlyTickMarkers(minTs: number, maxTs: number): number[] {
   return markers
 }
 
-/* ── Shared tooltip ──────────────────────────────────────────────── */
-
-function ChartTooltip({
-  active,
-  payload,
-  currencyCode,
-}: {
-  active?: boolean
-  payload?: Array<{ dataKey?: string; value?: number; payload?: { displayLabel?: string; xTs?: number } }>
-  currencyCode: string
-}) {
-  if (!active || !payload?.length) return null
-  const navPoint = payload.find((entry) => entry.dataKey === 'nav')
-  const label =
-    navPoint?.payload?.displayLabel ??
-    payload[0]?.payload?.displayLabel ??
-    (typeof payload[0]?.payload?.xTs === 'number' ? formatTimelineTick(payload[0].payload.xTs) : '')
-  const navValue = typeof navPoint?.value === 'number' ? navPoint.value : null
-
-  return (
-    <div className="border border-[#d9def0] bg-white px-3 py-2 text-[13px] shadow-md font-display">
-      <p className="font-medium text-[#0b1035]">{label}</p>
-      {navValue !== null && (
-        <p className="text-[#0b1035]">
-          {currencyCode} {navValue.toFixed(2)}
-        </p>
-      )}
-    </div>
-  )
-}
-
 function ExportIconButton({
   label,
   onClick,
@@ -236,6 +201,488 @@ function ExportIconButton({
 
 /* ── Reusable plot chart ─────────────────────────────────────────── */
 
+function getNavDomain(points: ChartPoint[]): [number, number] {
+  const values = points.map((point) => point.nav)
+  const minValue = Math.min(...values)
+  const maxValue = Math.max(...values)
+
+  if (!Number.isFinite(minValue) || !Number.isFinite(maxValue)) {
+    return [0, 1]
+  }
+  if (minValue === maxValue) {
+    return [minValue - 1, maxValue + 1]
+  }
+
+  const padding = (maxValue - minValue) * 0.08
+  return [minValue - padding, maxValue + padding]
+}
+
+function VisxBrushChart({
+  data,
+  accentColor,
+  currencyCode,
+  width,
+  height,
+  isMobile = false,
+}: {
+  data: ChartPoint[]
+  accentColor: string
+  currencyCode: string
+  width: number
+  height: number
+  isMobile?: boolean
+}) {
+  const mainMargin = { top: 16, right: 20, bottom: 96, left: 74 }
+  const brushMargin = { top: 8, right: 20, bottom: 24, left: 74 }
+  const brushHeight = 80
+  const [selectedRange, setSelectedRange] = useState<[number, number] | null>(null)
+  const [hoveredPoint, setHoveredPoint] = useState<ChartPoint | null>(null)
+  const [isHoverActive, setIsHoverActive] = useState(false)
+  const hoverFadeTimeoutRef = useRef<number | null>(null)
+
+  const fullMinTs = data[0]?.xTs ?? 0
+  const fullMaxTs = data[data.length - 1]?.xTs ?? 0
+  const displayData = useMemo(() => {
+    if (!selectedRange) return data
+    const [rawStart, rawEnd] = selectedRange
+    const start = Math.min(rawStart, rawEnd)
+    const end = Math.max(rawStart, rawEnd)
+
+    const inRange = data.filter((point) => point.xTs >= start && point.xTs <= end)
+    if (inRange.length >= 2) return inRange
+
+    // Keep at least 2 points in focus so scales and paths remain stable.
+    const rightIndex = data.findIndex((point) => point.xTs >= start)
+    if (rightIndex <= 0) return data.slice(0, 2)
+    if (rightIndex >= data.length - 1) return data.slice(-2)
+    return data.slice(rightIndex - 1, rightIndex + 1)
+  }, [data, selectedRange])
+
+  let focusMinTs = displayData[0]?.xTs ?? fullMinTs
+  let focusMaxTs = displayData[displayData.length - 1]?.xTs ?? fullMaxTs
+  if (focusMinTs === focusMaxTs) {
+    focusMinTs -= 24 * 60 * 60 * 1000
+    focusMaxTs += 24 * 60 * 60 * 1000
+  }
+  const focusSpanMs = Math.max(focusMaxTs - focusMinTs, 1)
+  const focusHeight = height
+  const svgHeight = focusHeight + brushHeight + 44
+
+  const focusInnerWidth = Math.max(width - mainMargin.left - mainMargin.right, 1)
+  const focusInnerHeight = Math.max(focusHeight - mainMargin.top - mainMargin.bottom, 1)
+  const brushInnerWidth = Math.max(width - brushMargin.left - brushMargin.right, 1)
+  const brushInnerHeight = Math.max(brushHeight - brushMargin.top - brushMargin.bottom, 1)
+
+  const [focusMinNav, focusMaxNav] = getNavDomain(displayData.length > 1 ? displayData : data)
+  const [contextMinNav, contextMaxNav] = getNavDomain(data)
+  const focusQuarterlyMarkers = getQuarterlyGridMarkers(focusMinTs, focusMaxTs)
+  const focusTickMarkers = (() => {
+    const candidateTicks =
+      displayData.length <= 12
+        ? displayData.map((point) => point.xTs)
+        : focusSpanMs <= 92 * 24 * 60 * 60 * 1000
+          ? getMonthlyTickMarkers(focusMinTs, focusMaxTs)
+          : focusQuarterlyMarkers
+
+    // Always keep the latest visible date on the axis.
+    const uniqueTicks = new Set<number>(candidateTicks)
+    uniqueTicks.add(focusMaxTs)
+    const sortedTicks = Array.from(uniqueTicks).sort((a, b) => a - b)
+
+    if (!isMobile || sortedTicks.length <= 2) return sortedTicks
+
+    // Reduce label density on mobile while preserving first/last ticks.
+    const reduced = sortedTicks.filter((_, index) => index === 0 || index === sortedTicks.length - 1 || index % 2 === 0)
+    const dedupedReduced = Array.from(new Set(reduced))
+    if (dedupedReduced[dedupedReduced.length - 1] !== sortedTicks[sortedTicks.length - 1]) {
+      dedupedReduced.push(sortedTicks[sortedTicks.length - 1]!)
+    }
+    return dedupedReduced
+  })()
+
+  const formatFocusTick = (value: number): string => {
+    const parsed = new Date(value)
+    if (Number.isNaN(parsed.getTime())) return ''
+
+    if (focusSpanMs <= 45 * 24 * 60 * 60 * 1000) {
+      return parsed.toLocaleDateString('en-US', { day: '2-digit', month: 'short' })
+    }
+    return parsed.toLocaleDateString('en-US', { month: 'short', year: '2-digit' })
+  }
+
+  const formatHoverDate = (value: number): string => {
+    const parsed = new Date(value)
+    if (Number.isNaN(parsed.getTime())) return ''
+    return parsed.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })
+  }
+
+  const focusXScale = scaleTime<number>({
+    domain: [new Date(focusMinTs), new Date(focusMaxTs)],
+    range: [0, focusInnerWidth],
+  })
+  const focusYScale = scaleLinear<number>({
+    domain: [focusMinNav, focusMaxNav],
+    range: [focusInnerHeight, 0],
+    nice: true,
+  })
+
+  const contextXScale = scaleTime<number>({
+    domain: [new Date(fullMinTs), new Date(fullMaxTs)],
+    range: [0, brushInnerWidth],
+  })
+  const contextYScale = scaleLinear<number>({
+    domain: [contextMinNav, contextMaxNav],
+    range: [brushInnerHeight, 0],
+    nice: true,
+  })
+  const hasVisualClamp = data.length >= 2
+  const visualClampStartTs = selectedRange ? Math.min(selectedRange[0], selectedRange[1]) : fullMinTs
+  const visualClampEndTs = selectedRange ? Math.max(selectedRange[0], selectedRange[1]) : fullMaxTs
+  const visualClampStartX = contextXScale(new Date(visualClampStartTs))
+  const visualClampEndX = contextXScale(new Date(visualClampEndTs))
+
+  const resolveHoveredPoint = (localX: number) => {
+    if (!displayData.length) return null
+    const targetTs = focusXScale.invert(localX).getTime()
+    let nearest = displayData[0]!
+    let nearestDelta = Math.abs(nearest.xTs - targetTs)
+
+    for (let i = 1; i < displayData.length; i += 1) {
+      const candidate = displayData[i]!
+      const delta = Math.abs(candidate.xTs - targetTs)
+      if (delta < nearestDelta) {
+        nearest = candidate
+        nearestDelta = delta
+      }
+    }
+
+    return nearest
+  }
+
+  const handleMainHover = (event: React.MouseEvent<SVGRectElement>) => {
+    if (hoverFadeTimeoutRef.current !== null) {
+      window.clearTimeout(hoverFadeTimeoutRef.current)
+      hoverFadeTimeoutRef.current = null
+    }
+    const bounds = event.currentTarget.getBoundingClientRect()
+    const localX = Math.max(0, Math.min(focusInnerWidth, event.clientX - bounds.left))
+    setHoveredPoint(resolveHoveredPoint(localX))
+    setIsHoverActive(true)
+  }
+
+  const handleMainHoverTouch = (event: React.TouchEvent<SVGRectElement>) => {
+    const touch = event.touches[0]
+    if (!touch) return
+    if (hoverFadeTimeoutRef.current !== null) {
+      window.clearTimeout(hoverFadeTimeoutRef.current)
+      hoverFadeTimeoutRef.current = null
+    }
+    const bounds = event.currentTarget.getBoundingClientRect()
+    const localX = Math.max(0, Math.min(focusInnerWidth, touch.clientX - bounds.left))
+    setHoveredPoint(resolveHoveredPoint(localX))
+    setIsHoverActive(true)
+  }
+
+  const handleMainHoverLeave = () => {
+    setIsHoverActive(false)
+    if (hoverFadeTimeoutRef.current !== null) {
+      window.clearTimeout(hoverFadeTimeoutRef.current)
+    }
+    hoverFadeTimeoutRef.current = window.setTimeout(() => {
+      setHoveredPoint(null)
+      hoverFadeTimeoutRef.current = null
+    }, 180)
+  }
+
+  return (
+    <svg
+      role="img"
+      aria-label={`Interactive ${currencyCode} chart with brush`}
+      className="recharts-surface"
+      data-main-chart-height={focusHeight}
+      width={width}
+      height={svgHeight}
+      viewBox={`0 0 ${width} ${svgHeight}`}
+      style={{ width: '100%', height: '100%', display: 'block' }}
+    >
+      <Group left={mainMargin.left} top={mainMargin.top}>
+        {focusQuarterlyMarkers.map((markerTs) => (
+          <line
+            key={`focus-quarter-${markerTs}`}
+            x1={focusXScale(new Date(markerTs))}
+            x2={focusXScale(new Date(markerTs))}
+            y1={0}
+            y2={focusInnerHeight}
+            stroke="#d9def0"
+            strokeWidth={1}
+            strokeDasharray="2 4"
+          />
+        ))}
+        <AxisLeft
+          scale={focusYScale}
+          stroke="#d9def0"
+          tickStroke="#d9def0"
+          numTicks={5}
+          tickLabelProps={() => ({
+            fill: '#5f6477',
+            fontFamily: chartFontFamily,
+            fontSize: 12,
+            textAnchor: 'end',
+            dy: '0.33em',
+            dx: -8,
+          })}
+          tickFormat={(value) => `${currencyCode} ${Math.round(Number(value))}`}
+        />
+        <AxisBottom
+          top={focusInnerHeight}
+          scale={focusXScale}
+          stroke="#d9def0"
+          tickStroke="#d9def0"
+          tickLabelProps={() => ({
+            fill: '#5f6477',
+            fontFamily: chartFontFamily,
+            fontSize: 12,
+            textAnchor: 'end',
+            dy: 14,
+            angle: -90,
+          })}
+          tickFormat={(value) => formatFocusTick(Number(value))}
+          tickValues={focusTickMarkers}
+          numTicks={6}
+        />
+        <LinePath
+          data={displayData}
+          x={(point) => focusXScale(new Date(point.xTs))}
+          y={(point) => focusYScale(point.nav)}
+          stroke={accentColor}
+          strokeWidth={2}
+        />
+        {displayData.map((point) => (
+          <circle
+            key={`focus-dot-${point.xTs}`}
+            cx={focusXScale(new Date(point.xTs))}
+            cy={focusYScale(point.nav)}
+            r={2.75}
+            fill="#ffffff"
+            stroke={accentColor}
+            strokeWidth={1.5}
+          />
+        ))}
+        {hoveredPoint ? (
+          <>
+            <line
+              x1={focusXScale(new Date(hoveredPoint.xTs))}
+              x2={focusXScale(new Date(hoveredPoint.xTs))}
+              y1={0}
+              y2={focusInnerHeight}
+              stroke="#aeb9e6"
+              strokeWidth={1}
+              opacity={isHoverActive ? 1 : 0}
+              style={{ transition: 'opacity 180ms ease' }}
+            />
+            <circle
+              cx={focusXScale(new Date(hoveredPoint.xTs))}
+              cy={focusYScale(hoveredPoint.nav)}
+              r={4}
+              fill="#ffffff"
+              stroke={accentColor}
+              strokeWidth={2}
+              opacity={isHoverActive ? 1 : 0}
+              style={{ transition: 'opacity 180ms ease' }}
+            />
+            <Group
+              left={
+                Math.min(
+                  focusInnerWidth - 132,
+                  Math.max(8, focusXScale(new Date(hoveredPoint.xTs)) + 10),
+                )
+              }
+              top={Math.max(8, focusYScale(hoveredPoint.nav) - 42)}
+              opacity={isHoverActive ? 1 : 0}
+              style={{ transition: 'opacity 180ms ease' }}
+            >
+              <rect
+                x={0}
+                y={0}
+                width={124}
+                height={38}
+                fill="#ffffff"
+                stroke="#d9def0"
+                strokeWidth={1}
+                rx={0}
+              />
+              <text
+                x={8}
+                y={14}
+                fill="#0b1035"
+                fontFamily={chartFontFamily}
+                fontSize={11}
+              >
+                {formatHoverDate(hoveredPoint.xTs)}
+              </text>
+              <text
+                x={8}
+                y={29}
+                fill="#0b1035"
+                fontFamily={chartFontFamily}
+                fontSize={12}
+                fontWeight={700}
+              >
+                {currencyCode} {hoveredPoint.nav.toFixed(2)}
+              </text>
+            </Group>
+          </>
+        ) : null}
+        <rect
+          x={0}
+          y={0}
+          width={focusInnerWidth}
+          height={focusInnerHeight}
+          fill="transparent"
+          onMouseMove={handleMainHover}
+          onMouseLeave={handleMainHoverLeave}
+          onTouchStart={handleMainHoverTouch}
+          onTouchMove={handleMainHoverTouch}
+          onTouchEnd={handleMainHoverLeave}
+        />
+      </Group>
+
+      <Group
+        left={brushMargin.left}
+        top={focusHeight + brushMargin.top}
+        data-export-exclude="true"
+      >
+        <LinePath
+          data={data}
+          x={(point) => contextXScale(new Date(point.xTs))}
+          y={(point) => contextYScale(point.nav)}
+          stroke={accentColor}
+          strokeWidth={1.5}
+          opacity={0.85}
+        />
+
+        <Brush
+          xScale={contextXScale}
+          yScale={contextYScale}
+          width={brushInnerWidth}
+          height={brushInnerHeight}
+          margin={{ top: 0, left: 0, right: 0, bottom: 0 }}
+          resizeTriggerAreas={['left', 'right']}
+          brushDirection="horizontal"
+          handleSize={8}
+          selectedBoxStyle={{ fill: '#2b3dea22', stroke: accentColor }}
+          useWindowMoveEvents
+          initialBrushPosition={{
+            start: { x: 0, y: 0 },
+            end: { x: brushInnerWidth, y: brushInnerHeight },
+          }}
+          onChange={(bounds) => {
+            if (!bounds) {
+              setSelectedRange(null)
+              return
+            }
+            const x0Value = bounds.x0 as unknown
+            const x1Value = bounds.x1 as unknown
+            const rawX0 = x0Value instanceof Date ? x0Value.getTime() : Number(x0Value)
+            const rawX1 = x1Value instanceof Date ? x1Value.getTime() : Number(x1Value)
+
+            if (!Number.isFinite(rawX0) || !Number.isFinite(rawX1)) {
+              setSelectedRange(null)
+              return
+            }
+
+            // visx Brush may return either:
+            // - domain values (timestamps for time scales), or
+            // - range values (pixels in/near brush local space).
+            const looksLikeDomainValues = rawX0 > 1e10 && rawX1 > 1e10
+
+            let normalizedStartTs = 0
+            let normalizedEndTs = 0
+
+            if (looksLikeDomainValues) {
+              normalizedStartTs = Math.max(fullMinTs, Math.min(fullMaxTs, Math.min(rawX0, rawX1)))
+              normalizedEndTs = Math.max(fullMinTs, Math.min(fullMaxTs, Math.max(rawX0, rawX1)))
+            } else {
+              const appearsOffsetByGroup =
+                (rawX0 > brushInnerWidth + 1 || rawX1 > brushInnerWidth + 1) &&
+                rawX0 >= brushMargin.left - 1 &&
+                rawX1 >= brushMargin.left - 1
+
+              const localX0 = appearsOffsetByGroup ? rawX0 - brushMargin.left : rawX0
+              const localX1 = appearsOffsetByGroup ? rawX1 - brushMargin.left : rawX1
+
+              const clampedStartPx = Math.max(0, Math.min(brushInnerWidth, Math.min(localX0, localX1)))
+              const clampedEndPx = Math.max(0, Math.min(brushInnerWidth, Math.max(localX0, localX1)))
+
+              if (Math.abs(clampedEndPx - clampedStartPx) < 0.5) {
+                setSelectedRange(null)
+                return
+              }
+
+              const startTs = contextXScale.invert(clampedStartPx).getTime()
+              const endTs = contextXScale.invert(clampedEndPx).getTime()
+              normalizedStartTs = Math.max(fullMinTs, Math.min(fullMaxTs, startTs))
+              normalizedEndTs = Math.max(fullMinTs, Math.min(fullMaxTs, endTs))
+            }
+
+            if (Math.abs(normalizedEndTs - normalizedStartTs) < 1) {
+              setSelectedRange(null)
+              return
+            }
+
+            if (!Number.isFinite(normalizedStartTs) || !Number.isFinite(normalizedEndTs)) {
+              setSelectedRange(null)
+              return
+            }
+
+            setSelectedRange([
+              Math.min(normalizedStartTs, normalizedEndTs),
+              Math.max(normalizedStartTs, normalizedEndTs),
+            ])
+          }}
+        />
+        {hasVisualClamp ? (
+          <>
+            <Group
+              left={visualClampStartX - 6}
+              top={Math.max(0, Math.round(brushInnerHeight / 2) - 12)}
+              style={{ pointerEvents: 'none' }}
+            >
+              <rect x={0} y={0} width={12} height={24} fill="#ffffff" stroke="#d9def0" strokeWidth={1} />
+              <line x1={5} y1={6} x2={5} y2={18} stroke="#5f6477" strokeWidth={1} />
+              <line x1={7} y1={6} x2={7} y2={18} stroke="#5f6477" strokeWidth={1} />
+            </Group>
+            <Group
+              left={visualClampEndX - 6}
+              top={Math.max(0, Math.round(brushInnerHeight / 2) - 12)}
+              style={{ pointerEvents: 'none' }}
+            >
+              <rect x={0} y={0} width={12} height={24} fill="#ffffff" stroke="#d9def0" strokeWidth={1} />
+              <line x1={5} y1={6} x2={5} y2={18} stroke="#5f6477" strokeWidth={1} />
+              <line x1={7} y1={6} x2={7} y2={18} stroke="#5f6477" strokeWidth={1} />
+            </Group>
+          </>
+        ) : null}
+
+        <AxisBottom
+          top={brushInnerHeight}
+          scale={contextXScale}
+          stroke="#d9def0"
+          tickStroke="#d9def0"
+          tickLabelProps={() => ({
+            fill: '#5f6477',
+            fontFamily: chartFontFamily,
+            fontSize: 11,
+            textAnchor: 'middle',
+            dy: 10,
+          })}
+          tickFormat={(value) => formatTimelineTick(Number(value))}
+        />
+      </Group>
+    </svg>
+  )
+}
+
 function NavPlotChart({
   data,
   accentColor,
@@ -244,7 +691,6 @@ function NavPlotChart({
   exportFileName,
   exportSvgTooltip = 'Export SVG',
   exportCsvTooltip = 'Export CSV',
-  timelineTickCadence = 'quarterly',
   historyLabel = 'NAV History',
   lastAddedValueDateLabel = 'N/A',
   badgeLabel,
@@ -256,7 +702,6 @@ function NavPlotChart({
   exportFileName: string
   exportSvgTooltip?: string
   exportCsvTooltip?: string
-  timelineTickCadence?: 'monthly' | 'quarterly'
   historyLabel?: string
   lastAddedValueDateLabel?: string
   badgeLabel?: string
@@ -267,10 +712,6 @@ function NavPlotChart({
   const [isMobile, setIsMobile] = useState(false)
   const [chartWidth, setChartWidth] = useState(0)
   const [timeRange, setTimeRange] = useState<TimeRange>('ALL')
-  const dotRadius = isMobile ? 1.75 : 2.75
-  const activeDotRadius = isMobile ? 2.5 : 3.5
-  const dotStrokeWidth = isMobile ? 1.25 : 1.5
-  const formatTick = (value: number) => `${currencyCode} ${Math.round(value)}`
   const filteredSeries = useMemo(() => {
     if (timeRange === 'ALL') return data
     const latestTs = data[data.length - 1]?.xTs
@@ -287,15 +728,6 @@ function NavPlotChart({
   }, [data, timeRange])
 
   const plotData = filteredSeries
-  const minTs = plotData[0]?.xTs ?? 0
-  const maxTs = plotData[plotData.length - 1]?.xTs ?? 0
-  const quarterlyGridMarkers = getQuarterlyGridMarkers(minTs, maxTs)
-  const timelineTickMarkers =
-    timelineTickCadence === 'monthly'
-      ? getMonthlyTickMarkers(minTs, maxTs)
-      : quarterlyGridMarkers
-  const xAxisInterval = 0
-  const xAxisMinTickGap = timelineTickCadence === 'monthly' ? 12 : 0
   const csvFileName = exportFileName.replace(/\.(png|svg)$/i, '.csv')
 
   useEffect(() => {
@@ -347,6 +779,23 @@ function NavPlotChart({
     try {
       const serializer = new XMLSerializer()
       const svgClone = svg.cloneNode(true) as SVGSVGElement
+      svgClone
+        .querySelectorAll('[data-export-exclude="true"]')
+        .forEach((node) => node.parentNode?.removeChild(node))
+
+      const mainChartHeight = Number(svgClone.getAttribute('data-main-chart-height'))
+      if (Number.isFinite(mainChartHeight) && mainChartHeight > 0) {
+        const currentViewBox = svgClone.getAttribute('viewBox')
+        if (currentViewBox) {
+          const parts = currentViewBox.trim().split(/\s+/)
+          if (parts.length === 4) {
+            parts[3] = String(mainChartHeight)
+            svgClone.setAttribute('viewBox', parts.join(' '))
+          }
+        }
+        svgClone.setAttribute('height', String(mainChartHeight))
+      }
+
       svgClone.setAttribute('xmlns', 'http://www.w3.org/2000/svg')
       svgClone.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink')
       const rootStyles = getComputedStyle(document.documentElement)
@@ -447,55 +896,20 @@ function NavPlotChart({
           </div>
         </div>
       </div>
-      <div ref={chartContainerRef} className="relative w-full overflow-visible" style={{ height }}>
+      <div
+        ref={chartContainerRef}
+        className="relative w-full overflow-x-clip overflow-y-visible"
+        style={{ height: height + 124 }}
+      >
         {canRenderChart ? (
-          <LineChart width={chartWidth} height={height} data={plotData} margin={{ top: 16, right: 20, left: 8, bottom: 20 }}>
-            <CartesianGrid strokeDasharray="3 3" vertical stroke="#e5e7f0" />
-            <XAxis
-              type="number"
-              dataKey="xTs"
-              scale="time"
-              domain={['dataMin', 'dataMax']}
-              tick={{ fontSize: 12, fill: '#5f6477', fontFamily: chartFontFamily }}
-              axisLine={{ stroke: '#d9def0' }}
-              tickLine={false}
-              tickFormatter={formatTimelineTick}
-              ticks={timelineTickMarkers}
-              interval={xAxisInterval}
-              minTickGap={xAxisMinTickGap}
-              angle={-90}
-              textAnchor="end"
-              tickMargin={18}
-              height={96}
-            />
-            <YAxis
-              yAxisId="nav"
-              tick={{ fontSize: 12, fill: '#5f6477', fontFamily: chartFontFamily }}
-              axisLine={false}
-              tickLine={false}
-              tickFormatter={formatTick}
-              width={74}
-            />
-            <Tooltip content={<ChartTooltip currencyCode={currencyCode} />} cursor={{ fill: 'rgba(0,64,255,0.04)' }} />
-            {quarterlyGridMarkers.map((xValue) => (
-              <ReferenceLine
-                key={`vline-${xValue}`}
-                x={xValue}
-                stroke="#d9def0"
-                strokeDasharray="2 4"
-                strokeWidth={1}
-              />
-            ))}
-            <Line
-              yAxisId="nav"
-              type="monotone"
-              dataKey="nav"
-              stroke={accentColor}
-              strokeWidth={2}
-              dot={{ r: dotRadius, stroke: accentColor, strokeWidth: dotStrokeWidth, fill: '#ffffff' }}
-              activeDot={{ r: activeDotRadius, stroke: accentColor, strokeWidth: dotStrokeWidth, fill: '#ffffff' }}
-            />
-          </LineChart>
+          <VisxBrushChart
+            data={plotData}
+            accentColor={accentColor}
+            currencyCode={currencyCode}
+            width={chartWidth}
+            height={height}
+            isMobile={isMobile}
+          />
         ) : (
           <div className="h-full w-full" aria-hidden="true" />
         )}
@@ -564,7 +978,6 @@ export function PerformanceChart({
             exportFileName="chf-hedged-share-class-performance.svg"
             exportSvgTooltip={exportSvgTooltip}
             exportCsvTooltip={exportCsvTooltip}
-            timelineTickCadence="monthly"
             historyLabel={hasCHFFromCMS ? 'NAV History' : 'NAV History (Since Inception Oct 2025)'}
             lastAddedValueDateLabel={chfLastAddedValueDate}
           />
