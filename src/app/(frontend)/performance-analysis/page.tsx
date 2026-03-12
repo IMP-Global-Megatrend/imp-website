@@ -214,11 +214,11 @@ export default async function PerformancePage() {
           <div className="relative">
             <span
               aria-hidden
-              className="pointer-events-none absolute -top-8 left-1/2 h-px w-screen -translate-x-1/2 bg-[#d9def0]"
+              className="pointer-events-none absolute -top-8 left-0 right-0 h-px bg-[#d9def0]"
             />
             <span
               aria-hidden
-              className="pointer-events-none absolute bottom-0 left-1/2 h-px w-screen -translate-x-1/2 bg-[#d9def0]"
+              className="pointer-events-none absolute bottom-0 left-0 right-0 h-px bg-[#d9def0]"
             />
             <span aria-hidden className="pointer-events-none absolute left-1/2 -top-8 bottom-0 hidden w-px -translate-x-1/2 bg-[#d9def0] lg:block" />
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
@@ -231,7 +231,7 @@ export default async function PerformancePage() {
                 <FundDetailsCard data={chfDetails} labels={cardLabels} />
               </div>
               <div className="space-y-8 pt-4 lg:pt-6 lg:pl-8">
-                <div className="-mx-4 h-px w-[calc(100%+2rem)] bg-[#d9def0] lg:hidden" />
+                <div className="h-px w-full bg-[#d9def0] lg:hidden" />
                 <img src="/images/flags/us.svg" alt="United States flag" className="h-5 w-auto" loading="lazy" />
                 <h2 className="text-[26px] leading-[1.2] text-[#0b1035]">{usdTitle}</h2>
                 <NavUpdatesCard data={usdDetails} labels={cardLabels} />
