@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
 import { getCMSAboutUsVideoUrl, getCMSPageBySlug } from '@/app/(frontend)/_components/getCMSPageBySlug'
 import { AnimatedIcon } from '@/app/(frontend)/_components/AnimatedIcon'
+import { ActionLinkButton } from '@/app/(frontend)/_components/ActionLinkButton'
 import { PageHero } from '@/app/(frontend)/_components/PageHero'
 import { RelatedLinksStrip } from '@/app/(frontend)/_components/RelatedLinksStrip'
-import { Button } from '@/components/ui/button'
 import aboutUsContent from '@/constants/about-us-content.json'
 import fallbacks from '@/constants/fallbacks.json'
 import { generateMeta, generateStaticFallbackMeta } from '@/utilities/generateMeta'
@@ -34,6 +34,11 @@ function renderHighlight(item: { id: string; text: string }) {
   }
 
   return item.text
+}
+
+const profileLinkedinByName: Record<string, string> = {
+  'karin b. wiederkehr': 'https://www.linkedin.com/in/karin-wiederkehr-741b252b/',
+  'stefan wiederkehr': 'https://www.linkedin.com/in/stefan-wiederkehr-712aa7142/',
 }
 
 export default async function AboutUsPage() {
@@ -112,15 +117,6 @@ export default async function AboutUsPage() {
   const requestCallHref =
     (typeof page.aboutUsRequestCallHref === 'string' && page.aboutUsRequestCallHref.trim()) ||
     aboutUsContent.ctas.requestCall.href
-  const linkedinLabel =
-    (typeof page.aboutUsLinkedinLabel === 'string' && page.aboutUsLinkedinLabel.trim()) ||
-    aboutUsContent.ctas.linkedin.label
-  const linkedinHref =
-    (typeof page.aboutUsLinkedinHref === 'string' && page.aboutUsLinkedinHref.trim()) ||
-    aboutUsContent.ctas.linkedin.href
-  const linkedinAriaLabel =
-    (typeof page.aboutUsLinkedinAriaLabel === 'string' && page.aboutUsLinkedinAriaLabel.trim()) ||
-    aboutUsContent.social.linkedinAriaLabel
 
   return (
     <main className="bg-white text-[#0b1035]">
@@ -174,7 +170,17 @@ export default async function AboutUsPage() {
           &amp; {aboutProfiles[1]?.name}
         </h2>
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-16">
-          {aboutProfiles.map((profile) => (
+          {aboutProfiles.map((profile, index) => {
+            const normalizedName = profile.name.trim().toLowerCase()
+            const profileLinkedinHref =
+              profileLinkedinByName[normalizedName] ||
+              (index === 0
+                ? 'https://www.linkedin.com/in/karin-wiederkehr-741b252b/'
+                : index === 1
+                  ? 'https://www.linkedin.com/in/stefan-wiederkehr-712aa7142/'
+                  : '')
+
+            return (
             <section key={profile.name} className="space-y-6">
               <h2 className="text-[28px] leading-[1.2] text-[#0b1035] md:hidden">{profile.name}</h2>
               <div className="space-y-3 text-[#2b3045] text-[17px] leading-relaxed">
@@ -197,8 +203,19 @@ export default async function AboutUsPage() {
                   )
                 })}
               </ul>
+              {profileLinkedinHref ? (
+                <ActionLinkButton
+                  href={profileLinkedinHref}
+                  label="Connect on LinkedIn"
+                  icon="users"
+                  external
+                  iconBefore
+                  buttonVariant="outlineMuted"
+                />
+              ) : null}
             </section>
-          ))}
+            )
+          })}
         </div>
       </div>
 
@@ -213,27 +230,6 @@ export default async function AboutUsPage() {
             iconBefore: true,
           },
         ]}
-        extraActions={
-          <Button
-            asChild
-            variant="outlineMuted"
-            size="clear"
-            className="px-5 py-2.5 rounded-none font-display hover:bg-transparent"
-          >
-            <a
-              href={linkedinHref}
-              rel="noreferrer"
-              target="_blank"
-              aria-label={linkedinAriaLabel}
-              className="group"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-              </svg>
-              {linkedinLabel}
-            </a>
-          </Button>
-        }
       />
 
       <section className="bg-secondary py-20 md:py-24">
