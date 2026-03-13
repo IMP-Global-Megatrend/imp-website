@@ -1,4 +1,5 @@
 const GENERATED_OG_BASE_PATH = '/images/og/generated'
+const GENERATED_OG_EXTENSION = 'jpg'
 
 function trimSlashes(value: string): string {
   return value.replace(/^\/+/, '').replace(/\/+$/, '')
@@ -14,18 +15,18 @@ function toSafeSegment(value: string): string {
 
 export function ogPageImagePath(slug: string): string {
   const safeSlug = toSafeSegment(slug) || 'home'
-  return `${GENERATED_OG_BASE_PATH}/pages/${safeSlug}.png`
+  return `${GENERATED_OG_BASE_PATH}/pages/${safeSlug}.${GENERATED_OG_EXTENSION}`
 }
 
 export function ogPostImagePath(slug: string, section: 'posts' | 'articles' = 'posts'): string {
   const safeSlug = toSafeSegment(slug)
-  if (!safeSlug) return `${GENERATED_OG_BASE_PATH}/archives/${section}.png`
-  return `${GENERATED_OG_BASE_PATH}/${section}/${safeSlug}.png`
+  if (!safeSlug) return `${GENERATED_OG_BASE_PATH}/archives/${section}.${GENERATED_OG_EXTENSION}`
+  return `${GENERATED_OG_BASE_PATH}/${section}/${safeSlug}.${GENERATED_OG_EXTENSION}`
 }
 
 export function ogArchiveImagePath(key: string): string {
   const safeKey = toSafeSegment(key) || 'posts'
-  return `${GENERATED_OG_BASE_PATH}/archives/${safeKey}.png`
+  return `${GENERATED_OG_BASE_PATH}/archives/${safeKey}.${GENERATED_OG_EXTENSION}`
 }
 
 export function ogImagePathForRoute(routePath: string): string {

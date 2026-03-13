@@ -15,7 +15,7 @@ function buildOgSourceUrl(relativePath: string): string {
 
 function humanizeLabel(value: string): string {
   return value
-    .replace(/\.png$/i, '')
+    .replace(/\.(png|jpe?g|webp)$/i, '')
     .replace(/[_/.-]+/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
@@ -29,7 +29,7 @@ function buildAlt(relativePath: string): string {
 function pageSlugFromRelativePath(relativePath: string): string | null {
   if (!relativePath.startsWith('pages/')) return null
   const file = relativePath.replace(/^pages\//, '')
-  const slug = file.replace(/\.png$/i, '')
+  const slug = file.replace(/\.(png|jpe?g|webp)$/i, '')
   return slug || null
 }
 
@@ -45,7 +45,7 @@ async function listGeneratedOgFiles(rootDir: string): Promise<string[]> {
       continue
     }
 
-    if (entry.isFile() && entry.name.toLowerCase().endsWith('.png')) {
+    if (entry.isFile() && /\.(png|jpe?g|webp)$/i.test(entry.name)) {
       files.push(entry.name)
     }
   }
@@ -56,10 +56,12 @@ async function listGeneratedOgFiles(rootDir: string): Promise<string[]> {
 async function toPayloadFile(relativePath: string): Promise<File> {
   const absolutePath = path.join(OG_DIR, relativePath)
   const data = await readFile(absolutePath)
+  const extension = path.extname(relativePath).toLowerCase()
+  const mimetype = extension === '.png' ? 'image/png' : extension === '.webp' ? 'image/webp' : 'image/jpeg'
   return {
     name: path.basename(relativePath),
     data,
-    mimetype: 'image/png',
+    mimetype,
     size: data.byteLength,
   }
 }

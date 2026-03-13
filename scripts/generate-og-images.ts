@@ -1,8 +1,9 @@
 // @ts-nocheck
-import { mkdir, rm } from 'node:fs/promises'
+import { mkdir, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import dotenv from 'dotenv'
 import { chromium } from 'playwright'
+import sharp from 'sharp'
 import { getPayload } from 'payload'
 import articlesContent from '../src/constants/articles-content.json'
 import fallbacks from '../src/constants/fallbacks.json'
@@ -26,6 +27,8 @@ const BASE_URL = (process.env.OG_CAPTURE_BASE_URL || process.env.NEXT_PUBLIC_SER
 const CMS_PAGE_LIMIT = 1000
 const CMS_POST_LIMIT = 2000
 const CMS_CATEGORY_LIMIT = 400
+const MAX_OG_BYTES = Number(process.env.OG_MAX_BYTES || 300 * 1024)
+const OG_EXTENSION = 'jpg'
 
 const pagePaletteBySlug = {
   home: { color1: '#2b3dea', color2: '#4153ff', color3: '#2634cb' },
@@ -193,14 +196,45 @@ async function captureDescriptor(page, descriptor) {
     }
   })
   await page.waitForTimeout(1100)
-  await page.screenshot({
-    path: outputPath,
+  const screenshotBuffer = await page.screenshot({
     type: 'png',
   })
+  const optimizedBuffer = await optimizeForShareTargets(screenshotBuffer)
+  await writeFile(outputPath, optimizedBuffer)
+}
+
+async function optimizeForShareTargets(screenshotBuffer) {
+  const candidates = []
+  const scales = [1, 0.95, 0.9, 0.85, 0.8, 0.75, 0.7, 0.65]
+  const qualities = [86, 78, 70, 62, 54, 46, 40, 34, 28, 24]
+
+  for (const scale of scales) {
+    const width = Math.max(640, Math.round(WIDTH * scale))
+    const height = Math.max(336, Math.round(HEIGHT * scale))
+    for (const quality of qualities) {
+      const candidate = await sharp(screenshotBuffer)
+        .resize({
+          width,
+          height,
+          fit: 'fill',
+        })
+        .jpeg({
+          quality,
+          mozjpeg: true,
+          chromaSubsampling: '4:2:0',
+        })
+        .toBuffer()
+      candidates.push(candidate)
+      if (candidate.byteLength <= MAX_OG_BYTES) return candidate
+    }
+  }
+
+  return candidates.sort((a, b) => a.byteLength - b.byteLength)[0]
 }
 
 async function buildDescriptors(payload) {
   const descriptors = []
+  const pageSlugs = new Set()
 
   const pageResult = await payload.find({
     collection: 'pages',
@@ -214,15 +248,34 @@ async function buildDescriptors(payload) {
   for (const page of pageResult.docs || []) {
     const slug = ensureString(page?.slug)
     if (!slug) continue
+    pageSlugs.add(slug)
     const hero = pageHeroCopy(page)
     const backgroundFromHero = resolveMediaUrl(page?.hero?.media)
     const backgroundFromMeta = resolveMediaUrl(page?.meta?.image)
 
     descriptors.push({
-      relativePath: `pages/${slug}.png`,
+      relativePath: `pages/${slug}.${OG_EXTENSION}`,
       title: hero.title || ensureString(page?.title) || slug,
       subtitle: hero.subtitle || '',
       palette: pagePaletteBySlug[slug] || pagePaletteBySlug.home,
+    })
+  }
+
+  if (!pageSlugs.has('home')) {
+    descriptors.push({
+      relativePath: `pages/home.${OG_EXTENSION}`,
+      title: ensureString(fallbacks?.metadata?.home?.title) || 'IMP Global Megatrend Umbrella Fund',
+      subtitle: '',
+      palette: pagePaletteBySlug.home,
+    })
+  }
+
+  if (!pageSlugs.has('performance-analysis')) {
+    descriptors.push({
+      relativePath: `pages/performance-analysis.${OG_EXTENSION}`,
+      title: ensureString(fallbacks?.metadata?.performanceAnalysis?.title) || 'Performance Analysis',
+      subtitle: '',
+      palette: pagePaletteBySlug['performance-analysis'] || pagePaletteBySlug.home,
     })
   }
 
@@ -248,7 +301,7 @@ async function buildDescriptors(payload) {
     const heroImage = resolveMediaUrl(post?.heroImage) || resolveMediaUrl(post?.meta?.image)
 
     descriptors.push({
-      relativePath: `posts/${slug}.png`,
+      relativePath: `posts/${slug}.${OG_EXTENSION}`,
       title: ensureString(post?.title) || slug,
       subtitle,
       palette: {
@@ -260,7 +313,7 @@ async function buildDescriptors(payload) {
 
     const articlePalette = post?.articleHeroPalette || {}
     descriptors.push({
-      relativePath: `articles/${slug}.png`,
+      relativePath: `articles/${slug}.${OG_EXTENSION}`,
       title: ensureString(post?.title) || slug,
       subtitle,
       palette: {
@@ -284,7 +337,7 @@ async function buildDescriptors(payload) {
     const slug = ensureString(category?.slug)
     if (!slug) continue
     descriptors.push({
-      relativePath: `archives/article-category-${slug}.png`,
+      relativePath: `archives/article-category-${slug}.${OG_EXTENSION}`,
       title: ensureString(category?.title) || slug.replaceAll('-', ' '),
       subtitle: 'Browse articles in this category.',
       palette: {
@@ -296,7 +349,7 @@ async function buildDescriptors(payload) {
   }
 
   descriptors.push({
-    relativePath: 'archives/posts.png',
+    relativePath: `archives/posts.${OG_EXTENSION}`,
     title: ensureString(postsContent.heading) || 'Posts',
     subtitle: '',
     palette: {
@@ -307,7 +360,7 @@ async function buildDescriptors(payload) {
   })
 
   descriptors.push({
-    relativePath: 'archives/articles.png',
+    relativePath: `archives/articles.${OG_EXTENSION}`,
     title: ensureString(articlesContent.heading) || 'Articles',
     subtitle: ensureString(articlesContent.heroSubtitle),
     palette: {
@@ -318,7 +371,7 @@ async function buildDescriptors(payload) {
   })
 
   descriptors.push({
-    relativePath: 'archives/search.png',
+    relativePath: `archives/search.${OG_EXTENSION}`,
     title: ensureString(searchContent.heading) || 'Search',
     subtitle: ensureString(fallbacks.metadata.search.description),
     palette: {
