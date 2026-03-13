@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { getCMSAboutUsVideoUrl, getCMSPageBySlug } from '@/app/(frontend)/_components/getCMSPageBySlug'
 import { AnimatedIcon } from '@/app/(frontend)/_components/AnimatedIcon'
 import { ActionLinkButton } from '@/app/(frontend)/_components/ActionLinkButton'
-import { PageHero } from '@/app/(frontend)/_components/PageHero'
+import { CMSPageHero } from '@/app/(frontend)/_components/CMSPageHero'
 import { RelatedLinksStrip } from '@/app/(frontend)/_components/RelatedLinksStrip'
 import aboutUsContent from '@/constants/about-us-content.json'
 import fallbacks from '@/constants/fallbacks.json'
@@ -46,8 +46,6 @@ export default async function AboutUsPage() {
   const page = (cmsPage && typeof cmsPage === 'object' ? cmsPage : {}) as Record<string, unknown>
   const videoUrl = cmsVideoUrl ?? fallbacks.ui.emptyText
 
-  const heroTitle =
-    (typeof page.aboutUsHeroTitle === 'string' && page.aboutUsHeroTitle.trim()) || aboutUsContent.hero.title
   const quoteText =
     (typeof page.aboutUsQuoteText === 'string' && page.aboutUsQuoteText.trim()) || aboutUsContent.quote.text
   const quoteAttributionPrimary =
@@ -120,8 +118,10 @@ export default async function AboutUsPage() {
 
   return (
     <main className="bg-white text-[#0b1035]">
-      <PageHero
-        title={heroTitle}
+      <CMSPageHero
+        page={page}
+        fallbackTitle={aboutUsContent.hero.title}
+        legacyTitleKeys={['aboutUsHeroTitle']}
         palette={{
           color1: '#2b3dea',
           color2: 'oklch(0.47 0.11 128)',

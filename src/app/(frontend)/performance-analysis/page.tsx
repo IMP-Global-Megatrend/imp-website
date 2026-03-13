@@ -5,7 +5,7 @@ import {
   getCMSPerformancePageData,
   getCMSPerformanceShareClassCards,
 } from '@/app/(frontend)/_components/getCMSPageBySlug'
-import { PageHero } from '@/app/(frontend)/_components/PageHero'
+import { CMSPageHero } from '@/app/(frontend)/_components/CMSPageHero'
 import { RelatedLinksStrip } from '@/app/(frontend)/_components/RelatedLinksStrip'
 import { PerformanceChart } from '@/app/(frontend)/performance-analysis/PerformanceChart'
 import fallbacks from '@/constants/fallbacks.json'
@@ -144,7 +144,6 @@ export default async function PerformancePage() {
   const chfTitle = cmsPerformanceData?.chfLabel || fallbacks.performance.labels.chfTitle
   const usdTitle = cmsPerformanceData?.usdLabel || fallbacks.performance.labels.usdTitle
   const performanceTitle = cmsPerformanceData?.annualPerformanceTitle || performanceContent.chart.title
-  const heroTitle = cmsPerformanceData?.pageTitle || fallbacks.performance.labels.heroTitle
   const yearBadge = cmsPerformanceData?.chartYearBadge || performanceContent.chart.yearBadge
   const relatedLinksHeading = cmsPerformanceData?.relatedLinksHeading || performanceContent.relatedLinks.heading
   const fullHistoryLabel = cmsPerformanceData?.fullHistoryLabel || performanceContent.relatedLinks.fullHistory.label
@@ -177,8 +176,9 @@ export default async function PerformancePage() {
 
   return (
     <main className="bg-white text-[#0b1035]">
-        <PageHero
-          title={heroTitle}
+        <CMSPageHero
+          page={null}
+          fallbackTitle={cmsPerformanceData?.pageTitle || fallbacks.performance.labels.heroTitle}
           palette={{ color1: '#2b3dea', color2: 'oklch(0.46 0.14 330)', color3: 'oklch(0.46 0.12 280)' }}
         >
           <span
@@ -187,7 +187,7 @@ export default async function PerformancePage() {
           >
             {chfTitle} &amp; {usdTitle}
           </span>
-        </PageHero>
+        </CMSPageHero>
 
         {/* Performance graphs */}
         <section className="pt-8 md:pt-10 pb-8">

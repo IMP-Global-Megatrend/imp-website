@@ -3,6 +3,7 @@ import { AnimatedIcon } from '@/app/(frontend)/_components/AnimatedIcon'
 import { getCMSPageBySlug } from '@/app/(frontend)/_components/getCMSPageBySlug'
 import { ContactLocationMap } from '@/app/(frontend)/_components/ContactLocationMap'
 import { FormLandingLayout } from '@/app/(frontend)/_components/FormLandingLayout'
+import { resolvePageHeroCopy } from '@/app/(frontend)/_lib/resolvePageHeroCopy'
 import { ContactForm } from '@/app/(frontend)/contact-us/ContactForm'
 import fallbacks from '@/constants/fallbacks.json'
 import { generateMeta, generateStaticFallbackMeta } from '@/utilities/generateMeta'
@@ -25,7 +26,10 @@ export default async function ContactPage() {
     contactWebsite?: string
     contactConsentText?: string
   }
-  const heroTitle = pageData.title || fallbacks.ui.blankHeroTitle
+  const heroCopy = resolvePageHeroCopy({
+    page: pageData,
+    fallbackTitle: pageData.title || fallbacks.ui.blankHeroTitle,
+  })
   const companyName = pageData.contactCompanyName || fallbacks.ui.emptyText
   const address = pageData.contactAddress || fallbacks.ui.emptyText
   const phone = pageData.contactPhone || fallbacks.ui.emptyText
@@ -39,7 +43,8 @@ export default async function ContactPage() {
 
   return (
     <FormLandingLayout
-      heroTitle={heroTitle}
+      heroTitle={heroCopy.title}
+      heroSubtitle={heroCopy.subtitle}
       heroTitleClassName="max-w-none"
       palette={{ color1: '#2b3dea', color2: 'oklch(0.47 0.11 128)', color3: 'oklch(0.47 0.10 176)' }}
       afterContent={

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { getCMSPageBySlug } from '@/app/(frontend)/_components/getCMSPageBySlug'
-import { PageHero } from '@/app/(frontend)/_components/PageHero'
+import { CMSPageHero } from '@/app/(frontend)/_components/CMSPageHero'
 import fallbacks from '@/constants/fallbacks.json'
 import { generateMeta, generateStaticFallbackMeta } from '@/utilities/generateMeta'
 import { notFound } from 'next/navigation'
@@ -176,8 +176,9 @@ export default async function LegalPage() {
 
   return (
     <main className="bg-white text-[#0b1035]">
-      <PageHero
-        title={(typeof page.title === 'string' && page.title) || fallbacks.pageTitles.legalInformation}
+      <CMSPageHero
+        page={page}
+        fallbackTitle={(typeof page.title === 'string' && page.title) || fallbacks.pageTitles.legalInformation}
         palette={{ color1: '#2b3dea', color2: 'oklch(0.45 0.12 78)', color3: 'oklch(0.45 0.10 58)' }}
       />
 

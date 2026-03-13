@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { getCMSMegatrendDetailBlocks, getCMSPageBySlug } from '@/app/(frontend)/_components/getCMSPageBySlug'
-import { PageHero } from '@/app/(frontend)/_components/PageHero'
+import { CMSPageHero } from '@/app/(frontend)/_components/CMSPageHero'
 import { MegatrendDetailSection } from '@/app/(frontend)/_components/MegatrendDetailSection'
 import { QuoteBandSection } from '@/app/(frontend)/_components/QuoteBandSection'
 import { RelatedLinksStrip } from '@/app/(frontend)/_components/RelatedLinksStrip'
@@ -36,8 +36,6 @@ export default async function MegatrendsPage() {
     return getText(media.url)
   }
 
-  const heroTitle = getText(page.megatrendsHeroTitle) || megatrendsContent.hero.title
-  const heroSubtitle = getText(page.megatrendsHeroSubtitle) || megatrendsContent.hero.subtitle
   const introHeading = getText(page.megatrendsIntroHeading) || megatrendsContent.intro.heading
   const introLeftQuote = getText(page.megatrendsIntroLeftQuote) || megatrendsContent.intro.leftQuote
   const introRightQuote = getText(page.megatrendsIntroRightQuote) || megatrendsContent.intro.rightQuote
@@ -64,9 +62,12 @@ export default async function MegatrendsPage() {
 
   return (
     <main className="bg-white text-[#0b1035]">
-        <PageHero
-          title={heroTitle}
-          subtitle={heroSubtitle}
+        <CMSPageHero
+          page={page}
+          fallbackTitle={megatrendsContent.hero.title}
+          fallbackSubtitle={megatrendsContent.hero.subtitle}
+          legacyTitleKeys={['megatrendsHeroTitle']}
+          legacySubtitleKeys={['megatrendsHeroSubtitle']}
           palette={{ color1: '#2b3dea', color2: 'oklch(0.47 0.12 174)', color3: 'oklch(0.47 0.10 136)' }}
         />
 

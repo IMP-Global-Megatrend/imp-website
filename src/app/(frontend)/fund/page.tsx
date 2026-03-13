@@ -7,8 +7,8 @@ import {
   getCMSHeroCopyBySlug,
   getCMSPageBySlug,
 } from '@/app/(frontend)/_components/getCMSPageBySlug'
+import { CMSPageHero } from '@/app/(frontend)/_components/CMSPageHero'
 import { FundShareClassesSection } from '@/app/(frontend)/_components/FundShareClassesSection'
-import { PageHero } from '@/app/(frontend)/_components/PageHero'
 import { QuoteBandSection } from '@/app/(frontend)/_components/QuoteBandSection'
 import { RelatedLinksStrip } from '@/app/(frontend)/_components/RelatedLinksStrip'
 import fundContent from '@/constants/fund-content.json'
@@ -42,8 +42,6 @@ export default async function FundPage() {
     getCMSFundDetails(),
     getCMSFundPageData(),
   ])
-  const heroTitle = cmsHeroCopy?.title ?? fallbacks.ui.blankHeroTitle
-  const heroSubtitle = cmsHeroCopy?.subtitle
 
   const usdFallback: ShareClassContent = fallbacks.fund.shareClass.usd
   const chfFallback: ShareClassContent = fallbacks.fund.shareClass.chf
@@ -102,9 +100,10 @@ export default async function FundPage() {
 
   return (
     <main className="bg-white text-[#0b1035] overflow-x-clip">
-        <PageHero
-          title={heroTitle}
-          subtitle={heroSubtitle}
+        <CMSPageHero
+          page={null}
+          fallbackTitle={cmsHeroCopy?.title ?? fallbacks.ui.blankHeroTitle}
+          fallbackSubtitle={cmsHeroCopy?.subtitle}
           palette={{ color1: '#2b3dea', color2: 'oklch(0.45 0.12 58)', color3: 'oklch(0.45 0.11 20)' }}
           subtitleClassName="text-white text-[19px] md:text-[21px] max-w-lg font-light"
           sectionClassName="relative overflow-hidden"
