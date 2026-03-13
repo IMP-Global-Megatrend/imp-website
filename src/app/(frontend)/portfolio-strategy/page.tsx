@@ -44,7 +44,12 @@ export default async function PortfolioStrategyPage() {
   const megatrendAllocations = cmsChartData.megatrends
   const geographicAllocations = cmsChartData.geographic
   const sectorAllocations = cmsChartData.sectors
-  const topHoldingsData = cmsChartData.topHoldings
+  const topHoldingsData = (
+    cmsChartData.topHoldings.length > 0 ? cmsChartData.topHoldings : portfolioStrategyContent.topHoldings
+  ).map((row) => {
+    const [name = '', pct = '0', color = '#dbeaff', label] = row
+    return [name, pct, color, label] as [string, string, string, string?]
+  })
 
   return (
     <main className="bg-white text-[#0b1035]">
@@ -54,6 +59,7 @@ export default async function PortfolioStrategyPage() {
           fallbackSubtitle={portfolioStrategyHeroSubtitleFallback}
           legacyTitleKeys={['portfolioStrategyHeroTitle']}
           legacySubtitleKeys={['portfolioStrategyHeroSubtitle']}
+          subtitleClassName="max-w-xl"
           palette={{ color1: '#2b3dea', color2: 'oklch(0.46 0.16 24)', color3: 'oklch(0.46 0.12 62)' }}
         />
 

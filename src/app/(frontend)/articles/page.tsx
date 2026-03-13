@@ -2,6 +2,7 @@ import type { Metadata } from 'next/types'
 
 import articlesContent from '@/constants/articles-content.json'
 import fallbacks from '@/constants/fallbacks.json'
+import { ogImagePathForRoute } from '@/utilities/ogImage'
 import React from 'react'
 import { ArticlesArchiveLayout } from '@/app/(frontend)/articles/_components/ArticlesArchiveLayout'
 import { getArticleArchivePageData } from '@/app/(frontend)/articles/_lib/getArticleArchivePageData'
@@ -32,6 +33,7 @@ export default async function Page() {
 
 export function generateMetadata(): Metadata {
   const fallback = fallbacks.metadata.articles
+  const ogImageUrl = ogImagePathForRoute('/articles')
 
   return {
     ...fallback,
@@ -40,12 +42,13 @@ export function generateMetadata(): Metadata {
     },
     openGraph: {
       ...fallback.openGraph,
+      images: [{ url: ogImageUrl }],
       url: '/articles',
     },
     twitter: {
       card: 'summary_large_image',
       description: fallback.description,
-      images: fallback.openGraph?.images,
+      images: [ogImageUrl],
       title: fallback.title,
     },
   }

@@ -1441,6 +1441,10 @@ export interface PortfolioTopHolding {
    */
   weight: number;
   /**
+   * Hex color used in the chart legend and donut slice.
+   */
+  color: string;
+  /**
    * Optional Phosphor icon key for list markers (e.g. cpu, heartbeat, bank, lightning).
    */
   icon?: string | null;
@@ -4577,6 +4581,7 @@ export interface PortfolioSectorAllocationsSelect<T extends boolean = true> {
 export interface PortfolioTopHoldingsSelect<T extends boolean = true> {
   name?: T;
   weight?: T;
+  color?: T;
   icon?: T;
   sortOrder?: T;
   updatedAt?: T;

@@ -185,7 +185,7 @@ export default async function PerformancePage() {
             className="mt-6 block whitespace-nowrap text-white text-[19px] md:text-[21px] leading-[1.6]"
             data-transition-force="true"
           >
-            {chfTitle} &amp; {usdTitle}
+            {usdTitle} &amp; {chfTitle}
           </span>
         </CMSPageHero>
 
@@ -223,21 +223,21 @@ export default async function PerformancePage() {
             <span aria-hidden className="pointer-events-none absolute left-1/2 -top-8 bottom-0 hidden w-px -translate-x-1/2 bg-[#d9def0] lg:block" />
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
               <div className="space-y-8 pt-4 lg:pt-6 lg:pr-8">
-                <img src="/images/flags/ch.svg" alt="Swiss flag" className="h-5 w-auto" loading="lazy" />
-                <h2 className="text-[26px] leading-[1.2] text-[#0b1035]">{chfTitle}</h2>
-                <NavUpdatesCard data={chfDetails} labels={cardLabels} />
-                <PerformanceMetricsCard data={chfDetails} labels={cardLabels} />
-                <RiskMetricsCard data={chfDetails} labels={cardLabels} />
-                <FundDetailsCard data={chfDetails} labels={cardLabels} />
-              </div>
-              <div className="space-y-8 pt-4 lg:pt-6 lg:pl-8">
-                <div className="h-px w-full bg-[#d9def0] lg:hidden" />
                 <img src="/images/flags/us.svg" alt="United States flag" className="h-5 w-auto" loading="lazy" />
                 <h2 className="text-[26px] leading-[1.2] text-[#0b1035]">{usdTitle}</h2>
                 <NavUpdatesCard data={usdDetails} labels={cardLabels} />
                 <PerformanceMetricsCard data={usdDetails} labels={cardLabels} />
                 <RiskMetricsCard data={usdDetails} labels={cardLabels} />
                 <FundDetailsCard data={usdDetails} labels={cardLabels} />
+              </div>
+              <div className="space-y-8 pt-4 lg:pt-6 lg:pl-8">
+                <div className="h-px w-full bg-[#d9def0] lg:hidden" />
+                <img src="/images/flags/ch.svg" alt="Swiss flag" className="h-5 w-auto" loading="lazy" />
+                <h2 className="text-[26px] leading-[1.2] text-[#0b1035]">{chfTitle}</h2>
+                <NavUpdatesCard data={chfDetails} labels={cardLabels} />
+                <PerformanceMetricsCard data={chfDetails} labels={cardLabels} />
+                <RiskMetricsCard data={chfDetails} labels={cardLabels} />
+                <FundDetailsCard data={chfDetails} labels={cardLabels} />
               </div>
             </div>
           </div>

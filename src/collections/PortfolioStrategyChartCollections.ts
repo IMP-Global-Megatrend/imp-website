@@ -111,5 +111,4 @@ export const PortfolioTopHoldings = buildPortfolioChartCollection({
   slug: 'portfolio-top-holdings',
   singular: 'Portfolio Top Holding',
   plural: 'Portfolio Top Holdings',
-  includeColorField: false,
 })

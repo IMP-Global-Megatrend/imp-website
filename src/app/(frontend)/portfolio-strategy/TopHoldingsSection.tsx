@@ -57,7 +57,7 @@ export function TopHoldingsSection({ holdings }: { holdings: TopHolding[] }) {
       : null
 
   const rawChartData = [
-    ...nonOtherHoldings.map(([name, pct]) => [name, pct, ''] as TopHolding),
+    ...nonOtherHoldings,
     ...explicitOtherSlices,
     ...(syntheticRestSlice ? [syntheticRestSlice] : []),
   ]
@@ -68,9 +68,12 @@ export function TopHoldingsSection({ holdings }: { holdings: TopHolding[] }) {
   const minWeight = weights.length ? Math.min(...weights) : 0
   const maxWeight = weights.length ? Math.max(...weights) : 0
 
-  const chartData = rawChartData.map(([name, pct]) => {
+  const chartData = rawChartData.map(([name, pct, color]) => {
     if (name.trim().length === 0) {
-      return [name, pct, LIGHTEST_BLUE] as TopHolding
+      return [name, pct, color?.trim() ? color : LIGHTEST_BLUE] as TopHolding
+    }
+    if (typeof color === 'string' && color.trim()) {
+      return [name, pct, color.trim()] as TopHolding
     }
     const weight = parsePct(pct)
     return [name, pct, buildBlueScaleColor(weight, minWeight, maxWeight)] as TopHolding

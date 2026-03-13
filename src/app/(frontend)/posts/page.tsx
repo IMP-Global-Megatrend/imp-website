@@ -5,6 +5,7 @@ import { PageRange } from '@/components/PageRange'
 import { Pagination } from '@/components/Pagination'
 import fallbacks from '@/constants/fallbacks.json'
 import postsContent from '@/constants/posts-content.json'
+import { ogImagePathForRoute } from '@/utilities/ogImage'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import React from 'react'
@@ -56,6 +57,7 @@ export default async function Page() {
 
 export function generateMetadata(): Metadata {
   const fallback = fallbacks.metadata.posts
+  const ogImageUrl = ogImagePathForRoute('/posts')
 
   return {
     ...fallback,
@@ -64,12 +66,13 @@ export function generateMetadata(): Metadata {
     },
     openGraph: {
       ...fallback.openGraph,
+      images: [{ url: ogImageUrl }],
       url: '/posts',
     },
     twitter: {
       card: 'summary_large_image',
       description: fallback.description,
-      images: fallback.openGraph?.images,
+      images: [ogImageUrl],
       title: fallback.title,
     },
   }

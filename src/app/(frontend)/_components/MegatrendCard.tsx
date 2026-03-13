@@ -71,12 +71,14 @@ export function MegatrendCard({
           content={
             <div className="flex h-full items-stretch gap-4" style={reverse ? { direction: 'ltr' } : undefined}>
               <div className="hidden md:flex items-stretch gap-2 shrink-0 self-stretch">
-                <span
-                  className="font-display text-right text-[#0b1035] text-[18px] font-medium whitespace-nowrap pt-4 xl:pt-0"
-                  style={{ writingMode: 'vertical-lr', transform: 'rotate(180deg)' }}
-                >
-                  {title}
-                </span>
+                <div className="self-stretch flex items-start">
+                  <span
+                    className="font-display text-right text-[#0b1035] text-[18px] font-medium whitespace-nowrap"
+                    style={{ writingMode: 'vertical-lr', transform: 'rotate(180deg)' }}
+                  >
+                    {title}
+                  </span>
+                </div>
                 <span aria-hidden className="w-px self-stretch bg-[#d9def0]" />
               </div>
 

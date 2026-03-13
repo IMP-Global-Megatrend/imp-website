@@ -54,7 +54,6 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
     pageNumber,
     titleTemplate: articlesContent.pagination.titleTemplate,
     descriptionTemplate: articlesContent.pagination.descriptionTemplate,
-    openGraphImageUrl: '/images/og/posts-og.png',
   })
 }
 

@@ -4,91 +4,91 @@
       "title": "Global Megatrend Investing Fund | IMP Global Megatrend",
       "description": "Discover the IMP Global Megatrend Umbrella Fund, a high-conviction thematic equity strategy investing across six structural megatrends for long-term growth.",
       "openGraph": {
-        "images": [{ "url": "/images/og/home-hero-og.png" }]
+        "images": [{ "url": "/images/og/generated/pages/home.png" }]
       }
     },
     "aboutUs": {
       "title": "About Us | IMP Global Megatrend",
       "description": "Meet the team behind the IMP Global Megatrend investment strategy.",
       "openGraph": {
-        "images": [{ "url": "/images/og/about-us-og.png" }]
+        "images": [{ "url": "/images/og/generated/pages/about-us.png" }]
       }
     },
     "contactUs": {
       "title": "Contact Us | IMP Global Megatrend",
       "description": "Contact MRB Fund Partners AG for fund-related inquiries.",
       "openGraph": {
-        "images": [{ "url": "/images/og/contact-us-og.png" }]
+        "images": [{ "url": "/images/og/generated/pages/contact-us.png" }]
       }
     },
     "fund": {
       "title": "The Fund | IMP Global Megatrend",
       "description": "Fund structure, objective, and share class details for IMP Global Megatrend.",
       "openGraph": {
-        "images": [{ "url": "/images/og/fund-og.png" }]
+        "images": [{ "url": "/images/og/generated/pages/fund.png" }]
       }
     },
     "megatrends": {
       "title": "Our Megatrends | IMP Global Megatrend",
       "description": "Explore the six structural megatrends shaping our portfolio construction.",
       "openGraph": {
-        "images": [{ "url": "/images/og/megatrends-og.png" }]
+        "images": [{ "url": "/images/og/generated/pages/megatrends.png" }]
       }
     },
     "newsletterSubscription": {
       "title": "Newsletter Subscription | IMP Global Megatrend",
       "description": "Subscribe for periodic updates on market developments and fund news.",
       "openGraph": {
-        "images": [{ "url": "/images/og/newsletter-subscription-og.png" }]
+        "images": [{ "url": "/images/og/generated/pages/newsletter-subscription.png" }]
       }
     },
     "performanceAnalysis": {
       "title": "Performance Analysis | IMP Global Megatrend",
       "description": "Performance charts, metrics, and share class details for the fund.",
       "openGraph": {
-        "images": [{ "url": "/images/og/performance-analysis-og.png" }]
+        "images": [{ "url": "/images/og/generated/pages/performance-analysis.png" }]
       }
     },
     "portfolioStrategy": {
       "title": "Portfolio Strategy | IMP Global Megatrend",
       "description": "Understand our thematic investment process, allocations, and portfolio framework.",
       "openGraph": {
-        "images": [{ "url": "/images/og/portfolio-strategy-og.png" }]
+        "images": [{ "url": "/images/og/generated/pages/portfolio-strategy.png" }]
       }
     },
     "posts": {
       "title": "Posts | IMP Global Megatrend",
       "description": "Insights, updates, and market commentary from IMP Global Megatrend.",
       "openGraph": {
-        "images": [{ "url": "/images/og/posts-og.png" }]
+        "images": [{ "url": "/images/og/generated/archives/posts.png" }]
       }
     },
     "articles": {
       "title": "Articles | IMP Global Megatrend",
       "description": "Research updates and commentary on structural megatrends and portfolio positioning.",
       "openGraph": {
-        "images": [{ "url": "/images/og/posts-og.png" }]
+        "images": [{ "url": "/images/og/generated/archives/articles.png" }]
       }
     },
     "search": {
       "title": "Search | IMP Global Megatrend",
       "description": "Search articles and updates from the IMP Global Megatrend Umbrella Fund.",
       "openGraph": {
-        "images": [{ "url": "/images/og/search-og.png" }]
+        "images": [{ "url": "/images/og/generated/archives/search.png" }]
       }
     },
     "privacyPolicy": {
       "title": "Privacy Policy | IMP Global Megatrend",
       "description": "Read the data protection statement of MRB Fund Partners AG.",
       "openGraph": {
-        "images": [{ "url": "/images/og/privacy-policy-og.png" }]
+        "images": [{ "url": "/images/og/generated/pages/privacy-policy.png" }]
       }
     },
     "legalInformation": {
       "title": "Regulatory & Legal Information | IMP Global Megatrend",
       "description": "Regulatory disclosures and legal information for IMP Global Megatrend.",
       "openGraph": {
-        "images": [{ "url": "/images/og/legal-information-og.png" }]
+        "images": [{ "url": "/images/og/generated/pages/legal-information.png" }]
       }
     }
   },

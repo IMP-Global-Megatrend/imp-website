@@ -9,6 +9,7 @@ import PageClient from '@/app/(frontend)/search/page.client'
 import { CardPostData } from '@/components/Card'
 import fallbacks from '@/constants/fallbacks.json'
 import searchContent from '@/constants/search-content.json'
+import { ogImagePathForRoute } from '@/utilities/ogImage'
 
 type Args = {
   searchParams: Promise<{
@@ -85,6 +86,7 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
 
 export function generateMetadata(): Metadata {
   const fallback = fallbacks.metadata.search
+  const ogImageUrl = ogImagePathForRoute('/search')
 
   return {
     ...fallback,
@@ -102,8 +104,13 @@ export function generateMetadata(): Metadata {
     twitter: {
       card: 'summary_large_image',
       description: fallback.description,
-      images: fallback.openGraph?.images,
+      images: [ogImageUrl],
       title: fallback.title,
+    },
+    openGraph: {
+      ...fallback.openGraph,
+      images: [{ url: ogImageUrl }],
+      url: '/search',
     },
   }
 }

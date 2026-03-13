@@ -1,57 +1,72 @@
 // @ts-nocheck
 import dotenv from 'dotenv'
 import path from 'node:path'
-import { readFile } from 'node:fs/promises'
+import { readdir, readFile } from 'node:fs/promises'
 import { getPayload, type File } from 'payload'
 
 dotenv.config({ path: path.resolve(process.cwd(), '.env') })
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') })
 
-const OG_PAGE_MAPPINGS: Array<{ filename: string; slug: string; alt: string }> = [
-  { filename: 'home-hero-og.png', slug: 'home', alt: 'Home page Open Graph image' },
-  { filename: 'fund-og.png', slug: 'fund', alt: 'Fund page Open Graph image' },
-  { filename: 'megatrends-og.png', slug: 'megatrends', alt: 'Megatrends page Open Graph image' },
-  { filename: 'portfolio-strategy-og.png', slug: 'portfolio-strategy', alt: 'Portfolio Strategy page Open Graph image' },
-  { filename: 'performance-analysis-og.png', slug: 'performance-analysis', alt: 'Performance Analysis page Open Graph image' },
-  { filename: 'about-us-og.png', slug: 'about-us', alt: 'About Us page Open Graph image' },
-  { filename: 'contact-us-og.png', slug: 'contact-us', alt: 'Contact Us page Open Graph image' },
-  {
-    filename: 'newsletter-subscription-og.png',
-    slug: 'newsletter-subscription',
-    alt: 'Newsletter Subscription page Open Graph image',
-  },
-  { filename: 'privacy-policy-og.png', slug: 'privacy-policy', alt: 'Privacy Policy page Open Graph image' },
-  { filename: 'legal-information-og.png', slug: 'legal-information', alt: 'Legal Information page Open Graph image' },
-  { filename: 'posts-og.png', slug: 'posts', alt: 'Posts page Open Graph image' },
-  { filename: 'search-og.png', slug: 'search', alt: 'Search page Open Graph image' },
-]
+const OG_DIR = path.resolve('public/images/og/generated')
 
-const OG_DIR = path.resolve('public/images/og')
-
-function slugToTitle(slug: string): string {
-  return slug
-    .split('-')
-    .map((part) => (part ? part.charAt(0).toUpperCase() + part.slice(1) : part))
-    .join(' ')
+function buildOgSourceUrl(relativePath: string): string {
+  return `/images/og/generated/${relativePath}`
 }
 
-function buildOgSourceUrl(filename: string): string {
-  return `/images/og/${filename}`
+function humanizeLabel(value: string): string {
+  return value
+    .replace(/\.png$/i, '')
+    .replace(/[_/.-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/\b\w/g, (letter) => letter.toUpperCase())
 }
 
-async function toPayloadFile(filename: string): Promise<File> {
-  const absolutePath = path.join(OG_DIR, filename)
+function buildAlt(relativePath: string): string {
+  return `${humanizeLabel(relativePath)} Open Graph image`
+}
+
+function pageSlugFromRelativePath(relativePath: string): string | null {
+  if (!relativePath.startsWith('pages/')) return null
+  const file = relativePath.replace(/^pages\//, '')
+  const slug = file.replace(/\.png$/i, '')
+  return slug || null
+}
+
+async function listGeneratedOgFiles(rootDir: string): Promise<string[]> {
+  const entries = await readdir(rootDir, { withFileTypes: true })
+  const files: string[] = []
+
+  for (const entry of entries) {
+    const absolutePath = path.join(rootDir, entry.name)
+    if (entry.isDirectory()) {
+      const nested = await listGeneratedOgFiles(absolutePath)
+      files.push(...nested.map((nestedPath) => path.join(entry.name, nestedPath)))
+      continue
+    }
+
+    if (entry.isFile() && entry.name.toLowerCase().endsWith('.png')) {
+      files.push(entry.name)
+    }
+  }
+
+  return files
+}
+
+async function toPayloadFile(relativePath: string): Promise<File> {
+  const absolutePath = path.join(OG_DIR, relativePath)
   const data = await readFile(absolutePath)
   return {
-    name: filename,
+    name: path.basename(relativePath),
     data,
     mimetype: 'image/png',
     size: data.byteLength,
   }
 }
 
-async function upsertOgMedia(payload: Awaited<ReturnType<typeof getPayload>>, item: (typeof OG_PAGE_MAPPINGS)[number]) {
-  const sourceUrl = buildOgSourceUrl(item.filename)
+async function upsertOgMedia(payload: Awaited<ReturnType<typeof getPayload>>, relativePath: string) {
+  const sourceUrl = buildOgSourceUrl(relativePath)
+  const alt = buildAlt(relativePath)
   const existing = await payload.find({
     collection: 'media',
     where: { sourceUrl: { equals: sourceUrl } },
@@ -66,7 +81,7 @@ async function upsertOgMedia(payload: Awaited<ReturnType<typeof getPayload>>, it
       collection: 'media',
       id: existingDoc.id,
       data: {
-        alt: item.alt,
+        alt,
         sourceUrl,
       },
       depth: 0,
@@ -74,11 +89,11 @@ async function upsertOgMedia(payload: Awaited<ReturnType<typeof getPayload>>, it
     return existingDoc.id
   }
 
-  const file = await toPayloadFile(item.filename)
+  const file = await toPayloadFile(relativePath)
   const created = await payload.create({
     collection: 'media',
     data: {
-      alt: item.alt,
+      alt,
       sourceUrl,
     },
     file,
@@ -98,34 +113,14 @@ async function linkOgToPage(payload: Awaited<ReturnType<typeof getPayload>>, slu
   })
 
   const page = pageResult.docs?.[0]
-  let pageToUpdate = page
-
-  if (!pageToUpdate) {
-    pageToUpdate = await payload.create({
-      collection: 'pages',
-      data: {
-        title: slugToTitle(slug),
-        slug,
-        layout: [
-          {
-            blockType: 'content',
-            columns: [],
-          },
-        ],
-      },
-      depth: 0,
-      context: {
-        disableRevalidate: true,
-      },
-    })
-  }
+  if (!page) return false
 
   await payload.update({
     collection: 'pages',
-    id: pageToUpdate.id,
+    id: page.id,
     data: {
       meta: {
-        ...(pageToUpdate.meta || {}),
+        ...(page.meta || {}),
         image: mediaId,
       },
     },
@@ -141,26 +136,35 @@ async function linkOgToPage(payload: Awaited<ReturnType<typeof getPayload>>, slu
 async function main() {
   const { default: config } = await import('@payload-config')
   const payload = await getPayload({ config })
+  const ogFiles = await listGeneratedOgFiles(OG_DIR)
 
   let linkedCount = 0
-  const missingSlugs: string[] = []
+  let uploadedCount = 0
+  const skippedLinks: string[] = []
 
-  for (const item of OG_PAGE_MAPPINGS) {
-    const mediaId = await upsertOgMedia(payload, item)
-    const linked = await linkOgToPage(payload, item.slug, mediaId)
+  for (const relativePath of ogFiles) {
+    const mediaId = await upsertOgMedia(payload, relativePath)
+    uploadedCount += 1
+    payload.logger.info(`[og-images] upserted ${relativePath} (media #${mediaId})`)
 
+    const pageSlug = pageSlugFromRelativePath(relativePath)
+    if (!pageSlug) continue
+
+    const linked = await linkOgToPage(payload, pageSlug, mediaId)
     if (linked) {
       linkedCount += 1
-      payload.logger.info(`[og-images] linked ${item.filename} -> page "${item.slug}" (media #${mediaId})`)
-    } else {
-      missingSlugs.push(item.slug)
-      payload.logger.warn(`[og-images] page "${item.slug}" not found; uploaded media #${mediaId} only`)
+      payload.logger.info(`[og-images] linked ${relativePath} -> page "${pageSlug}" (media #${mediaId})`)
+      continue
     }
+
+    skippedLinks.push(pageSlug)
+    payload.logger.warn(`[og-images] page "${pageSlug}" not found; uploaded ${relativePath} only`)
   }
 
-  payload.logger.info(`[og-images] linked ${linkedCount}/${OG_PAGE_MAPPINGS.length} page records`)
-  if (missingSlugs.length > 0) {
-    payload.logger.warn(`[og-images] missing page slugs: ${missingSlugs.join(', ')}`)
+  payload.logger.info(`[og-images] uploaded ${uploadedCount} generated OG assets`)
+  payload.logger.info(`[og-images] linked ${linkedCount} generated page OG assets to page.meta.image`)
+  if (skippedLinks.length > 0) {
+    payload.logger.warn(`[og-images] page links skipped (missing slug): ${skippedLinks.join(', ')}`)
   }
 }
 

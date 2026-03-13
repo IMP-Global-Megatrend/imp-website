@@ -74,7 +74,6 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
     pageNumber,
     titleTemplate: postsContent.pagination.titleTemplate,
     descriptionTemplate: postsContent.pagination.descriptionTemplate,
-    openGraphImageUrl: '/images/og/posts-og.png',
   })
 }
 

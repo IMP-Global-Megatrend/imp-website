@@ -58,12 +58,14 @@ export function StrategyStepSection({ step, index, total }: StrategyStepSectionP
           <div className="h-full" style={isReversed ? { direction: 'ltr' } : undefined}>
             <div className="flex h-full items-stretch gap-4">
               <div className="hidden md:flex items-stretch gap-2 shrink-0 self-stretch">
-                <span
-                  className="font-display text-right text-[#0b1035] text-[18px] font-medium whitespace-nowrap"
-                  style={{ writingMode: 'vertical-lr', transform: 'rotate(180deg)' }}
-                >
-                  {step.title}
-                </span>
+                <div className="self-stretch flex items-start">
+                  <span
+                    className="font-display text-right text-[#0b1035] text-[18px] font-medium whitespace-nowrap"
+                    style={{ writingMode: 'vertical-lr', transform: 'rotate(180deg)' }}
+                  >
+                    {step.title}
+                  </span>
+                </div>
                 <span aria-hidden className="w-px self-stretch bg-[#d9def0]" />
               </div>
               <div className="flex-1 self-start pb-8 md:pb-6">

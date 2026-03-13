@@ -945,7 +945,6 @@ function parsePortfolioChartDocs(
   },
 ): PortfolioChartTuple[] {
   const requireColor = options?.requireColor !== false
-  const defaultColor = '#0f3bbf'
 
   return docs
     .map((doc) => {
@@ -963,15 +962,15 @@ function parsePortfolioChartDocs(
           ? record.color.trim()
           : requireColor
             ? null
-            : defaultColor
-      if (!resolvedColor) return null
+            : ''
+      if (requireColor && !resolvedColor) return null
       const sortOrder = typeof record.sortOrder === 'number' && Number.isFinite(record.sortOrder) ? record.sortOrder : 0
 
       return {
         tuple: [
           record.name.trim(),
           formatPercentValue(record.weight),
-          resolvedColor,
+          resolvedColor || '',
           typeof record.icon === 'string' && record.icon.trim() ? record.icon.trim() : undefined,
         ] as PortfolioChartTuple,
         weight: record.weight,

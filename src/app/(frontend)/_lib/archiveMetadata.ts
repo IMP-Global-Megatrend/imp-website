@@ -1,12 +1,12 @@
 import type { Metadata } from 'next'
 import { canonicalPathForPage } from '@/app/(frontend)/_lib/archivePagination'
+import { ogImagePathForRoute } from '@/utilities/ogImage'
 
 type BuildPaginatedArchiveMetadataArgs = {
   basePath: string
   pageNumber: string
   titleTemplate: string
   descriptionTemplate: string
-  openGraphImageUrl: string
 }
 
 export const buildPaginatedArchiveMetadata = ({
@@ -14,10 +14,10 @@ export const buildPaginatedArchiveMetadata = ({
   pageNumber,
   titleTemplate,
   descriptionTemplate,
-  openGraphImageUrl,
 }: BuildPaginatedArchiveMetadataArgs): Metadata => {
   const numericPage = Number(pageNumber)
   const canonicalPath = canonicalPathForPage(basePath, numericPage)
+  const openGraphImageUrl = ogImagePathForRoute(canonicalPath)
   const resolvedTitle = titleTemplate.replace('{pageNumber}', pageNumber || '')
   const resolvedDescription = descriptionTemplate.replace('{pageNumber}', pageNumber || '')
 

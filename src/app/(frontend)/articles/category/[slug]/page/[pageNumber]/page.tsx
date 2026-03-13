@@ -9,6 +9,7 @@ import {
   getCategoryArchiveStaticParams,
 } from '@/app/(frontend)/articles/_lib/getCategoryArchivePageData'
 import { canonicalPathForPage, parsePositivePageOr404 } from '@/app/(frontend)/_lib/archivePagination'
+import { ogImagePathForRoute } from '@/utilities/ogImage'
 
 export const revalidate = 600
 
@@ -52,6 +53,7 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
   const decodedSlug = decodeURIComponent(slug)
   const numericPage = Number(pageNumber)
   const canonicalPath = canonicalPathForPage(`/articles/category/${decodedSlug}`, numericPage)
+  const ogImageUrl = ogImagePathForRoute(canonicalPath)
 
   return {
     alternates: {
@@ -59,7 +61,13 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
     },
     title: `Articles - ${decodedSlug.replace(/-/g, ' ')} - Page ${pageNumber}`,
     openGraph: {
+      images: [{ url: ogImageUrl }],
       url: canonicalPath,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      images: [ogImageUrl],
+      title: `Articles - ${decodedSlug.replace(/-/g, ' ')} - Page ${pageNumber}`,
     },
   }
 }

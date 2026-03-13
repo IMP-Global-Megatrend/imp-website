@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { getServerSideURL } from '@/utilities/getURL'
+import { ogPageImagePath } from '@/utilities/ogImage'
 
 const defaultOpenGraph: Metadata['openGraph'] = {
   type: 'website',
@@ -7,7 +8,7 @@ const defaultOpenGraph: Metadata['openGraph'] = {
     'Investing in the structural forces that shape tomorrow through a high-conviction thematic portfolio.',
   images: [
     {
-      url: `${getServerSideURL()}/images/og/home-hero-og.png`,
+      url: `${getServerSideURL()}${ogPageImagePath('home')}`,
     },
   ],
   siteName: 'IMP Global Megatrend Umbrella Fund',
