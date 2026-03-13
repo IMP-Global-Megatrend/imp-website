@@ -435,6 +435,14 @@ export interface Page {
   megatrendsThematicFrameworkLeftQuote?: string | null;
   megatrendsThematicFrameworkRightQuote?: string | null;
   /**
+   * Hero title shown on /portfolio-strategy.
+   */
+  portfolioStrategyHeroTitle?: string | null;
+  /**
+   * Hero subtitle shown below the title on /portfolio-strategy.
+   */
+  portfolioStrategyHeroSubtitle?: string | null;
+  /**
    * Intro quote text shown below hero on /portfolio-strategy.
    */
   portfolioStrategyIntro?: string | null;
@@ -4016,6 +4024,8 @@ export interface PagesSelect<T extends boolean = true> {
   megatrendsThematicFrameworkHeading?: T;
   megatrendsThematicFrameworkLeftQuote?: T;
   megatrendsThematicFrameworkRightQuote?: T;
+  portfolioStrategyHeroTitle?: T;
+  portfolioStrategyHeroSubtitle?: T;
   portfolioStrategyIntro?: T;
   portfolioStrategySteps?: T;
   portfolioInvestmentProcessItems?: T;

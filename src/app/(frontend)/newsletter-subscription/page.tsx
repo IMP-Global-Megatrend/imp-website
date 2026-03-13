@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { FormLandingLayout } from '@/app/(frontend)/_components/FormLandingLayout'
 import { getCMSPageBySlug } from '@/app/(frontend)/_components/getCMSPageBySlug'
+import { resolvePageHeroCopy } from '@/app/(frontend)/_lib/resolvePageHeroCopy'
 import { NewsletterSubscriptionForm } from '@/app/(frontend)/newsletter-subscription/NewsletterSubscriptionForm'
 import fallbacks from '@/constants/fallbacks.json'
 import { generateMeta, generateStaticFallbackMeta } from '@/utilities/generateMeta'
@@ -23,16 +24,20 @@ export default async function NewsletterSubscriptionPage() {
     newsletterSubmitLabel?: string
   }
 
-  const heroTitle = pageData.title || fallbacks.ui.blankHeroTitle
   const introTitle = pageData.newsletterIntroTitle || fallbacks.ui.emptyText
   const introBody = pageData.newsletterIntroBody || fallbacks.ui.emptyText
+  const heroCopy = resolvePageHeroCopy({
+    page: pageData,
+    fallbackTitle: pageData.title || fallbacks.ui.blankHeroTitle,
+    fallbackSubtitle: introBody || undefined,
+  })
   const consentText = pageData.newsletterConsentText || fallbacks.ui.emptyText
   const submitLabel = pageData.newsletterSubmitLabel || fallbacks.ui.newsletterSubmitLabel
 
   return (
     <FormLandingLayout
-      heroTitle={heroTitle}
-      heroSubtitle={introBody || undefined}
+      heroTitle={heroCopy.title}
+      heroSubtitle={heroCopy.subtitle}
       palette={{
         color1: '#2b3dea',
         color2: 'oklch(0.46 0.13 18)',

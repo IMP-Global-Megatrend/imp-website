@@ -6,6 +6,8 @@ type FrontendPageSeed = {
   title: string
   hero: string
   sections: string[]
+  portfolioStrategyHeroTitle?: string
+  portfolioStrategyHeroSubtitle?: string
   heroCtaLabel?: string
   heroCtaHref?: string
   contactCompanyName?: string
@@ -153,6 +155,8 @@ const frontendPages: FrontendPageSeed[] = [
     slug: 'portfolio-strategy',
     title: 'Portfolio Strategy',
     hero: 'Long-term above-average return through global direct and indirect equity investments.',
+    portfolioStrategyHeroTitle: 'High-Conviction Global Thematic',
+    portfolioStrategyHeroSubtitle: 'Focusing on capturing long-term structural opportunities',
     sections: [
       'The investment objective aims to generate a long-term, above average return. Therefore, in principle global direct and indirect investments in securities of listed companies are made. Shares as well as bonus and participation certificates are especially considered as securities. Indirect investments are particularly done via funds and ETFs. Investments will be made in the USA, Asia and Europe. At the same time, investments in other selected markets can be carried out.',
       [
@@ -380,6 +384,10 @@ export async function migrateFrontendPagesToCMS(payload: Payload): Promise<{
         },
         ...(page.heroCtaLabel ? { heroCtaLabel: page.heroCtaLabel } : {}),
         ...(page.heroCtaHref ? { heroCtaHref: page.heroCtaHref } : {}),
+        ...(page.portfolioStrategyHeroTitle ? { portfolioStrategyHeroTitle: page.portfolioStrategyHeroTitle } : {}),
+        ...(page.portfolioStrategyHeroSubtitle
+          ? { portfolioStrategyHeroSubtitle: page.portfolioStrategyHeroSubtitle }
+          : {}),
         ...(page.contactCompanyName ? { contactCompanyName: page.contactCompanyName } : {}),
         ...(page.contactAddress ? { contactAddress: page.contactAddress } : {}),
         ...(page.contactPhone ? { contactPhone: page.contactPhone } : {}),

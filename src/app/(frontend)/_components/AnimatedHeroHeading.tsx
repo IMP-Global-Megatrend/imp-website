@@ -73,13 +73,13 @@ export function AnimatedHeroHeading({ heading, className }: AnimatedHeroHeadingP
         className={`${revealClass} hero-heading-word`}
         style={getWordStyle(animatedWordIndex, totalWords)}
       >
-        <span className="inline-flex items-baseline align-baseline [perspective:1000px]">
-          <span className="relative inline-block h-[1em] min-w-[8.8ch] overflow-hidden align-baseline leading-[inherit]">
-            <span className="absolute inset-0 inline-block [transform-style:preserve-3d] [transform-origin:50%_50%] animate-[hero-word-flip_3.2s_ease-in-out_infinite_alternate]">
-              <span className="absolute inset-0 inline-block [backface-visibility:hidden]">
+        <span className="hero-word-flip-perspective inline-flex items-baseline align-baseline [perspective:1000px]">
+          <span className="hero-word-flip-window relative inline-block h-[1em] min-w-[8.8ch] overflow-hidden align-baseline leading-[inherit]">
+            <span className="hero-word-flip-rotator absolute inset-0 inline-block [transform-style:preserve-3d] [transform-origin:50%_50%] animate-[hero-word-flip_3.2s_ease-in-out_infinite_alternate]">
+              <span className="hero-word-flip-face hero-word-flip-face-front absolute inset-0 inline-block [backface-visibility:hidden]">
                 {`Tomorrow${animatedPunctuation}`}
               </span>
-              <span className="absolute inset-0 inline-block [backface-visibility:hidden] [transform:rotateX(180deg)]">
+              <span className="hero-word-flip-face hero-word-flip-face-back absolute inset-0 inline-block [backface-visibility:hidden] [transform:rotateX(180deg)]">
                 {`Today${animatedPunctuation}`}
               </span>
             </span>

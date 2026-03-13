@@ -718,6 +718,22 @@ export const Pages: CollectionConfig<'pages'> = {
         {
           fields: [
             {
+              name: 'portfolioStrategyHeroTitle',
+              type: 'text',
+              admin: {
+                description: 'Hero title shown on /portfolio-strategy.',
+                condition: (data) => data?.slug === 'portfolio-strategy',
+              },
+            },
+            {
+              name: 'portfolioStrategyHeroSubtitle',
+              type: 'textarea',
+              admin: {
+                description: 'Hero subtitle shown below the title on /portfolio-strategy.',
+                condition: (data) => data?.slug === 'portfolio-strategy',
+              },
+            },
+            {
               name: 'portfolioStrategyIntro',
               type: 'textarea',
               admin: {

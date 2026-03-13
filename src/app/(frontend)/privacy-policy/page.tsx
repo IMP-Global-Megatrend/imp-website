@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { getCMSPageBySlug } from '@/app/(frontend)/_components/getCMSPageBySlug'
-import { PageHero } from '@/app/(frontend)/_components/PageHero'
+import { CMSPageHero } from '@/app/(frontend)/_components/CMSPageHero'
 import RichText from '@/components/RichText'
 import fallbacks from '@/constants/fallbacks.json'
 import { generateMeta, generateStaticFallbackMeta } from '@/utilities/generateMeta'
@@ -45,9 +45,10 @@ export default async function PrivacyPage() {
 
   return (
     <main className="bg-white text-[#0b1035]">
-      <PageHero
-        title={cmsPage.title || fallbacks.pageTitles.privacyPolicy}
-        subtitle={fallbacks.pageTitles.privacyPolicySubtitle}
+      <CMSPageHero
+        page={cmsPage}
+        fallbackTitle={cmsPage.title || fallbacks.pageTitles.privacyPolicy}
+        fallbackSubtitle={fallbacks.pageTitles.privacyPolicySubtitle}
         palette={{ color1: '#2b3dea', color2: 'oklch(0.45 0.13 355)', color3: 'oklch(0.45 0.12 36)' }}
         subtitleClassName="max-w-none"
       />

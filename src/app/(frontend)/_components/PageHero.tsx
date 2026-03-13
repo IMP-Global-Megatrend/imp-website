@@ -51,7 +51,7 @@ export function PageHeroMeta({
   )
 }
 
-type PageHeroProps = {
+export type PageHeroProps = {
   title: React.ReactNode
   subtitle?: React.ReactNode
   children?: React.ReactNode

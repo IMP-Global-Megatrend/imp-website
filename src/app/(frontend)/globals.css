@@ -290,6 +290,56 @@ nextjs-portal {
   }
 }
 
+@keyframes hero-word-flip-firefox-front {
+  0%,
+  48% {
+    opacity: 1;
+  }
+  52%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes hero-word-flip-firefox-back {
+  0%,
+  52% {
+    opacity: 0;
+  }
+  56%,
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Firefox backface rendering can duplicate mirrored 3D text layers in the home hero heading. */
+@supports (-moz-appearance: none) {
+  .hero-word-flip-rotator {
+    animation: none !important;
+    transform: none !important;
+    transform-style: flat !important;
+    position: absolute !important;
+    inset: 0 !important;
+    display: block !important;
+  }
+
+  .hero-word-flip-face {
+    position: absolute !important;
+    inset: 0 !important;
+    backface-visibility: visible !important;
+    will-change: opacity;
+  }
+
+  .hero-word-flip-face-front {
+    animation: hero-word-flip-firefox-front 3.2s ease-in-out infinite alternate both;
+  }
+
+  .hero-word-flip-face-back {
+    transform: none !important;
+    animation: hero-word-flip-firefox-back 3.2s ease-in-out infinite alternate both;
+  }
+}
+
 @keyframes logo-spin-once {
   0% {
     transform: rotate(0deg);

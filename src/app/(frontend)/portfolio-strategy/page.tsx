@@ -5,7 +5,7 @@ import {
   getCMSPortfolioStrategySteps,
   getCMSPortfolioStrategyChartData,
 } from '@/app/(frontend)/_components/getCMSPageBySlug'
-import { PageHero } from '@/app/(frontend)/_components/PageHero'
+import { CMSPageHero } from '@/app/(frontend)/_components/CMSPageHero'
 import { AllocationPanel } from '@/app/(frontend)/portfolio-strategy/AllocationPanel'
 import { InvestmentProcessTimeline } from '@/app/(frontend)/portfolio-strategy/InvestmentProcessTimeline'
 import { QuoteBandSection } from '@/app/(frontend)/_components/QuoteBandSection'
@@ -23,6 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const portfolioStrategyIntroFallback = portfolioStrategyContent.introFallback || fallbacks.portfolioStrategy.intro
+const portfolioStrategyHeroSubtitleFallback = 'Focusing on capturing long-term structural opportunities'
 
 export default async function PortfolioStrategyPage() {
   const [cmsPage, cmsChartData, cmsInvestmentProcess, cmsStrategySteps] = await Promise.all([
@@ -32,6 +33,8 @@ export default async function PortfolioStrategyPage() {
     getCMSPortfolioStrategySteps(),
   ])
   const pageRecord = (cmsPage && typeof cmsPage === 'object' ? cmsPage : {}) as {
+    portfolioStrategyHeroTitle?: unknown
+    portfolioStrategyHeroSubtitle?: unknown
     portfolioStrategyIntro?: unknown
   }
   const portfolioStrategyIntro =
@@ -45,8 +48,12 @@ export default async function PortfolioStrategyPage() {
 
   return (
     <main className="bg-white text-[#0b1035]">
-        <PageHero
-          title={portfolioStrategyContent.heroTitle}
+        <CMSPageHero
+          page={pageRecord}
+          fallbackTitle={portfolioStrategyContent.heroTitle}
+          fallbackSubtitle={portfolioStrategyHeroSubtitleFallback}
+          legacyTitleKeys={['portfolioStrategyHeroTitle']}
+          legacySubtitleKeys={['portfolioStrategyHeroSubtitle']}
           palette={{ color1: '#2b3dea', color2: 'oklch(0.46 0.16 24)', color3: 'oklch(0.46 0.12 62)' }}
         />
 
