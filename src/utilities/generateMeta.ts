@@ -14,15 +14,61 @@ const getImageURL = (
   const toAbsolute = (value: string): string =>
     value.startsWith('http://') || value.startsWith('https://') ? value : `${serverUrl}${value}`
 
+  const resolveSupabasePublicMediaUrl = (filename: string): string | null => {
+    if (!filename) return null
+    const endpoint = process.env.S3_ENDPOINT
+    const bucket = process.env.S3_BUCKET
+    if (!endpoint || !bucket) return null
+
+    try {
+      const endpointUrl = new URL(endpoint)
+      const baseOrigin = endpointUrl.origin
+      const encodedFilename = filename
+        .split('/')
+        .map((segment) => encodeURIComponent(segment))
+        .join('/')
+      return `${baseOrigin}/storage/v1/object/public/${bucket}/${encodedFilename}`
+    } catch {
+      return null
+    }
+  }
+
+  const normalizeMediaUrl = (value: string, fallbackFilename?: string | null): string => {
+    if (!value) return ''
+    if (value.startsWith('/api/media/file/')) {
+      const urlFilename = value.replace('/api/media/file/', '').split('?')[0]?.split('#')[0]?.trim() || ''
+      const fromFallback = fallbackFilename || ''
+      const filename = fromFallback || urlFilename
+      const supabaseUrl = filename ? resolveSupabasePublicMediaUrl(filename) : null
+      return supabaseUrl || toAbsolute(value)
+    }
+    return toAbsolute(value)
+  }
+
   let url = toAbsolute(ogImagePathForRoute(path))
 
   if (image && typeof image === 'object' && 'url' in image) {
+    const ogFilename = image.sizes?.og?.filename || null
     const ogUrl = image.sizes?.og?.url
 
-    if (ogUrl) {
-      url = toAbsolute(ogUrl)
+    if (ogFilename) {
+      const resolved = resolveSupabasePublicMediaUrl(ogFilename)
+      if (resolved) {
+        url = resolved
+      } else if (ogUrl) {
+        url = normalizeMediaUrl(ogUrl, ogFilename)
+      }
+    } else if (ogUrl) {
+      url = normalizeMediaUrl(ogUrl, ogFilename)
+    } else if (image.filename) {
+      const resolved = resolveSupabasePublicMediaUrl(image.filename)
+      if (resolved) {
+        url = resolved
+      } else if (image.url) {
+        url = normalizeMediaUrl(image.url, image.filename)
+      }
     } else if (image.url) {
-      url = toAbsolute(image.url)
+      url = normalizeMediaUrl(image.url)
     }
   }
 
