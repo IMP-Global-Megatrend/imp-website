@@ -5,7 +5,9 @@ import { formatAuthors } from '@/utilities/formatAuthors'
 import { AlternatingFeatureLayout } from '@/app/(frontend)/_components/AlternatingFeatureLayout'
 import { ActionLinkButton } from '@/app/(frontend)/_components/ActionLinkButton'
 import { formatArticleDate } from '@/app/(frontend)/articles/_lib/formatArticleDate'
+import { getArticleCategoryMeta } from '@/app/(frontend)/articles/_lib/getArticleCategoryLinks'
 import type { ArticleListItem } from '@/app/(frontend)/articles/_lib/types'
+import { ArticleCategoryChips } from '@/app/(frontend)/articles/_components/ArticleCategoryChips'
 
 type ArticlesAlternatingListProps = {
   posts: ArticleListItem[]
@@ -30,6 +32,7 @@ export function ArticlesAlternatingList({ posts, startIndex = 0 }: ArticlesAlter
             ? formatAuthors(post.populatedAuthors)
             : `Article ${globalIndex + 1}`
         const bylineLabel = formatArticleDate(post.publishedAt) || authorLabel
+        const categoryMeta = getArticleCategoryMeta(post.categories)
 
         return (
           <section key={post.id} className="scroll-mt-24 pt-16 md:pt-20 pb-0">
@@ -56,11 +59,12 @@ export function ArticlesAlternatingList({ posts, startIndex = 0 }: ArticlesAlter
                       <p className="font-display text-[12px] text-[#5f6477] uppercase tracking-[0.15em] mb-2">
                         {bylineLabel}
                       </p>
-                      <h2 className="text-[28px] md:text-[32px] leading-[1.2] text-[#0b1035] mb-4">
+                      <h2 className="text-[28px] md:text-[32px] leading-[1.2] text-[#0b1035] mb-3">
                         <Link href={href} className="hover:text-[#2b3dea] transition-colors">
                           {post.title}
                         </Link>
                       </h2>
+                      <ArticleCategoryChips categories={categoryMeta} className="mb-4" />
                       {post.meta?.description ? (
                         <p className="text-[17px] md:text-[18px] text-[#2b3045] leading-relaxed mb-6">
                           {post.meta.description}
