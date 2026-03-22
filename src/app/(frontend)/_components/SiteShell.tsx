@@ -14,6 +14,7 @@ const footerNav: NavItem[] = [
   { href: '/megatrends', label: 'Our Megatrends' },
   { href: '/portfolio-strategy', label: 'Portfolio Strategy' },
   { href: '/performance-analysis', label: 'Performance Analysis' },
+  { href: '/articles', label: 'Articles' },
   { href: '/about-us', label: 'About Us' },
 ]
 const requiredFooterOrder = [
@@ -21,6 +22,7 @@ const requiredFooterOrder = [
   'Our Megatrends',
   'Portfolio Strategy',
   'Performance Analysis',
+  'Articles',
   'About Us',
 ]
 
