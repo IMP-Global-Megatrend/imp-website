@@ -2,7 +2,14 @@ import type { Post } from '@/payload-types'
 
 export type ArticleListItem = Pick<
   Post,
-  'id' | 'slug' | 'title' | 'meta' | 'heroImage' | 'populatedAuthors' | 'publishedAt'
+  | 'id'
+  | 'slug'
+  | 'title'
+  | 'meta'
+  | 'heroImage'
+  | 'populatedAuthors'
+  | 'publishedAt'
+  | 'categories'
 >
 
 export type BreadcrumbItem = {
