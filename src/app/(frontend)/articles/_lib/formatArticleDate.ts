@@ -1,3 +1,18 @@
+function ordinalSuffix(day: number): string {
+  const mod100 = day % 100
+  if (mod100 >= 11 && mod100 <= 13) return 'th'
+  switch (day % 10) {
+    case 1:
+      return 'st'
+    case 2:
+      return 'nd'
+    case 3:
+      return 'rd'
+    default:
+      return 'th'
+  }
+}
+
 export const formatArticleDate = (value?: string | null): string => {
   if (!value) return ''
 
@@ -8,5 +23,5 @@ export const formatArticleDate = (value?: string | null): string => {
   const month = parsed.toLocaleString('en-US', { month: 'long' })
   const year = parsed.getFullYear()
 
-  return `${day}th of ${month} ${year}`
+  return `${day}${ordinalSuffix(day)} of ${month} ${year}`
 }
