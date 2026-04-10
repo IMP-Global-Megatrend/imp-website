@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 
+import { anyone } from '@/access/anyone'
 import { authenticated } from '@/access/authenticated'
 import {
   revalidatePerformanceAnalysisPage,
@@ -19,7 +20,8 @@ export const PerformanceNavPoints: CollectionConfig = {
   },
   access: {
     create: authenticated,
-    read: authenticated,
+    // Public site reads NAV series via page relationships without a logged-in user.
+    read: anyone,
     update: authenticated,
     delete: authenticated,
   },

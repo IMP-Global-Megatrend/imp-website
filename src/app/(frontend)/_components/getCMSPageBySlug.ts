@@ -2,6 +2,28 @@ import configPromise from '@payload-config'
 import { draftMode } from 'next/headers'
 import { getPayload } from 'payload'
 
+import {
+  normalizeSupabasePublicObjectUrl,
+  resolveSupabasePublicMediaUrl,
+} from '@/utilities/resolveSupabasePublicMediaUrl'
+
+async function getPerformanceAnalysisPageForDepthFind(options: { depth: number }) {
+  const { isEnabled: draft } = await draftMode()
+  const payload = await getPayload({ config: configPromise })
+  const pageResult = await payload.find({
+    collection: 'pages',
+    draft,
+    limit: 1,
+    pagination: false,
+    depth: options.depth,
+    overrideAccess: draft,
+    where: {
+      slug: { equals: 'performance-analysis' },
+    },
+  })
+  return pageResult.docs?.[0]
+}
+
 export async function getCMSPageBySlug(slug: string) {
   const { isEnabled: draft } = await draftMode()
   const payload = await getPayload({ config: configPromise })
@@ -94,6 +116,7 @@ export type PerformanceNavPoint = {
 export type CMSPerformanceShareClassDetails = {
   nav?: string
   perfYTD?: string
+  perfMTD?: string
   asOf?: string
   sharpe?: string
   volatility?: string
@@ -115,6 +138,7 @@ export type CMSPerformancePageData = {
   performanceMetricsTitle?: string
   asOfPrefix?: string
   performanceYtdLabel?: string
+  performanceMtdLabel?: string
   riskMetricsTitle?: string
   sharpeRatioLabel?: string
   volatilityLabel?: string
@@ -654,27 +678,6 @@ export async function getCMSFundPageData(): Promise<CMSFundPageData | null> {
   }
 }
 
-function resolveSupabasePublicMediaUrl(filename: string): string | null {
-  if (!filename) return null
-
-  const endpoint = process.env.S3_ENDPOINT
-  const bucket = process.env.S3_BUCKET
-  if (!endpoint || !bucket) return null
-
-  try {
-    const endpointUrl = new URL(endpoint)
-    const baseOrigin = endpointUrl.origin
-    const encodedFilename = filename
-      .split('/')
-      .map((segment) => encodeURIComponent(segment))
-      .join('/')
-
-    return `${baseOrigin}/storage/v1/object/public/${bucket}/${encodedFilename}`
-  } catch {
-    return null
-  }
-}
-
 function resolvePayloadApiMediaPath(source: string): string {
   if (!source.startsWith('/api/media/file/')) return ''
 
@@ -696,7 +699,7 @@ function normalizeCMSMediaUrl(source: string): string {
     (source.startsWith('http://') || source.startsWith('https://')) &&
     source.includes('/storage/v1/object/public/')
   ) {
-    return source
+    return normalizeSupabasePublicObjectUrl(source)
   }
 
   return ''
@@ -726,7 +729,7 @@ async function resolveCMSImageUrlFromMedia(
     (source.startsWith('http://') || source.startsWith('https://')) &&
     source.includes('/storage/v1/object/public/')
   ) {
-    return source
+    return normalizeSupabasePublicObjectUrl(source)
   }
 
   const normalizedSource = normalizeSourceForMediaLookup(source)
@@ -890,18 +893,9 @@ export async function getCMSPerformanceNavSeries(): Promise<{
   chf: PerformanceNavPoint[]
 }> {
   try {
-    const payload = await getPayload({ config: configPromise })
-    const pageResult = await payload.find({
-      collection: 'pages',
-      limit: 1,
-      pagination: false,
-      depth: 2,
-      where: {
-        slug: { equals: 'performance-analysis' },
-      },
-    })
-
-    const page = pageResult.docs?.[0] as { performanceNavPoints?: unknown } | undefined
+    const page = (await getPerformanceAnalysisPageForDepthFind({ depth: 2 })) as
+      | { performanceNavPoints?: unknown }
+      | undefined
     const linkedNavPointDocs = Array.isArray(page?.performanceNavPoints)
       ? (page.performanceNavPoints as unknown[])
       : []
@@ -1351,6 +1345,7 @@ function buildPerformanceShareClass(
   return {
     nav: getDataString(data, `navPerShare${valueSuffix}`) ?? undefined,
     perfYTD: normalizePercent(getDataString(data, `performanceYtd${valueSuffix}`)),
+    perfMTD: normalizePercent(getDataString(data, `performanceMtd${valueSuffix}`)),
     asOf: normalizeAsOfDate(getDataString(data, `dateUsdNew${dateSuffix}`, `date${dateSuffix}`)),
     sharpe: getDataString(data, `sharpeRatio${valueSuffix}`) ?? undefined,
     volatility: getDataString(data, `volatility${valueSuffix}`) ?? undefined,
@@ -1362,18 +1357,7 @@ function buildPerformanceShareClass(
 
 export async function getCMSPerformancePageData(): Promise<CMSPerformancePageData | null> {
   try {
-    const payload = await getPayload({ config: configPromise })
-    const result = await payload.find({
-      collection: 'pages',
-      limit: 1,
-      pagination: false,
-      depth: 1,
-      where: {
-        slug: { equals: 'performance-analysis' },
-      },
-    })
-
-    const page = result.docs?.[0] as
+    const page = (await getPerformanceAnalysisPageForDepthFind({ depth: 1 })) as
       | {
           performanceHeroTitle?: unknown
           performanceAnnualTitle?: unknown
@@ -1387,6 +1371,7 @@ export async function getCMSPerformancePageData(): Promise<CMSPerformancePageDat
           performanceCardsPerformanceMetricsTitle?: unknown
           performanceCardsAsOfPrefix?: unknown
           performanceCardsPerformanceYtdLabel?: unknown
+          performanceCardsPerformanceMtdLabel?: unknown
           performanceCardsRiskMetricsTitle?: unknown
           performanceCardsSharpeRatioLabel?: unknown
           performanceCardsVolatilityLabel?: unknown
@@ -1447,6 +1432,7 @@ export async function getCMSPerformancePageData(): Promise<CMSPerformancePageDat
       performanceMetricsTitle: getPageText(page.performanceCardsPerformanceMetricsTitle),
       asOfPrefix: getPageText(page.performanceCardsAsOfPrefix),
       performanceYtdLabel: getPageText(page.performanceCardsPerformanceYtdLabel),
+      performanceMtdLabel: getPageText(page.performanceCardsPerformanceMtdLabel),
       riskMetricsTitle: getPageText(page.performanceCardsRiskMetricsTitle),
       sharpeRatioLabel: getPageText(page.performanceCardsSharpeRatioLabel),
       volatilityLabel: getPageText(page.performanceCardsVolatilityLabel),
@@ -1475,6 +1461,7 @@ function emptyPerformanceShareClassDetails(): Required<CMSPerformanceShareClassD
   return {
     nav: '',
     perfYTD: '',
+    perfMTD: '',
     asOf: '',
     sharpe: '',
     volatility: '',
@@ -1488,6 +1475,7 @@ function parseShareClassCardDoc(doc: unknown): Required<CMSPerformanceShareClass
   const record = (doc && typeof doc === 'object' ? doc : {}) as {
     nav?: unknown
     perfYTD?: unknown
+    perfMTD?: unknown
     asOf?: unknown
     sharpe?: unknown
     volatility?: unknown
@@ -1514,6 +1502,7 @@ function parseShareClassCardDoc(doc: unknown): Required<CMSPerformanceShareClass
   return {
     nav: parseText(record.nav),
     perfYTD: parseText(record.perfYTD),
+    perfMTD: parseText(record.perfMTD),
     asOf: parseText(record.asOf),
     sharpe: parseText(record.sharpe),
     volatility: parseText(record.volatility),
@@ -1525,18 +1514,7 @@ function parseShareClassCardDoc(doc: unknown): Required<CMSPerformanceShareClass
 
 export async function getCMSPerformanceShareClassCards(): Promise<CMSPerformanceShareClassCards> {
   try {
-    const payload = await getPayload({ config: configPromise })
-    const pageResult = await payload.find({
-      collection: 'pages',
-      limit: 1,
-      pagination: false,
-      depth: 2,
-      where: {
-        slug: { equals: 'performance-analysis' },
-      },
-    })
-
-    const page = pageResult.docs?.[0] as
+    const page = (await getPerformanceAnalysisPageForDepthFind({ depth: 2 })) as
       | {
           performanceUsdShareClassData?: unknown
           performanceChfShareClassData?: unknown

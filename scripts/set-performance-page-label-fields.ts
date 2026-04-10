@@ -189,6 +189,7 @@ async function main() {
       performanceCardsPerformanceMetricsTitle: performanceContent.cards.performanceMetricsTitle,
       performanceCardsAsOfPrefix: performanceContent.cards.asOfPrefix,
       performanceCardsPerformanceYtdLabel: performanceContent.cards.performanceYtdLabel,
+      performanceCardsPerformanceMtdLabel: performanceContent.cards.performanceMtdLabel,
       performanceCardsRiskMetricsTitle: performanceContent.cards.riskMetricsTitle,
       performanceCardsSharpeRatioLabel: performanceContent.cards.sharpeRatioLabel,
       performanceCardsVolatilityLabel: performanceContent.cards.volatilityLabel,

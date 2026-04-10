@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 
+import { anyone } from '@/access/anyone'
 import { authenticated } from '@/access/authenticated'
 import {
   revalidatePerformanceAnalysisPage,
@@ -19,12 +20,13 @@ function buildPerformanceShareClassCollection(config: {
     },
     admin: {
       useAsTitle: 'name',
-      defaultColumns: ['name', 'nav', 'perfYTD', 'asOf', 'updatedAt'],
+      defaultColumns: ['name', 'nav', 'perfYTD', 'perfMTD', 'asOf', 'updatedAt'],
       group: 'Performance',
     },
     access: {
       create: authenticated,
-      read: authenticated,
+      // Rendered on the public performance-analysis page via page relationships.
+      read: anyone,
       update: authenticated,
       delete: authenticated,
     },
@@ -44,6 +46,13 @@ function buildPerformanceShareClassCollection(config: {
       },
       { name: 'nav', type: 'text', required: true },
       { name: 'perfYTD', type: 'text', required: true },
+      {
+        name: 'perfMTD',
+        type: 'text',
+        admin: {
+          description: 'Month-to-date performance (include % if applicable, e.g. -0.15%).',
+        },
+      },
       { name: 'asOf', type: 'text', required: true },
       { name: 'sharpe', type: 'text', required: true },
       { name: 'volatility', type: 'text', required: true },

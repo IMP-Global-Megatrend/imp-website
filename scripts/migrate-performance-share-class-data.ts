@@ -11,6 +11,7 @@ type ShareClassInput = {
   name: string
   nav: string
   perfYTD: string
+  perfMTD: string
   asOf: string
   sharpe: string
   volatility: string
@@ -123,6 +124,7 @@ function normalizeShareClassInputFromWix(data: Record<string, unknown>, variant:
     name,
     nav: (getDataString(data, `navPerShare${valueSuffix}`) || '').trim(),
     perfYTD: normalizePercent(getDataString(data, `performanceYtd${valueSuffix}`)),
+    perfMTD: normalizePercent(getDataString(data, `performanceMtd${valueSuffix}`)),
     asOf: normalizeAsOfDate(getDataString(data, `dateUsdNew${dateSuffix}`, `date${dateSuffix}`)),
     sharpe: (getDataString(data, `sharpeRatio${valueSuffix}`) || '').trim(),
     volatility: (getDataString(data, `volatility${valueSuffix}`) || '').trim(),
@@ -137,6 +139,7 @@ function normalizeShareClassInput(
   cmsData: {
     nav?: string
     perfYTD?: string
+    perfMTD?: string
     asOf?: string
     sharpe?: string
     volatility?: string
@@ -147,6 +150,7 @@ function normalizeShareClassInput(
   fallbackData: {
     nav: string
     perfYTD: string
+    perfMTD: string
     asOf: string
     sharpe: string
     volatility: string
@@ -159,6 +163,7 @@ function normalizeShareClassInput(
     name,
     nav: (cmsData?.nav || fallbackData.nav || '').trim(),
     perfYTD: (cmsData?.perfYTD || fallbackData.perfYTD || '').trim(),
+    perfMTD: (cmsData?.perfMTD || fallbackData.perfMTD || '').trim(),
     asOf: (cmsData?.asOf || fallbackData.asOf || '').trim(),
     sharpe: (cmsData?.sharpe || fallbackData.sharpe || '').trim(),
     volatility: (cmsData?.volatility || fallbackData.volatility || '').trim(),
@@ -187,6 +192,7 @@ async function upsertShareClassDoc(args: {
     name: args.data.name,
     nav: args.data.nav,
     perfYTD: args.data.perfYTD,
+    perfMTD: args.data.perfMTD,
     asOf: args.data.asOf,
     sharpe: args.data.sharpe,
     volatility: args.data.volatility,
@@ -213,6 +219,7 @@ async function upsertShareClassDoc(args: {
     existing.name === docData.name &&
     existing.nav === docData.nav &&
     existing.perfYTD === docData.perfYTD &&
+    existing.perfMTD === docData.perfMTD &&
     existing.asOf === docData.asOf &&
     existing.sharpe === docData.sharpe &&
     existing.volatility === docData.volatility &&

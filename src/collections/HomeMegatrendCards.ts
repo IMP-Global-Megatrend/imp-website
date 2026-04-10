@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 
+import { anyone } from '@/access/anyone'
 import { authenticated } from '@/access/authenticated'
 
 export const HomeMegatrendCards: CollectionConfig = {
@@ -15,7 +16,8 @@ export const HomeMegatrendCards: CollectionConfig = {
   },
   access: {
     create: authenticated,
-    read: authenticated,
+    // Public homepage reads these via getHomeCMSContent; authenticated read hid populated relations from anon.
+    read: anyone,
     update: authenticated,
     delete: authenticated,
   },

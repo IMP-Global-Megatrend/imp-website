@@ -96,19 +96,21 @@ export async function BottomGrid() {
               />
             </div>
             <div className="flex flex-col items-center space-y-4">
-              {cms.downloads.map((d) => (
-                <div key={d.label}>
-                  <ActionLinkButton
-                    href={d.href}
-                    label={d.label}
-                    icon="download"
-                    external
-                    iconBefore
-                    buttonVariant="outlineMuted"
-                    className="justify-center px-3 py-2.5 text-[11px] sm:px-4 sm:text-[12px] md:px-5 md:text-[13px]"
-                  />
-                </div>
-              ))}
+              {cms.downloads
+                .filter((d) => d.href.trim() !== '')
+                .map((d) => (
+                  <div key={d.label}>
+                    <ActionLinkButton
+                      href={d.href}
+                      label={d.label}
+                      icon="download"
+                      external
+                      iconBefore
+                      buttonVariant="outlineMuted"
+                      className="justify-center px-3 py-2.5 text-[11px] sm:px-4 sm:text-[12px] md:px-5 md:text-[13px]"
+                    />
+                  </div>
+                ))}
             </div>
           </BottomGridColumn>
         </div>
