@@ -10,24 +10,7 @@ import {
 
 import { anyone } from '@/access/anyone'
 import { authenticated } from '@/access/authenticated'
-
-function buildSupabasePublicMediaUrl(filename?: string | null): string | null {
-  if (!filename) return null
-
-  const endpoint = process.env.S3_ENDPOINT
-  const bucket = process.env.S3_BUCKET
-  if (!endpoint || !bucket) return null
-
-  try {
-    const endpointUrl = new URL(endpoint)
-    const normalizedFilename = filename.trim()
-    if (!normalizedFilename) return null
-
-    return `${endpointUrl.origin}/storage/v1/object/public/${bucket}/${encodeURIComponent(normalizedFilename)}`
-  } catch {
-    return null
-  }
-}
+import { resolveSupabasePublicMediaUrl } from '@/utilities/resolveSupabasePublicMediaUrl'
 
 export const Media: CollectionConfig = {
   slug: 'media',
@@ -71,7 +54,7 @@ export const Media: CollectionConfig = {
           ({ value, siblingData }) =>
             typeof value === 'string' && value.trim().length > 0
               ? value
-              : buildSupabasePublicMediaUrl((siblingData as { filename?: string })?.filename) || '',
+              : resolveSupabasePublicMediaUrl((siblingData as { filename?: string })?.filename ?? '') || '',
         ],
       },
     },
@@ -94,7 +77,7 @@ export const Media: CollectionConfig = {
   hooks: {
     beforeValidate: [
       ({ data }) => {
-        const storageUrl = buildSupabasePublicMediaUrl((data as { filename?: string })?.filename)
+        const storageUrl = resolveSupabasePublicMediaUrl((data as { filename?: string })?.filename ?? '')
         if (!storageUrl) return data
 
         return {
@@ -119,8 +102,8 @@ export const Media: CollectionConfig = {
         storageUrl?: string | null
       }
 
-      const thumbnailPublicUrl = buildSupabasePublicMediaUrl(mediaDoc.sizes?.thumbnail?.filename)
-      const originalPublicUrl = buildSupabasePublicMediaUrl(mediaDoc.filename)
+      const thumbnailPublicUrl = resolveSupabasePublicMediaUrl(mediaDoc.sizes?.thumbnail?.filename ?? '')
+      const originalPublicUrl = resolveSupabasePublicMediaUrl(mediaDoc.filename ?? '')
 
       return (
         thumbnailPublicUrl ||

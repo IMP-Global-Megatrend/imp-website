@@ -34,10 +34,13 @@ import { Footer } from '@/Footer/config'
 import { Header } from '@/Header/config'
 import { plugins } from '@/plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
-import { getServerSideURL } from '@/utilities/getURL'
+import { getPayloadCsrfExtraOrigins, getServerSideURL } from '@/utilities/getURL'
+import { migrations } from '@/migrations'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+
+const isNextProductionBuild = process.env.NEXT_PHASE === 'phase-production-build'
 
 export default buildConfig({
   admin: {
@@ -78,10 +81,23 @@ export default buildConfig({
   db: postgresAdapter({
     pool: {
       connectionString: process.env.DATABASE_URL,
+      ...(isNextProductionBuild
+        ? {
+            max: Math.max(1, Number(process.env.DATABASE_POOL_MAX_BUILD) || 3),
+            connectionTimeoutMillis: Math.max(
+              1000,
+              Number(process.env.DATABASE_CONNECTION_TIMEOUT_MS) || 30_000,
+            ),
+          }
+        : {}),
     },
     // Avoid interactive schema push prompts during app startup/dev.
     // Run explicit migrations/schema updates in controlled steps instead.
     push: false,
+    // During `next build`, NODE_ENV is production and each static worker connects to Postgres;
+    // prodMigrations would run migrate() per worker and can block on the dev-push confirmation
+    // prompt with no TTY. Run `pnpm payload migrate` in deploy (or locally) instead.
+    prodMigrations: isNextProductionBuild ? undefined : migrations,
   }),
   collections: [
     Pages,
@@ -106,7 +122,9 @@ export default buildConfig({
     PortfolioStrategySteps,
     ...WixCollections,
   ],
+  serverURL: getServerSideURL(),
   cors: [getServerSideURL()].filter(Boolean),
+  csrf: getPayloadCsrfExtraOrigins(),
   email: resendAdapter({
     apiKey: process.env.RESEND_API_KEY || '',
     defaultFromAddress: process.env.RESEND_FROM_EMAIL || 'noreply@example.com',

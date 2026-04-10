@@ -218,6 +218,7 @@
       "usd": {
         "nav": "USD 192.91",
         "perfYTD": "-0.42%",
+        "perfMTD": "-0.18%",
         "asOf": "31.01.2026",
         "sharpe": "0.06",
         "volatility": "19.75",
@@ -289,6 +290,7 @@
       "chf": {
         "nav": "CHF 93.29",
         "perfYTD": "-0.89%",
+        "perfMTD": "-0.35%",
         "asOf": "31.01.2026",
         "sharpe": "0.06",
         "volatility": "19.75",

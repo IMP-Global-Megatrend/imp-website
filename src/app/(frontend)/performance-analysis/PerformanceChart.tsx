@@ -171,6 +171,17 @@ function getMonthlyTickMarkers(minTs: number, maxTs: number): number[] {
   return markers
 }
 
+/** One tick per UTC month; keeps the latest timestamp so quarter-end dates win over month starts. */
+function dedupeTicksByUtcMonthLast(sortedTicks: number[]): number[] {
+  const lastInMonth = new Map<string, number>()
+  for (const ts of sortedTicks) {
+    const d = new Date(ts)
+    const key = `${d.getUTCFullYear()}-${d.getUTCMonth()}`
+    lastInMonth.set(key, ts)
+  }
+  return Array.from(lastInMonth.values()).sort((a, b) => a - b)
+}
+
 function ExportIconButton({
   label,
   onClick,
@@ -242,6 +253,7 @@ function VisxBrushChart({
 
   const fullMinTs = data[0]?.xTs ?? 0
   const fullMaxTs = data[data.length - 1]?.xTs ?? 0
+  const fullSpanMs = Math.max(fullMaxTs - fullMinTs, 1)
   const displayData = useMemo(() => {
     if (!selectedRange) return data
     const [rawStart, rawEnd] = selectedRange
@@ -287,7 +299,11 @@ function VisxBrushChart({
     // Always keep the latest visible date on the axis.
     const uniqueTicks = new Set<number>(candidateTicks)
     uniqueTicks.add(focusMaxTs)
-    const sortedTicks = Array.from(uniqueTicks).sort((a, b) => a - b)
+    let sortedTicks = Array.from(uniqueTicks).sort((a, b) => a - b)
+
+    if (focusSpanMs > 45 * 24 * 60 * 60 * 1000) {
+      sortedTicks = dedupeTicksByUtcMonthLast(sortedTicks)
+    }
 
     if (!isMobile || sortedTicks.length <= 2) return sortedTicks
 
@@ -298,6 +314,23 @@ function VisxBrushChart({
       dedupedReduced.push(sortedTicks[sortedTicks.length - 1]!)
     }
     return dedupedReduced
+  })()
+
+  const contextQuarterlyMarkers = getQuarterlyGridMarkers(fullMinTs, fullMaxTs)
+  const brushTickMarkers = (() => {
+    const candidateTicks =
+      data.length <= 12
+        ? data.map((point) => point.xTs)
+        : fullSpanMs <= 92 * 24 * 60 * 60 * 1000
+          ? getMonthlyTickMarkers(fullMinTs, fullMaxTs)
+          : contextQuarterlyMarkers
+
+    const uniqueTicks = new Set<number>(candidateTicks)
+    uniqueTicks.add(fullMaxTs)
+    const sortedTicks = Array.from(uniqueTicks).sort((a, b) => a - b)
+
+    // formatTimelineTick is always month + 2-digit year; collapse same-month ticks.
+    return dedupeTicksByUtcMonthLast(sortedTicks)
   })()
 
   const formatFocusTick = (value: number): string => {
@@ -669,6 +702,7 @@ function VisxBrushChart({
           scale={contextXScale}
           stroke="#d9def0"
           tickStroke="#d9def0"
+          tickValues={brushTickMarkers}
           tickLabelProps={() => ({
             fill: '#5f6477',
             fontFamily: chartFontFamily,

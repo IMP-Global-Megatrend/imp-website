@@ -22,6 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
 type ShareClassDetails = {
   nav: string
   perfYTD: string
+  perfMTD: string
   asOf: string
   sharpe: string
   volatility: string
@@ -36,6 +37,7 @@ type PerformanceCardLabels = {
   performanceMetricsTitle: string
   asOfPrefix: string
   performanceYtdLabel: string
+  performanceMtdLabel: string
   riskMetricsTitle: string
   sharpeRatioLabel: string
   volatilityLabel: string
@@ -71,6 +73,12 @@ function PerformanceMetricsCard({ data, labels }: { data: ShareClassDetails; lab
           <p className="text-[28px] font-semibold text-[#0b1035]">{data.perfYTD}</p>
           <p className="text-[13px] text-[#5f6477]">
             {labels.performanceYtdLabel} <span className="text-[#0040ff]">*</span>
+          </p>
+        </div>
+        <div>
+          <p className="text-[28px] font-semibold text-[#0b1035]">{data.perfMTD}</p>
+          <p className="text-[13px] text-[#5f6477]">
+            {labels.performanceMtdLabel} <span className="text-[#0040ff]">*</span>
           </p>
         </div>
       </div>
@@ -139,8 +147,16 @@ export default async function PerformancePage() {
   const factsheetCHF = cmsPerformanceData?.factsheetChfHref || fallbacks.ui.emptyText
   const fundCommentary = cmsPerformanceData?.fundCommentaryHref || fallbacks.ui.emptyText
 
-  const chfDetails = cmsShareClassCards.chf as ShareClassDetails
-  const usdDetails = cmsShareClassCards.usd as ShareClassDetails
+  const usdFallback = fallbacks.performance.shareClassDetails.usd
+  const chfFallback = fallbacks.performance.shareClassDetails.chf
+  const chfDetails: ShareClassDetails = {
+    ...cmsShareClassCards.chf,
+    perfMTD: (cmsShareClassCards.chf.perfMTD || chfFallback.perfMTD || '').trim(),
+  }
+  const usdDetails: ShareClassDetails = {
+    ...cmsShareClassCards.usd,
+    perfMTD: (cmsShareClassCards.usd.perfMTD || usdFallback.perfMTD || '').trim(),
+  }
   const chfTitle = cmsPerformanceData?.chfLabel || fallbacks.performance.labels.chfTitle
   const usdTitle = cmsPerformanceData?.usdLabel || fallbacks.performance.labels.usdTitle
   const performanceTitle = cmsPerformanceData?.annualPerformanceTitle || performanceContent.chart.title
@@ -166,6 +182,7 @@ export default async function PerformancePage() {
       cmsPerformanceData?.performanceMetricsTitle || performanceContent.cards.performanceMetricsTitle,
     asOfPrefix: cmsPerformanceData?.asOfPrefix || performanceContent.cards.asOfPrefix,
     performanceYtdLabel: cmsPerformanceData?.performanceYtdLabel || performanceContent.cards.performanceYtdLabel,
+    performanceMtdLabel: cmsPerformanceData?.performanceMtdLabel || performanceContent.cards.performanceMtdLabel,
     riskMetricsTitle: cmsPerformanceData?.riskMetricsTitle || performanceContent.cards.riskMetricsTitle,
     sharpeRatioLabel: cmsPerformanceData?.sharpeRatioLabel || performanceContent.cards.sharpeRatioLabel,
     volatilityLabel: cmsPerformanceData?.volatilityLabel || performanceContent.cards.volatilityLabel,

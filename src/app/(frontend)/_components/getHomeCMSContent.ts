@@ -2,6 +2,10 @@ import configPromise from '@payload-config'
 import { cache } from 'react'
 import { getPayload } from 'payload'
 import fallbacks from '@/constants/fallbacks.json'
+import {
+  normalizeSupabasePublicObjectUrl,
+  resolveSupabasePublicMediaUrl,
+} from '@/utilities/resolveSupabasePublicMediaUrl'
 
 type RegulatoryItem = {
   label: string
@@ -140,7 +144,7 @@ function resolveCMSImageUrl(value: string): string {
   if (value.startsWith('/')) return value
   if (value.startsWith('http://') || value.startsWith('https://')) {
     // Keep only already-migrated storage URLs; block other external image hosts.
-    return value.includes('/storage/v1/object/public/') ? value : ''
+    return value.includes('/storage/v1/object/public/') ? normalizeSupabasePublicObjectUrl(value) : ''
   }
 
   // Disallow Wix tokens in frontend content; CMS rows should already reference local media URLs.
@@ -648,27 +652,6 @@ function parseRegulatoryNoticeFromCMS(
   }
 }
 
-function resolveSupabasePublicMediaUrl(filename: string): string | null {
-  if (!filename) return null
-
-  const endpoint = process.env.S3_ENDPOINT
-  const bucket = process.env.S3_BUCKET
-  if (!endpoint || !bucket) return null
-
-  try {
-    const endpointUrl = new URL(endpoint)
-    const baseOrigin = endpointUrl.origin
-    const encodedFilename = filename
-      .split('/')
-      .map((segment) => encodeURIComponent(segment))
-      .join('/')
-
-    return `${baseOrigin}/storage/v1/object/public/${bucket}/${encodedFilename}`
-  } catch {
-    return null
-  }
-}
-
 function resolveMediaLikeUrl(media: unknown): string {
   if (!media || typeof media !== 'object') return ''
 
@@ -686,30 +669,48 @@ function resolveMediaLikeUrl(media: unknown): string {
   return ''
 }
 
-class HomeDownloadAssetError extends Error {
-  constructor(
-    public readonly field: DownloadItem['id'],
-    message: string,
-  ) {
-    super(message)
-    this.name = 'HomeDownloadAssetError'
-  }
-}
-
-function resolveRequiredHomeDownloadUrl(args: {
+async function resolveHomeDownloadUrlAsync(args: {
+  payload: Awaited<ReturnType<typeof getPayload>>
   media: unknown
   field: DownloadItem['id']
   label: string
   pageId: unknown
   pageSlug: string
-}): string {
-  const href = resolveMediaLikeUrl(args.media)
+  logWarn: (msg: string) => void
+}): Promise<string> {
+  let mediaValue: unknown = args.media
+
+  if (typeof args.media === 'number') {
+    try {
+      const doc = await args.payload.findByID({
+        collection: 'media',
+        id: args.media,
+        depth: 0,
+      })
+      mediaValue = doc
+    } catch {
+      mediaValue = null
+    }
+  } else if (typeof args.media === 'string' && args.media.trim() !== '') {
+    try {
+      const doc = await args.payload.findByID({
+        collection: 'media',
+        id: args.media.trim(),
+        depth: 0,
+      })
+      mediaValue = doc
+    } catch {
+      mediaValue = null
+    }
+  }
+
+  const href = resolveMediaLikeUrl(mediaValue)
   if (href) return href
 
-  throw new HomeDownloadAssetError(
-    args.field,
-    `Missing or unresolvable Home download asset for "${args.label}" (field: "${args.field}") on page #${String(args.pageId)} (${args.pageSlug}).`,
+  args.logWarn(
+    `[home-downloads] Missing or unresolvable Home download asset for "${args.label}" (field: "${args.field}") on page #${String(args.pageId)} (${args.pageSlug}).`,
   )
+  return ''
 }
 
 function normalizeMediaLookupSource(source: string): string {
@@ -907,19 +908,23 @@ export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
     }
 
     // Canonical source for homepage downloads is pages(home).homeDownloads.* .
-    // Strict mode intentionally throws when any required download media cannot resolve.
-    // When rotating assets, update the media relations in the Home document.
-    const resolvedDownloads: DownloadItem[] = REQUIRED_HOME_DOWNLOADS.map(({ id, label }) => ({
-      id,
-      label,
-      href: resolveRequiredHomeDownloadUrl({
-        media: pageRecord.homeDownloads?.[id],
-        field: id,
+    // Missing or broken relations log a warning and yield an empty href so builds and previews
+    // still succeed; fix media in the Home document (or run upload scripts) to restore links.
+    const resolvedDownloads: DownloadItem[] = await Promise.all(
+      REQUIRED_HOME_DOWNLOADS.map(async ({ id, label }) => ({
+        id,
         label,
-        pageId: (page as { id?: unknown }).id,
-        pageSlug: 'home',
-      }),
-    }))
+        href: await resolveHomeDownloadUrlAsync({
+          payload: payload!,
+          media: pageRecord.homeDownloads?.[id],
+          field: id,
+          label,
+          pageId: (page as { id?: unknown }).id,
+          pageSlug: 'home',
+          logWarn: (msg) => payload!.logger.warn(msg),
+        }),
+      })),
+    )
 
     const downloadResult = await payload.find({
       collection: 'homepage-links',
@@ -983,11 +988,7 @@ export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
       },
       regulatoryNotice: regulatoryNoticeFromCMS ?? EMPTY_HOME_CONTENT.regulatoryNotice,
     }
-  } catch (error) {
-    if (error instanceof HomeDownloadAssetError) {
-      payload?.logger.error(`[home-downloads] ${error.message}`)
-      throw error
-    }
+  } catch {
     return EMPTY_HOME_CONTENT
   }
 })

@@ -5,6 +5,10 @@ import type { Media, Page, Post, Config } from '@/payload-types'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { getServerSideURL } from '@/utilities/getURL'
 import { ogImagePathForRoute } from '@/utilities/ogImage'
+import {
+  normalizeSupabasePublicObjectUrl,
+  resolveSupabasePublicMediaUrl,
+} from '@/utilities/resolveSupabasePublicMediaUrl'
 
 const getImageURL = (
   path: string,
@@ -14,25 +18,6 @@ const getImageURL = (
   const toAbsolute = (value: string): string =>
     value.startsWith('http://') || value.startsWith('https://') ? value : `${serverUrl}${value}`
 
-  const resolveSupabasePublicMediaUrl = (filename: string): string | null => {
-    if (!filename) return null
-    const endpoint = process.env.S3_ENDPOINT
-    const bucket = process.env.S3_BUCKET
-    if (!endpoint || !bucket) return null
-
-    try {
-      const endpointUrl = new URL(endpoint)
-      const baseOrigin = endpointUrl.origin
-      const encodedFilename = filename
-        .split('/')
-        .map((segment) => encodeURIComponent(segment))
-        .join('/')
-      return `${baseOrigin}/storage/v1/object/public/${bucket}/${encodedFilename}`
-    } catch {
-      return null
-    }
-  }
-
   const normalizeMediaUrl = (value: string, fallbackFilename?: string | null): string => {
     if (!value) return ''
     if (value.startsWith('/api/media/file/')) {
@@ -41,6 +26,12 @@ const getImageURL = (
       const filename = fromFallback || urlFilename
       const supabaseUrl = filename ? resolveSupabasePublicMediaUrl(filename) : null
       return supabaseUrl || toAbsolute(value)
+    }
+    if (
+      (value.startsWith('http://') || value.startsWith('https://')) &&
+      value.includes('/storage/v1/object/public/')
+    ) {
+      return normalizeSupabasePublicObjectUrl(value)
     }
     return toAbsolute(value)
   }

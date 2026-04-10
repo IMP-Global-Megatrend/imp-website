@@ -931,6 +931,13 @@ export const Pages: CollectionConfig<'pages'> = {
               },
             },
             {
+              name: 'performanceCardsPerformanceMtdLabel',
+              type: 'text',
+              admin: {
+                condition: (data) => data?.slug === 'performance-analysis',
+              },
+            },
+            {
               name: 'performanceCardsRiskMetricsTitle',
               type: 'text',
               admin: {

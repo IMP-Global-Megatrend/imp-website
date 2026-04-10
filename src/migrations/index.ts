@@ -2,6 +2,8 @@ import * as migration_20260313_103000 from './20260313_103000';
 import * as migration_20260313_103216 from './20260313_103216';
 import * as migration_20260313_115600_add_portfolio_top_holdings_color from './20260313_115600_add_portfolio_top_holdings_color';
 import * as migration_20260313_130800_backfill_portfolio_top_holdings_colors from './20260313_130800_backfill_portfolio_top_holdings_colors';
+import * as migration_20260410_120000_add_performance_mtd_columns from './20260410_120000_add_performance_mtd_columns';
+import * as migration_20260411_100000_fix_perf_mtd_db_column_name from './20260411_100000_fix_perf_mtd_db_column_name';
 
 export const migrations = [
   {
@@ -23,5 +25,15 @@ export const migrations = [
     up: migration_20260313_130800_backfill_portfolio_top_holdings_colors.up,
     down: migration_20260313_130800_backfill_portfolio_top_holdings_colors.down,
     name: '20260313_130800_backfill_portfolio_top_holdings_colors',
+  },
+  {
+    up: migration_20260410_120000_add_performance_mtd_columns.up,
+    down: migration_20260410_120000_add_performance_mtd_columns.down,
+    name: '20260410_120000_add_performance_mtd_columns',
+  },
+  {
+    up: migration_20260411_100000_fix_perf_mtd_db_column_name.up,
+    down: migration_20260411_100000_fix_perf_mtd_db_column_name.down,
+    name: '20260411_100000_fix_perf_mtd_db_column_name',
   },
 ];

@@ -515,6 +515,7 @@ export interface Page {
   performanceCardsPerformanceMetricsTitle?: string | null;
   performanceCardsAsOfPrefix?: string | null;
   performanceCardsPerformanceYtdLabel?: string | null;
+  performanceCardsPerformanceMtdLabel?: string | null;
   performanceCardsRiskMetricsTitle?: string | null;
   performanceCardsSharpeRatioLabel?: string | null;
   performanceCardsVolatilityLabel?: string | null;
@@ -1478,6 +1479,10 @@ export interface PerformanceUsdShareClassDatum {
   name: string;
   nav: string;
   perfYTD: string;
+  /**
+   * Month-to-date performance (include % if applicable, e.g. -0.15%).
+   */
+  perfMTD?: string | null;
   asOf: string;
   sharpe: string;
   volatility: string;
@@ -1506,6 +1511,10 @@ export interface PerformanceChfShareClassDatum {
   name: string;
   nav: string;
   perfYTD: string;
+  /**
+   * Month-to-date performance (include % if applicable, e.g. -0.15%).
+   */
+  perfMTD?: string | null;
   asOf: string;
   sharpe: string;
   volatility: string;
@@ -4052,6 +4061,7 @@ export interface PagesSelect<T extends boolean = true> {
   performanceCardsPerformanceMetricsTitle?: T;
   performanceCardsAsOfPrefix?: T;
   performanceCardsPerformanceYtdLabel?: T;
+  performanceCardsPerformanceMtdLabel?: T;
   performanceCardsRiskMetricsTitle?: T;
   performanceCardsSharpeRatioLabel?: T;
   performanceCardsVolatilityLabel?: T;
@@ -4495,6 +4505,7 @@ export interface PerformanceUsdShareClassDataSelect<T extends boolean = true> {
   name?: T;
   nav?: T;
   perfYTD?: T;
+  perfMTD?: T;
   asOf?: T;
   sharpe?: T;
   volatility?: T;
@@ -4519,6 +4530,7 @@ export interface PerformanceChfShareClassDataSelect<T extends boolean = true> {
   name?: T;
   nav?: T;
   perfYTD?: T;
+  perfMTD?: T;
   asOf?: T;
   sharpe?: T;
   volatility?: T;
