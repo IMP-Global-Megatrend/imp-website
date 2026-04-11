@@ -4,6 +4,10 @@ declare global {
       PAYLOAD_SECRET: string
       DATABASE_URL: string
       NEXT_PUBLIC_SERVER_URL: string
+      /** Dev/local origin for Payload admin API when NEXT_PUBLIC_SERVER_URL is production. */
+      PAYLOAD_PUBLIC_SERVER_URL?: string
+      /** Comma-separated origins for Payload CORS/CSRF (e.g. LAN admin URL). */
+      PAYLOAD_CSRF_EXTRA_ORIGINS?: string
       VERCEL_PROJECT_PRODUCTION_URL: string
       S3_ENDPOINT: string
       S3_ACCESS_KEY_ID: string

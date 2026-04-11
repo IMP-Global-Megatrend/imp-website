@@ -59,6 +59,20 @@ export const getServerSideURL = () => {
 }
 
 /**
+ * Origin embedded in Payload as `serverURL` (admin REST / API view `fetch` targets this).
+ * When `NEXT_PUBLIC_SERVER_URL` is your **production** site (common for OG/metadata) but you run
+ * `pnpm dev` on localhost or a LAN IP, the admin "API" tab otherwise calls the wrong host and the
+ * browser reports **Failed to fetch**. Set `PAYLOAD_PUBLIC_SERVER_URL` to the origin you actually
+ * open (e.g. `http://localhost:3000` or `http://192.168.x.x:3000`). Marketing/meta still uses
+ * {@link getServerSideURL}.
+ */
+export function getPayloadServerURL(): string {
+  const payloadOnly = process.env.PAYLOAD_PUBLIC_SERVER_URL?.trim()
+  if (payloadOnly) return trimTrailingSlash(withProtocol(payloadOnly))
+  return getServerSideURL()
+}
+
+/**
  * Origins allowed for Payload CORS (REST/GraphQL responses). Must cover any host you use to open
  * the admin in the browser — same list as CSRF extras plus `serverURL` — or credentialed `fetch`
  * from the API tab / admin will fail with "Failed to fetch" when e.g. `serverURL` is localhost
@@ -66,7 +80,7 @@ export const getServerSideURL = () => {
  */
 export function getPayloadCorsOrigins(): string[] {
   const origins = new Set<string>()
-  const server = getServerSideURL()
+  const server = getPayloadServerURL()
   if (server) origins.add(server)
   for (const o of getPayloadCsrfExtraOrigins()) {
     if (o) origins.add(o)

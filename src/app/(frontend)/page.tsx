@@ -13,6 +13,9 @@ const megatrendAnchorsByTitle = Object.fromEntries(
   megatrendsContent.megatrends.map((trend) => [trend.title, trend.anchor]),
 ) as Record<string, string>
 
+/** Refresh home shell (regulatory strip, trends, hero copy) from CMS periodically instead of freezing the first build forever. */
+export const revalidate = 600
+
 export async function generateMetadata(): Promise<Metadata> {
   const cmsPage = await getCMSPageBySlug('home')
   const homeFallback = fallbacks.metadata.home

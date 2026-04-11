@@ -1,6 +1,6 @@
 import configPromise from '@payload-config'
-import { draftMode } from 'next/headers'
 import { cache } from 'react'
+import { queryPageBySlug } from '@/app/(frontend)/_lib/contentQueries'
 import { getPayload } from 'payload'
 import fallbacks from '@/constants/fallbacks.json'
 import {
@@ -397,16 +397,104 @@ function normalizeRegulatoryLabel(label: string): string {
   return normalized
 }
 
+/** JSON `data` columns may be stored as strings or objects depending on driver/serialization. */
+function coerceDataObject(raw: unknown): Record<string, unknown> {
+  if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+    return raw as Record<string, unknown>
+  }
+  if (typeof raw === 'string' && raw.trim()) {
+    try {
+      const parsed = JSON.parse(raw) as unknown
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        return parsed as Record<string, unknown>
+      }
+    } catch {
+      // ignore invalid JSON
+    }
+  }
+  return {}
+}
+
+function textFromLexicalOrString(raw: unknown): string | null {
+  if (typeof raw === 'string' && raw.trim()) return raw.trim()
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null
+  const paragraphs = richTextToParagraphs(raw)
+  const joined = paragraphs.join(' ').trim()
+  return joined || null
+}
+
+/**
+ * Wix source rows mirror text into top-level fields (`title_fld`, `textFields`, …) and also
+ * store a `data` JSON blob. Parsers that only read `data` miss root-level values — the strip
+ * goes empty even though the admin list shows titles.
+ */
+/** Trust-list rows sometimes store rich text only under `objectFields` (Wix), not `textFields`. */
+function textFromObjectFieldsByKeys(record: Record<string, unknown>, keys: string[]): string | null {
+  const objectFields = Array.isArray(record.objectFields)
+    ? (record.objectFields as Array<Record<string, unknown>>)
+    : []
+  for (const entry of objectFields) {
+    const entryKey = entry?.key
+    if (typeof entryKey !== 'string' || !keys.includes(entryKey)) continue
+    const v = entry?.value
+    if (typeof v === 'string' && v.trim()) return v.trim()
+    const fromLex = textFromLexicalOrString(v)
+    if (fromLex) return fromLex
+  }
+  return null
+}
+
+function mergeWixCollectionRow(doc: Record<string, unknown>): Record<string, unknown> {
+  const nested = coerceDataObject(doc.data)
+  const merged: Record<string, unknown> = { ...nested }
+
+  const overlayKeys = [
+    'title_fld',
+    'description_fld',
+    '_manualSort',
+    '_manualSort_',
+    'textFields',
+    'objectFields',
+    'mediaFields',
+    'numberFields',
+    'booleanFields',
+    'dateFields',
+    'firstStockCode',
+    'firstStockName',
+    'secondStockCode',
+    'secondStockName',
+  ] as const
+
+  for (const key of overlayKeys) {
+    if (!(key in doc)) continue
+    const v = doc[key]
+    if (v === undefined || v === null) continue
+    // Root “mirror” fields can be empty strings while the real copy still lives in `data`.
+    // Overlaying those would wipe nested title/description and break the regulatory strip.
+    if (typeof v === 'string' && v.trim() === '') continue
+    if (Array.isArray(v) && v.length === 0) continue
+    merged[key] = v
+  }
+
+  return merged
+}
+
 function parseTrustListItems(docs: Array<Record<string, unknown>>): RegulatoryItem[] {
   const sorted = docs
     .map((doc) => {
-      const data = (doc.data && typeof doc.data === 'object'
-        ? doc.data
-        : {}) as Record<string, unknown>
+      const data = mergeWixCollectionRow(doc)
 
-      const label = getRecordTextValue(data, 'title_fld')
-      const rawValue = getRecordTextValue(data, 'description_fld')
-      const value = rawValue ? stripHtml(rawValue) : null
+      const label =
+        getRecordTextValue(data, 'title_fld') ||
+        textFromLexicalOrString(data.title_fld) ||
+        getRecordTextValue(data, 'name')
+      const rawDescription =
+        getRecordTextValue(data, 'description_fld') ||
+        textFromLexicalOrString(data.description_fld) ||
+        textFromObjectFieldsByKeys(data, ['description_fld', 'description', 'body_fld', 'text_fld']) ||
+        getRecordTextValue(data, 'value') ||
+        textFromLexicalOrString(data.value)
+      const value = rawDescription ? stripHtml(rawDescription) : null
       const manualSort = getRecordSortValue(data)
 
       if (!label || !value) {
@@ -439,7 +527,7 @@ function parseTrendItems(docs: CMSRecord[]): ParsedTrendItem[] {
   return docs
     .map((doc) => {
       const docRecord = (doc ?? {}) as CMSRecord
-      const data = (docRecord.data && typeof docRecord.data === 'object' ? docRecord.data : {}) as CMSRecord
+      const data = mergeWixCollectionRow(docRecord) as CMSRecord
       const title = getRecordTextValue(data, 'title_fld')
       const descriptionHtml = getRecordTextValue(data, 'description_fld')
       const body = descriptionHtml ? stripHtml(descriptionHtml) : ''
@@ -859,181 +947,37 @@ async function resolveMediaUrlFromSource(
   return ''
 }
 
-export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
-  let payload: Awaited<ReturnType<typeof getPayload>> | null = null
+type PayloadInstance = Awaited<ReturnType<typeof getPayload>>
 
+/** Regulatory strip rows — independent of whether `pages` home is published for anonymous reads. */
+async function loadTrustListRegulatoryItems(payload: PayloadInstance): Promise<RegulatoryItem[]> {
   try {
-    payload = await getPayload({ config: configPromise })
-    // draftMode() requires a request scope; it throws during static prerender / some workers,
-    // which would hit the outer catch and return EMPTY_HOME_CONTENT (empty strip, trends, hero).
-    let draft = false
-    try {
-      draft = (await draftMode()).isEnabled
-    } catch {
-      draft = false
-    }
-    const result = await payload.find({
-      collection: 'pages',
-      draft,
-      limit: 1,
+    const trustListResult = await payload.find({
+      collection: 'trust-list',
+      limit: 100,
       pagination: false,
-      // Depth 0: upload fields are plain ids. Deep population can return partial media objects
-      // (missing filename) which breaks href resolution; we load each media doc via findByID instead.
       depth: 0,
-      overrideAccess: draft,
-      where: {
-        slug: { equals: 'home' },
-      },
+      overrideAccess: true,
     })
-
-    const page = result.docs?.[0]
-    if (!page) return EMPTY_HOME_CONTENT
-
-    const pageRecord = page as {
-      homeDownloads?: {
-        factsheetUsd?: unknown
-        factsheetChfHedged?: unknown
-        fundCommentary?: unknown
-        presentation?: unknown
-      }
-      homeMegatrendCards?: unknown
-    }
-
-    // Resolve home first. Footer global is only a fallback — if findGlobal("footer") throws (DB/SQL),
-    // we must not skip resolving uploads from pages(home).homeDownloads.* .
-    let resolvedDownloads: DownloadItem[] = await Promise.all(
-      REQUIRED_HOME_DOWNLOADS.map(async ({ id, label }) => {
-        const href =
-          (await resolveUploadRelationToHref(payload!, pageRecord.homeDownloads?.[id])) || ''
-        return { id, label, href }
-      }),
+    const trustListDocs = (trustListResult.docs ?? []) as unknown as Array<Record<string, unknown>>
+    return parseTrustListItems(trustListDocs)
+  } catch (error) {
+    payload.logger.warn(
+      `[trust-list] Failed to load regulatory strip rows: ${error instanceof Error ? error.message : String(error)}`,
     )
+    return []
+  }
+}
 
-    let footerDownloads: Record<string, unknown> | undefined
-    try {
-      // Narrow select: loading the full footer runs a single SQL with navItems + _rels laterals;
-      // that query has been failing in some DBs—only the download id columns are needed here.
-      const footerGlobal = await payload.findGlobal({
-        slug: 'footer',
-        depth: 0,
-        select: {
-          downloads: true,
-        },
-      })
-      footerDownloads =
-        footerGlobal && typeof footerGlobal === 'object' && 'downloads' in footerGlobal
-          ? (footerGlobal as { downloads?: Record<string, unknown> }).downloads
-          : undefined
-    } catch (error) {
-      const detail = error instanceof Error ? error.message : String(error)
-      payload.logger.warn(
-        `[home-downloads] Footer global fetch failed; continuing with home page relations only. ${detail}`,
-      )
-    }
-
-    resolvedDownloads = await Promise.all(
-      resolvedDownloads.map(async ({ id, label, href }) => {
-        if (href.trim()) return { id, label, href }
-
-        const fromFooter =
-          (await resolveUploadRelationToHref(payload!, footerDownloads?.[id])) || ''
-
-        if (!fromFooter.trim()) {
-          payload!.logger.warn(
-            `[home-downloads] Missing or unresolvable Home download asset for "${label}" (field: "${id}") on page #${String((page as { id?: unknown }).id)} (home)${footerDownloads ? '; footer slot also empty' : '; footer unavailable'}.`,
-          )
-        }
-
-        return { id, label, href: fromFooter }
-      }),
-    )
-
-    if (resolvedDownloads.every((d) => !d.href.trim())) {
-      payload.logger.warn(
-        '[home-downloads] All download slots are empty on the public home read. Files visible in the admin on a draft, or only on another page, are not served until the Home page is published with those relations (or set the same uploads under Globals → Footer → downloads).',
-      )
-    }
-
-    let trustListItems: RegulatoryItem[] = []
-    try {
-      const trustListResult = await payload.find({
-        collection: 'trust-list',
-        limit: 100,
-        pagination: false,
-        depth: 0,
-        overrideAccess: true,
-      })
-      const trustListDocs = (trustListResult.docs ?? []) as unknown as Array<Record<string, unknown>>
-      trustListItems = parseTrustListItems(trustListDocs)
-    } catch (error) {
-      payload.logger.warn(
-        `[trust-list] Failed to load regulatory strip rows: ${error instanceof Error ? error.message : String(error)}`,
-      )
-    }
-
-    if (trustListItems.length === 0) {
-      payload.logger.warn('Regulatory strip data missing: no valid rows found in payload collection trust-list.')
-    }
-
-    let dedupedTrendsWithResolvedImages: TrendItem[] = []
-    try {
-      const linkedHomeMegatrendCards = await resolveHomeMegatrendCardDocsInOrder({
-        payload,
-        raw: pageRecord.homeMegatrendCards,
-      })
-
-      const relationshipTrendItems = parseHomeMegatrendCards(linkedHomeMegatrendCards)
-      const trendItems =
-        relationshipTrendItems.length > 0
-          ? relationshipTrendItems
-          : await (async () => {
-              payload.logger.warn(
-                'Home megatrend cards relationship is empty; falling back to legacy collection megatrend-dataset.',
-              )
-
-              const trendResult = await payload.find({
-                collection: 'megatrend-dataset',
-                limit: 100,
-                pagination: false,
-                depth: 2,
-              })
-              const trendDocs = (trendResult.docs ?? []) as unknown as CMSRecord[]
-              return parseTrendItems(trendDocs)
-            })()
-
-      const trendsWithResolvedImages = await Promise.all(
-        trendItems.map(async (trend) => {
-          const mediaFieldImageUrl = resolveMediaLikeUrl(trend.mediaUpload)
-          const resolvedImageUrl =
-            mediaFieldImageUrl ||
-            (trend.imageSource ? await resolveMediaUrlFromSource(payload!, trend.imageSource) : trend.imageUrl)
-
-          return {
-            title: trend.title,
-            body: trend.body,
-            tickers: trend.tickers,
-            imageUrl: resolvedImageUrl || fallbackTrendImageByTitle(trend.title),
-          }
-        }),
-      )
-      const dedupedTrendResult = dedupeTrendItemsByTitle(trendsWithResolvedImages)
-      dedupedTrendsWithResolvedImages = dedupedTrendResult.deduped
-
-      if (dedupedTrendResult.removed > 0) {
-        payload.logger.warn(
-          `Removed ${dedupedTrendResult.removed} duplicate home megatrend entries by title: ${dedupedTrendResult.duplicateTitles.join(', ')}`,
-        )
-      }
-
-      if (trendItems.length === 0) {
-        payload.logger.warn('Trend data missing: no valid rows found in home-megatrend-cards or megatrend-dataset.')
-      }
-    } catch (error) {
-      payload.logger.warn(
-        `[home-trends] Failed to load or resolve megatrend cards: ${error instanceof Error ? error.message : String(error)}`,
-      )
-    }
-
+async function loadExploreAndRegulatoryNoticeShell(payload: PayloadInstance): Promise<{
+  exploreMegatrendsTitle: string
+  exploreMegatrendsImageUrl: string
+  regulatoryNoticeFromCMS: HomeCMSContent['regulatoryNotice'] | null
+}> {
+  let exploreMegatrendsTitle = ''
+  let exploreMegatrendsImageUrl = ''
+  let regulatoryNoticeFromCMS: HomeCMSContent['regulatoryNotice'] | null = null
+  try {
     const downloadResult = await payload.find({
       collection: 'homepage-links',
       limit: 10,
@@ -1043,11 +987,11 @@ export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
     const downloadDocs = (downloadResult.docs ?? []) as unknown as CMSRecord[]
     const downloadData = ((downloadDocs[0]?.data as CMSRecord | undefined) ?? {}) as CMSRecord
 
-    const exploreMegatrendsTitle = parseExploreMegatrendsTitle(downloadData)
+    exploreMegatrendsTitle = parseExploreMegatrendsTitle(downloadData)
     const exploreMegatrendsImageSource = parseExploreMegatrendsImageSource(downloadData)
 
-    const exploreMegatrendsImageUrl = exploreMegatrendsImageSource
-      ? await resolveMediaUrlFromSource(payload!, exploreMegatrendsImageSource)
+    exploreMegatrendsImageUrl = exploreMegatrendsImageSource
+      ? await resolveMediaUrlFromSource(payload, exploreMegatrendsImageSource)
       : ''
 
     const legalResult = await payload.find({
@@ -1066,38 +1010,287 @@ export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
     })
     const contactDocs = (contactResult.docs ?? []) as unknown as CMSRecord[]
 
-    const regulatoryNoticeFromCMS = parseRegulatoryNoticeFromCMS(legalDocs, contactDocs)
+    regulatoryNoticeFromCMS = parseRegulatoryNoticeFromCMS(legalDocs, contactDocs)
     if (!regulatoryNoticeFromCMS) {
       payload.logger.warn('Regulatory notice data missing in payload collections legal-information / contact-us.')
     }
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error)
+    payload.logger.warn(`[home-shell] Non-critical CMS load failed (homepage-links / legal / contact): ${detail}`)
+  }
+  return { exploreMegatrendsTitle, exploreMegatrendsImageUrl, regulatoryNoticeFromCMS }
+}
 
-    const heroParagraphs = richTextToParagraphs(page.hero?.richText)
-    const heroSource = heroParagraphs[0] ?? ''
-    const heroSplit = heroSource.split('Harnessing')
-    const heroHeading = (heroSplit[0] ?? '').replace(/\.+$/, '').trim()
-    const heroSubtitle = heroSplit[1] ? `Harnessing${heroSplit[1]}`.trim() : ''
-    const heroRecord = page as { heroCtaLabel?: unknown; heroCtaHref?: unknown }
-    const heroCtaLabel = typeof heroRecord.heroCtaLabel === 'string' ? heroRecord.heroCtaLabel.trim() : ''
-    const heroCtaHref = typeof heroRecord.heroCtaHref === 'string' ? heroRecord.heroCtaHref.trim() : ''
+async function resolveHomeDownloadsFromHomeAndFooter(
+  payload: PayloadInstance,
+  pageRecord: {
+    homeDownloads?: {
+      factsheetUsd?: unknown
+      factsheetChfHedged?: unknown
+      fundCommentary?: unknown
+      presentation?: unknown
+    }
+  } | null,
+  pageIdForLog: unknown,
+): Promise<DownloadItem[]> {
+  let resolvedDownloads: DownloadItem[] = await Promise.all(
+    REQUIRED_HOME_DOWNLOADS.map(async ({ id, label }) => {
+      const href =
+        (pageRecord
+          ? (await resolveUploadRelationToHref(payload, pageRecord.homeDownloads?.[id])) || ''
+          : '') || ''
+      return { id, label, href }
+    }),
+  )
 
-    return {
-      hero: {
-        heading: heroHeading || '',
-        subtitle: heroSubtitle || '',
-        ctaLabel: heroCtaLabel,
-        ctaHref: heroCtaHref,
+  let footerDownloads: Record<string, unknown> | undefined
+  try {
+    const footerGlobal = await payload.findGlobal({
+      slug: 'footer',
+      depth: 0,
+      select: {
+        downloads: true,
       },
-      regulatoryItems: trustListItems,
-      trends: dedupedTrendsWithResolvedImages,
-      downloads: resolvedDownloads,
-      exploreMegatrendsCard: {
-        title: exploreMegatrendsTitle || EMPTY_HOME_CONTENT.exploreMegatrendsCard.title,
-        imageUrl: exploreMegatrendsImageUrl || EMPTY_HOME_CONTENT.exploreMegatrendsCard.imageUrl,
-      },
-      regulatoryNotice: regulatoryNoticeFromCMS ?? EMPTY_HOME_CONTENT.regulatoryNotice,
+    })
+    footerDownloads =
+      footerGlobal && typeof footerGlobal === 'object' && 'downloads' in footerGlobal
+        ? (footerGlobal as { downloads?: Record<string, unknown> }).downloads
+        : undefined
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error)
+    payload.logger.warn(
+      `[home-downloads] Footer global fetch failed; continuing with home page relations only. ${detail}`,
+    )
+  }
+
+  resolvedDownloads = await Promise.all(
+    resolvedDownloads.map(async ({ id, label, href }) => {
+      if (href.trim()) return { id, label, href }
+
+      const fromFooter = (await resolveUploadRelationToHref(payload, footerDownloads?.[id])) || ''
+
+      if (!fromFooter.trim() && pageRecord) {
+        payload.logger.warn(
+          `[home-downloads] Missing or unresolvable Home download asset for "${label}" (field: "${id}") on page #${String(pageIdForLog)} (home)${footerDownloads ? '; footer slot also empty' : '; footer unavailable'}.`,
+        )
+      }
+
+      return { id, label, href: fromFooter }
+    }),
+  )
+
+  if (resolvedDownloads.every((d) => !d.href.trim())) {
+    payload.logger.warn(
+      '[home-downloads] All download slots are empty on the public home read. Files visible in the admin on a draft, or only on another page, are not served until the Home page is published with those relations (or set the same uploads under Globals → Footer → downloads).',
+    )
+  }
+
+  return resolvedDownloads
+}
+
+async function loadMegatrendDatasetTrendsResolved(payload: PayloadInstance): Promise<TrendItem[]> {
+  const trendResult = await payload.find({
+    collection: 'megatrend-dataset',
+    limit: 100,
+    pagination: false,
+    depth: 2,
+  })
+  const trendDocs = (trendResult.docs ?? []) as unknown as CMSRecord[]
+  const trendItems = parseTrendItems(trendDocs)
+  const trendsWithResolvedImages = await Promise.all(
+    trendItems.map(async (trend) => {
+      const mediaFieldImageUrl = resolveMediaLikeUrl(trend.mediaUpload)
+      const resolvedImageUrl =
+        mediaFieldImageUrl ||
+        (trend.imageSource ? await resolveMediaUrlFromSource(payload, trend.imageSource) : trend.imageUrl)
+
+      return {
+        title: trend.title,
+        body: trend.body,
+        tickers: trend.tickers,
+        imageUrl: resolvedImageUrl || fallbackTrendImageByTitle(trend.title),
+      }
+    }),
+  )
+  return dedupeTrendItemsByTitle(trendsWithResolvedImages).deduped
+}
+
+async function homeShellWithoutPublishedHomePage(
+  payload: PayloadInstance,
+  trustListItems: RegulatoryItem[],
+  exploreMegatrendsTitle: string,
+  exploreMegatrendsImageUrl: string,
+  regulatoryNoticeFromCMS: HomeCMSContent['regulatoryNotice'] | null,
+): Promise<HomeCMSContent> {
+  let dedupedTrendsWithResolvedImages: TrendItem[] = []
+  try {
+    dedupedTrendsWithResolvedImages = await loadMegatrendDatasetTrendsResolved(payload)
+    if (dedupedTrendsWithResolvedImages.length === 0) {
+      payload.logger.warn('Trend data missing: megatrend-dataset returned no valid rows (home page unpublished).')
     }
   } catch (error) {
-    console.error('[getHomeCMSContent] Unhandled error; returning empty home shell.', error)
+    payload.logger.warn(
+      `[home-trends] Failed to load megatrend-dataset (no published home): ${error instanceof Error ? error.message : String(error)}`,
+    )
+  }
+
+  const resolvedDownloads = await resolveHomeDownloadsFromHomeAndFooter(payload, null, undefined)
+
+  if (trustListItems.length === 0) {
+    payload.logger.warn('Regulatory strip data missing: no valid rows found in payload collection trust-list.')
+  }
+
+  return {
+    hero: EMPTY_HOME_CONTENT.hero,
+    regulatoryItems: trustListItems,
+    trends: dedupedTrendsWithResolvedImages,
+    downloads: resolvedDownloads,
+    exploreMegatrendsCard: {
+      title: exploreMegatrendsTitle || EMPTY_HOME_CONTENT.exploreMegatrendsCard.title,
+      imageUrl: exploreMegatrendsImageUrl || EMPTY_HOME_CONTENT.exploreMegatrendsCard.imageUrl,
+    },
+    regulatoryNotice: regulatoryNoticeFromCMS ?? EMPTY_HOME_CONTENT.regulatoryNotice,
+  }
+}
+
+export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
+  let payload: PayloadInstance | null = null
+  try {
+    payload = await getPayload({ config: configPromise })
+  } catch (error) {
+    console.error('[getHomeCMSContent] getPayload failed.', error)
     return EMPTY_HOME_CONTENT
+  }
+
+  const trustListItems = await loadTrustListRegulatoryItems(payload)
+  const { exploreMegatrendsTitle, exploreMegatrendsImageUrl, regulatoryNoticeFromCMS } =
+    await loadExploreAndRegulatoryNoticeShell(payload)
+
+  let page: Awaited<ReturnType<typeof queryPageBySlug>>
+  try {
+    page = await queryPageBySlug('home', 0)
+  } catch (error) {
+    console.error('[getHomeCMSContent] Home page query failed.', error)
+    return homeShellWithoutPublishedHomePage(
+      payload,
+      trustListItems,
+      exploreMegatrendsTitle,
+      exploreMegatrendsImageUrl,
+      regulatoryNoticeFromCMS,
+    )
+  }
+  if (!page) {
+    return homeShellWithoutPublishedHomePage(
+      payload,
+      trustListItems,
+      exploreMegatrendsTitle,
+      exploreMegatrendsImageUrl,
+      regulatoryNoticeFromCMS,
+    )
+  }
+
+  const pageRecord = page as {
+    homeDownloads?: {
+      factsheetUsd?: unknown
+      factsheetChfHedged?: unknown
+      fundCommentary?: unknown
+      presentation?: unknown
+    }
+    homeMegatrendCards?: unknown
+  }
+
+  const resolvedDownloads = await resolveHomeDownloadsFromHomeAndFooter(
+    payload,
+    pageRecord,
+    (page as { id?: unknown }).id,
+  )
+
+  if (trustListItems.length === 0) {
+    payload.logger.warn('Regulatory strip data missing: no valid rows found in payload collection trust-list.')
+  }
+
+  let dedupedTrendsWithResolvedImages: TrendItem[] = []
+  try {
+    const linkedHomeMegatrendCards = await resolveHomeMegatrendCardDocsInOrder({
+      payload,
+      raw: pageRecord.homeMegatrendCards,
+    })
+
+    const relationshipTrendItems = parseHomeMegatrendCards(linkedHomeMegatrendCards)
+    const trendItems =
+      relationshipTrendItems.length > 0
+        ? relationshipTrendItems
+        : await (async () => {
+            payload.logger.warn(
+              'Home megatrend cards relationship is empty; falling back to legacy collection megatrend-dataset.',
+            )
+
+            const trendResult = await payload.find({
+              collection: 'megatrend-dataset',
+              limit: 100,
+              pagination: false,
+              depth: 2,
+            })
+            const trendDocs = (trendResult.docs ?? []) as unknown as CMSRecord[]
+            return parseTrendItems(trendDocs)
+          })()
+
+    const trendsWithResolvedImages = await Promise.all(
+      trendItems.map(async (trend) => {
+        const mediaFieldImageUrl = resolveMediaLikeUrl(trend.mediaUpload)
+        const resolvedImageUrl =
+          mediaFieldImageUrl ||
+          (trend.imageSource ? await resolveMediaUrlFromSource(payload, trend.imageSource) : trend.imageUrl)
+
+        return {
+          title: trend.title,
+          body: trend.body,
+          tickers: trend.tickers,
+          imageUrl: resolvedImageUrl || fallbackTrendImageByTitle(trend.title),
+        }
+      }),
+    )
+    const dedupedTrendResult = dedupeTrendItemsByTitle(trendsWithResolvedImages)
+    dedupedTrendsWithResolvedImages = dedupedTrendResult.deduped
+
+    if (dedupedTrendResult.removed > 0) {
+      payload.logger.warn(
+        `Removed ${dedupedTrendResult.removed} duplicate home megatrend entries by title: ${dedupedTrendResult.duplicateTitles.join(', ')}`,
+      )
+    }
+
+    if (trendItems.length === 0) {
+      payload.logger.warn('Trend data missing: no valid rows found in home-megatrend-cards or megatrend-dataset.')
+    }
+  } catch (error) {
+    payload.logger.warn(
+      `[home-trends] Failed to load or resolve megatrend cards: ${error instanceof Error ? error.message : String(error)}`,
+    )
+  }
+
+  const heroParagraphs = richTextToParagraphs(page.hero?.richText)
+  const heroSource = heroParagraphs[0] ?? ''
+  const heroSplit = heroSource.split('Harnessing')
+  const heroHeading = (heroSplit[0] ?? '').replace(/\.+$/, '').trim()
+  const heroSubtitle = heroSplit[1] ? `Harnessing${heroSplit[1]}`.trim() : ''
+  const heroRecord = page as { heroCtaLabel?: unknown; heroCtaHref?: unknown }
+  const heroCtaLabel = typeof heroRecord.heroCtaLabel === 'string' ? heroRecord.heroCtaLabel.trim() : ''
+  const heroCtaHref = typeof heroRecord.heroCtaHref === 'string' ? heroRecord.heroCtaHref.trim() : ''
+
+  return {
+    hero: {
+      heading: heroHeading || '',
+      subtitle: heroSubtitle || '',
+      ctaLabel: heroCtaLabel,
+      ctaHref: heroCtaHref,
+    },
+    regulatoryItems: trustListItems,
+    trends: dedupedTrendsWithResolvedImages,
+    downloads: resolvedDownloads,
+    exploreMegatrendsCard: {
+      title: exploreMegatrendsTitle || EMPTY_HOME_CONTENT.exploreMegatrendsCard.title,
+      imageUrl: exploreMegatrendsImageUrl || EMPTY_HOME_CONTENT.exploreMegatrendsCard.imageUrl,
+    },
+    regulatoryNotice: regulatoryNoticeFromCMS ?? EMPTY_HOME_CONTENT.regulatoryNotice,
   }
 })

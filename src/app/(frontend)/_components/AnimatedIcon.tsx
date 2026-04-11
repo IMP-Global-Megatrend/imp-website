@@ -96,7 +96,7 @@ export function AnimatedIcon({
   name,
   size = 16,
   className,
-  animate,
+  animate = false,
   animateOnHover = false,
   'aria-hidden': ariaHidden = true,
 }: {
@@ -110,7 +110,6 @@ export function AnimatedIcon({
   const Icon = icons[name] as unknown as ForwardRefExoticComponent<any>
   const wrapperRef = useRef<HTMLSpanElement | null>(null)
   const iconRef = useRef<{ startAnimation: () => void; stopAnimation: () => void } | null>(null)
-  const hasStartedAnimationRef = useRef(false)
   const [isHovered, setIsHovered] = useState(false)
   const shouldAnimate = animateOnHover ? isHovered : animate
 
@@ -133,15 +132,17 @@ export function AnimatedIcon({
     }
   }, [animateOnHover])
 
+  // lucide-animated icons use Motion with imperative controls; if we never call
+  // `stopAnimation`, the `normal` variant (opacity: 1) is not applied and Motion
+  // warns: animating opacity from undefined to 1.
   useEffect(() => {
-    if (shouldAnimate === undefined) return
+    const icon = iconRef.current
+    if (!icon) return
     if (shouldAnimate) {
-      iconRef.current?.startAnimation?.()
-      hasStartedAnimationRef.current = true
-      return
+      icon.startAnimation?.()
+    } else {
+      icon.stopAnimation?.()
     }
-    if (!hasStartedAnimationRef.current) return
-    iconRef.current?.stopAnimation?.()
   }, [shouldAnimate])
 
   return (

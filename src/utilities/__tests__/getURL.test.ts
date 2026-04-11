@@ -1,4 +1,9 @@
-import { getClientSideURL, getPayloadCsrfExtraOrigins, getServerSideURL } from '../getURL'
+import {
+  getClientSideURL,
+  getPayloadCsrfExtraOrigins,
+  getPayloadServerURL,
+  getServerSideURL,
+} from '../getURL'
 
 const snapshot = { ...process.env }
 
@@ -41,6 +46,33 @@ describe('getServerSideURL', () => {
   it('uses preview URL when VERCEL_ENV is preview', () => {
     setEnv({ NODE_ENV: 'development', VERCEL_ENV: 'preview', VERCEL_URL: 'my-app.vercel.app' })
     expect(getServerSideURL()).toBe('https://my-app.vercel.app')
+  })
+})
+
+describe('getPayloadServerURL', () => {
+  beforeEach(() => {
+    setEnv({
+      NODE_ENV: 'development',
+      VERCEL_ENV: undefined,
+      VERCEL_URL: undefined,
+      VERCEL_PROJECT_PRODUCTION_URL: undefined,
+      NEXT_PUBLIC_SERVER_URL: undefined,
+      PAYLOAD_PUBLIC_SERVER_URL: undefined,
+    })
+  })
+
+  it('matches getServerSideURL when PAYLOAD_PUBLIC_SERVER_URL is unset', () => {
+    expect(getPayloadServerURL()).toBe(getServerSideURL())
+  })
+
+  it('prefers PAYLOAD_PUBLIC_SERVER_URL over NEXT_PUBLIC_SERVER_URL', () => {
+    setEnv({
+      NODE_ENV: 'development',
+      NEXT_PUBLIC_SERVER_URL: 'https://prod.example',
+      PAYLOAD_PUBLIC_SERVER_URL: 'http://localhost:3000',
+    })
+    expect(getServerSideURL()).toBe('https://prod.example')
+    expect(getPayloadServerURL()).toBe('http://localhost:3000')
   })
 })
 

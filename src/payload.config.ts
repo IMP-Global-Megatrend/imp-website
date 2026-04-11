@@ -34,7 +34,7 @@ import { Footer } from '@/Footer/config'
 import { Header } from '@/Header/config'
 import { plugins } from '@/plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
-import { getPayloadCorsOrigins, getPayloadCsrfExtraOrigins, getServerSideURL } from '@/utilities/getURL'
+import { getPayloadCorsOrigins, getPayloadCsrfExtraOrigins, getPayloadServerURL } from '@/utilities/getURL'
 import { migrations } from '@/migrations'
 
 const filename = fileURLToPath(import.meta.url)
@@ -122,7 +122,7 @@ export default buildConfig({
     PortfolioStrategySteps,
     ...WixCollections,
   ],
-  serverURL: getServerSideURL(),
+  serverURL: getPayloadServerURL(),
   cors: getPayloadCorsOrigins(),
   csrf: getPayloadCsrfExtraOrigins(),
   email: resendAdapter({
