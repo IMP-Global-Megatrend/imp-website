@@ -1,7 +1,12 @@
 import configPromise from '@payload-config'
 import { cache } from 'react'
+import { queryPageBySlug } from '@/app/(frontend)/_lib/contentQueries'
 import { getPayload } from 'payload'
 import fallbacks from '@/constants/fallbacks.json'
+import {
+  buildPayloadMediaFileHrefFromFilename,
+  resolveApiMediaFileOrSupabasePath,
+} from '@/utilities/payloadMediaFileUrl'
 import {
   normalizeSupabasePublicObjectUrl,
   resolveSupabasePublicMediaUrl,
@@ -35,6 +40,7 @@ type ParsedTrendItem = TrendItem & { manualSort: string; imageSource: string; me
 type MediaLike = {
   url?: unknown
   filename?: unknown
+  storageUrl?: unknown
 }
 
 type HomeMegatrendCardRecord = {
@@ -139,12 +145,23 @@ function stripHtml(value: string): string {
 function resolveCMSImageUrl(value: string): string {
   if (!value) return ''
   if (value.startsWith('/api/media/file/')) {
-    return resolvePayloadApiMediaPath(value)
+    return resolveApiMediaFileOrSupabasePath(value) || value
   }
   if (value.startsWith('/')) return value
   if (value.startsWith('http://') || value.startsWith('https://')) {
-    // Keep only already-migrated storage URLs; block other external image hosts.
-    return value.includes('/storage/v1/object/public/') ? normalizeSupabasePublicObjectUrl(value) : ''
+    try {
+      const u = new URL(value)
+      if (u.pathname.startsWith('/api/media/file/')) {
+        const apiPath = `${u.pathname}${u.search}`
+        return resolveApiMediaFileOrSupabasePath(apiPath) || apiPath
+      }
+    } catch {
+      // ignore invalid URL
+    }
+    if (value.includes('/storage/v1/object/public/')) {
+      return normalizeSupabasePublicObjectUrl(value)
+    }
+    return ''
   }
 
   // Disallow Wix tokens in frontend content; CMS rows should already reference local media URLs.
@@ -380,16 +397,104 @@ function normalizeRegulatoryLabel(label: string): string {
   return normalized
 }
 
+/** JSON `data` columns may be stored as strings or objects depending on driver/serialization. */
+function coerceDataObject(raw: unknown): Record<string, unknown> {
+  if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+    return raw as Record<string, unknown>
+  }
+  if (typeof raw === 'string' && raw.trim()) {
+    try {
+      const parsed = JSON.parse(raw) as unknown
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        return parsed as Record<string, unknown>
+      }
+    } catch {
+      // ignore invalid JSON
+    }
+  }
+  return {}
+}
+
+function textFromLexicalOrString(raw: unknown): string | null {
+  if (typeof raw === 'string' && raw.trim()) return raw.trim()
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null
+  const paragraphs = richTextToParagraphs(raw)
+  const joined = paragraphs.join(' ').trim()
+  return joined || null
+}
+
+/**
+ * Wix source rows mirror text into top-level fields (`title_fld`, `textFields`, …) and also
+ * store a `data` JSON blob. Parsers that only read `data` miss root-level values — the strip
+ * goes empty even though the admin list shows titles.
+ */
+/** Trust-list rows sometimes store rich text only under `objectFields` (Wix), not `textFields`. */
+function textFromObjectFieldsByKeys(record: Record<string, unknown>, keys: string[]): string | null {
+  const objectFields = Array.isArray(record.objectFields)
+    ? (record.objectFields as Array<Record<string, unknown>>)
+    : []
+  for (const entry of objectFields) {
+    const entryKey = entry?.key
+    if (typeof entryKey !== 'string' || !keys.includes(entryKey)) continue
+    const v = entry?.value
+    if (typeof v === 'string' && v.trim()) return v.trim()
+    const fromLex = textFromLexicalOrString(v)
+    if (fromLex) return fromLex
+  }
+  return null
+}
+
+function mergeWixCollectionRow(doc: Record<string, unknown>): Record<string, unknown> {
+  const nested = coerceDataObject(doc.data)
+  const merged: Record<string, unknown> = { ...nested }
+
+  const overlayKeys = [
+    'title_fld',
+    'description_fld',
+    '_manualSort',
+    '_manualSort_',
+    'textFields',
+    'objectFields',
+    'mediaFields',
+    'numberFields',
+    'booleanFields',
+    'dateFields',
+    'firstStockCode',
+    'firstStockName',
+    'secondStockCode',
+    'secondStockName',
+  ] as const
+
+  for (const key of overlayKeys) {
+    if (!(key in doc)) continue
+    const v = doc[key]
+    if (v === undefined || v === null) continue
+    // Root “mirror” fields can be empty strings while the real copy still lives in `data`.
+    // Overlaying those would wipe nested title/description and break the regulatory strip.
+    if (typeof v === 'string' && v.trim() === '') continue
+    if (Array.isArray(v) && v.length === 0) continue
+    merged[key] = v
+  }
+
+  return merged
+}
+
 function parseTrustListItems(docs: Array<Record<string, unknown>>): RegulatoryItem[] {
   const sorted = docs
     .map((doc) => {
-      const data = (doc.data && typeof doc.data === 'object'
-        ? doc.data
-        : {}) as Record<string, unknown>
+      const data = mergeWixCollectionRow(doc)
 
-      const label = getRecordTextValue(data, 'title_fld')
-      const rawValue = getRecordTextValue(data, 'description_fld')
-      const value = rawValue ? stripHtml(rawValue) : null
+      const label =
+        getRecordTextValue(data, 'title_fld') ||
+        textFromLexicalOrString(data.title_fld) ||
+        getRecordTextValue(data, 'name')
+      const rawDescription =
+        getRecordTextValue(data, 'description_fld') ||
+        textFromLexicalOrString(data.description_fld) ||
+        textFromObjectFieldsByKeys(data, ['description_fld', 'description', 'body_fld', 'text_fld']) ||
+        getRecordTextValue(data, 'value') ||
+        textFromLexicalOrString(data.value)
+      const value = rawDescription ? stripHtml(rawDescription) : null
       const manualSort = getRecordSortValue(data)
 
       if (!label || !value) {
@@ -422,7 +527,7 @@ function parseTrendItems(docs: CMSRecord[]): ParsedTrendItem[] {
   return docs
     .map((doc) => {
       const docRecord = (doc ?? {}) as CMSRecord
-      const data = (docRecord.data && typeof docRecord.data === 'object' ? docRecord.data : {}) as CMSRecord
+      const data = mergeWixCollectionRow(docRecord) as CMSRecord
       const title = getRecordTextValue(data, 'title_fld')
       const descriptionHtml = getRecordTextValue(data, 'description_fld')
       const body = descriptionHtml ? stripHtml(descriptionHtml) : ''
@@ -658,59 +763,83 @@ function resolveMediaLikeUrl(media: unknown): string {
   const mediaRecord = media as MediaLike
   const directUrl = mediaRecord.url
   if (typeof directUrl === 'string' && directUrl.trim() !== '') {
-    return resolveCMSImageUrl(directUrl.trim())
+    const fromUrl = resolveCMSImageUrl(directUrl.trim())
+    if (fromUrl) return fromUrl
   }
 
   const filename = mediaRecord.filename
   if (typeof filename === 'string' && filename.trim() !== '') {
-    return resolveSupabasePublicMediaUrl(filename.trim()) || ''
+    const trimmed = filename.trim()
+    return resolveSupabasePublicMediaUrl(trimmed) || buildPayloadMediaFileHrefFromFilename(trimmed)
+  }
+
+  const storageUrl = mediaRecord.storageUrl
+  if (typeof storageUrl === 'string' && storageUrl.trim() !== '') {
+    const trimmed = storageUrl.trim()
+    if (trimmed.includes('/storage/v1/object/public/')) {
+      return normalizeSupabasePublicObjectUrl(trimmed)
+    }
+    return resolveCMSImageUrl(trimmed)
   }
 
   return ''
 }
 
-async function resolveHomeDownloadUrlAsync(args: {
-  payload: Awaited<ReturnType<typeof getPayload>>
-  media: unknown
-  field: DownloadItem['id']
-  label: string
-  pageId: unknown
-  pageSlug: string
-  logWarn: (msg: string) => void
-}): Promise<string> {
-  let mediaValue: unknown = args.media
+/**
+ * Payload may pass an upload as a bare id, a polymorphic `{ relationTo, value }`, or a partial
+ * `{ id }` without `url` / `filename`. Without resolving the document, `resolveMediaLikeUrl` stays empty.
+ */
+function extractMediaDocumentId(media: unknown): string | number | null {
+  if (typeof media === 'number' && Number.isFinite(media)) return media
+  if (typeof media === 'string' && media.trim() !== '') return media.trim()
+  if (!media || typeof media !== 'object') return null
 
-  if (typeof args.media === 'number') {
-    try {
-      const doc = await args.payload.findByID({
-        collection: 'media',
-        id: args.media,
-        depth: 0,
-      })
-      mediaValue = doc
-    } catch {
-      mediaValue = null
-    }
-  } else if (typeof args.media === 'string' && args.media.trim() !== '') {
-    try {
-      const doc = await args.payload.findByID({
-        collection: 'media',
-        id: args.media.trim(),
-        depth: 0,
-      })
-      mediaValue = doc
-    } catch {
-      mediaValue = null
+  const o = media as Record<string, unknown>
+
+  if (o.relationTo === 'media') {
+    const v = o.value
+    if (typeof v === 'number' && Number.isFinite(v)) return v
+    if (typeof v === 'string' && v.trim() !== '') return v.trim()
+    if (v && typeof v === 'object') {
+      const inner = (v as { id?: unknown }).id
+      if (typeof inner === 'number' && Number.isFinite(inner)) return inner
+      if (typeof inner === 'string' && inner.trim() !== '') return inner.trim()
     }
   }
 
-  const href = resolveMediaLikeUrl(mediaValue)
+  const id = o.id
+  if (typeof id === 'number' && Number.isFinite(id)) return id
+  if (typeof id === 'string' && id.trim() !== '') return id.trim()
+
+  return null
+}
+
+async function resolveUploadRelationToHref(
+  payload: Awaited<ReturnType<typeof getPayload>>,
+  media: unknown,
+): Promise<string> {
+  const hrefFromValue = (value: unknown) => resolveMediaLikeUrl(value).trim()
+
+  let href = hrefFromValue(media)
   if (href) return href
 
-  args.logWarn(
-    `[home-downloads] Missing or unresolvable Home download asset for "${args.label}" (field: "${args.field}") on page #${String(args.pageId)} (${args.pageSlug}).`,
-  )
-  return ''
+  const id = extractMediaDocumentId(media)
+  if (id === null) return ''
+
+  try {
+    const doc = await payload.findByID({
+      collection: 'media',
+      id,
+      depth: 1,
+      // Public homepage: no authenticated req; media read is public but some environments still need this.
+      overrideAccess: true,
+    })
+    href = hrefFromValue(doc)
+  } catch {
+    return ''
+  }
+
+  return href
 }
 
 function normalizeMediaLookupSource(source: string): string {
@@ -728,12 +857,7 @@ function normalizeMediaLookupSource(source: string): string {
 }
 
 function resolvePayloadApiMediaPath(source: string): string {
-  if (!source.startsWith('/api/media/file/')) return ''
-
-  const filename = source.replace('/api/media/file/', '').split('?')[0]?.split('#')[0]?.trim() || ''
-  if (!filename) return ''
-
-  return resolveSupabasePublicMediaUrl(filename) || ''
+  return resolveApiMediaFileOrSupabasePath(source)
 }
 
 async function resolveMediaUrlFromSource(
@@ -742,15 +866,22 @@ async function resolveMediaUrlFromSource(
 ): Promise<string> {
   if (!source) return ''
   if (source.startsWith('/api/media/file/')) {
-    const resolvedApiMediaPath = resolvePayloadApiMediaPath(source)
-    if (resolvedApiMediaPath) return resolvedApiMediaPath
+    return resolvePayloadApiMediaPath(source) || source
   }
   if (source.startsWith('/') && !source.startsWith('/api/media/file/')) return source
-  if (
-    (source.startsWith('http://') || source.startsWith('https://')) &&
-    source.includes('/storage/v1/object/public/')
-  ) {
-    return source
+  if (source.startsWith('http://') || source.startsWith('https://')) {
+    try {
+      const u = new URL(source)
+      if (u.pathname.startsWith('/api/media/file/')) {
+        const apiPath = `${u.pathname}${u.search}`
+        return resolveApiMediaFileOrSupabasePath(apiPath) || apiPath
+      }
+    } catch {
+      // ignore
+    }
+    if (source.includes('/storage/v1/object/public/')) {
+      return source
+    }
   }
 
   const lookupSource = normalizeMediaLookupSource(source)
@@ -793,8 +924,10 @@ async function resolveMediaUrlFromSource(
   const mediaDoc = mediaBySource.docs?.[0] as { url?: unknown; filename?: unknown } | undefined
   const mediaFilename = mediaDoc?.filename
   if (typeof mediaFilename === 'string' && mediaFilename.trim() !== '') {
-    const supabaseMediaUrl = resolveSupabasePublicMediaUrl(mediaFilename)
+    const t = mediaFilename.trim()
+    const supabaseMediaUrl = resolveSupabasePublicMediaUrl(t)
     if (supabaseMediaUrl) return supabaseMediaUrl
+    return buildPayloadMediaFileHrefFromFilename(t)
   }
 
   const mediaUrl = mediaDoc?.url
@@ -814,47 +947,270 @@ async function resolveMediaUrlFromSource(
   return ''
 }
 
-export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
-  let payload: Awaited<ReturnType<typeof getPayload>> | null = null
+type PayloadInstance = Awaited<ReturnType<typeof getPayload>>
 
+/** Regulatory strip rows — independent of whether `pages` home is published for anonymous reads. */
+async function loadTrustListRegulatoryItems(payload: PayloadInstance): Promise<RegulatoryItem[]> {
   try {
-    payload = await getPayload({ config: configPromise })
-    const result = await payload.find({
-      collection: 'pages',
-      limit: 1,
-      pagination: false,
-      depth: 2,
-      where: {
-        slug: { equals: 'home' },
-      },
-    })
-
-    const page = result.docs?.[0]
-    if (!page) return EMPTY_HOME_CONTENT
-
     const trustListResult = await payload.find({
       collection: 'trust-list',
       limit: 100,
       pagination: false,
       depth: 0,
+      overrideAccess: true,
     })
     const trustListDocs = (trustListResult.docs ?? []) as unknown as Array<Record<string, unknown>>
-    const trustListItems = parseTrustListItems(trustListDocs)
+    return parseTrustListItems(trustListDocs)
+  } catch (error) {
+    payload.logger.warn(
+      `[trust-list] Failed to load regulatory strip rows: ${error instanceof Error ? error.message : String(error)}`,
+    )
+    return []
+  }
+}
 
-    if (trustListItems.length === 0) {
-      payload.logger.warn('Regulatory strip data missing: no valid rows found in payload collection trust-list.')
+async function loadExploreAndRegulatoryNoticeShell(payload: PayloadInstance): Promise<{
+  exploreMegatrendsTitle: string
+  exploreMegatrendsImageUrl: string
+  regulatoryNoticeFromCMS: HomeCMSContent['regulatoryNotice'] | null
+}> {
+  let exploreMegatrendsTitle = ''
+  let exploreMegatrendsImageUrl = ''
+  let regulatoryNoticeFromCMS: HomeCMSContent['regulatoryNotice'] | null = null
+  try {
+    const downloadResult = await payload.find({
+      collection: 'homepage-links',
+      limit: 10,
+      pagination: false,
+      depth: 0,
+    })
+    const downloadDocs = (downloadResult.docs ?? []) as unknown as CMSRecord[]
+    const downloadData = ((downloadDocs[0]?.data as CMSRecord | undefined) ?? {}) as CMSRecord
+
+    exploreMegatrendsTitle = parseExploreMegatrendsTitle(downloadData)
+    const exploreMegatrendsImageSource = parseExploreMegatrendsImageSource(downloadData)
+
+    exploreMegatrendsImageUrl = exploreMegatrendsImageSource
+      ? await resolveMediaUrlFromSource(payload, exploreMegatrendsImageSource)
+      : ''
+
+    const legalResult = await payload.find({
+      collection: 'legal-information',
+      limit: 5,
+      pagination: false,
+      depth: 0,
+    })
+    const legalDocs = (legalResult.docs ?? []) as unknown as CMSRecord[]
+
+    const contactResult = await payload.find({
+      collection: 'contact-us',
+      limit: 5,
+      pagination: false,
+      depth: 0,
+    })
+    const contactDocs = (contactResult.docs ?? []) as unknown as CMSRecord[]
+
+    regulatoryNoticeFromCMS = parseRegulatoryNoticeFromCMS(legalDocs, contactDocs)
+    if (!regulatoryNoticeFromCMS) {
+      payload.logger.warn('Regulatory notice data missing in payload collections legal-information / contact-us.')
     }
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error)
+    payload.logger.warn(`[home-shell] Non-critical CMS load failed (homepage-links / legal / contact): ${detail}`)
+  }
+  return { exploreMegatrendsTitle, exploreMegatrendsImageUrl, regulatoryNoticeFromCMS }
+}
 
-    const pageRecord = page as {
-      homeDownloads?: {
-        factsheetUsd?: unknown
-        factsheetChfHedged?: unknown
-        fundCommentary?: unknown
-        presentation?: unknown
+async function resolveHomeDownloadsFromHomeAndFooter(
+  payload: PayloadInstance,
+  pageRecord: {
+    homeDownloads?: {
+      factsheetUsd?: unknown
+      factsheetChfHedged?: unknown
+      fundCommentary?: unknown
+      presentation?: unknown
+    }
+  } | null,
+  pageIdForLog: unknown,
+): Promise<DownloadItem[]> {
+  let resolvedDownloads: DownloadItem[] = await Promise.all(
+    REQUIRED_HOME_DOWNLOADS.map(async ({ id, label }) => {
+      const href =
+        (pageRecord
+          ? (await resolveUploadRelationToHref(payload, pageRecord.homeDownloads?.[id])) || ''
+          : '') || ''
+      return { id, label, href }
+    }),
+  )
+
+  let footerDownloads: Record<string, unknown> | undefined
+  try {
+    const footerGlobal = await payload.findGlobal({
+      slug: 'footer',
+      depth: 0,
+      select: {
+        downloads: true,
+      },
+    })
+    footerDownloads =
+      footerGlobal && typeof footerGlobal === 'object' && 'downloads' in footerGlobal
+        ? (footerGlobal as { downloads?: Record<string, unknown> }).downloads
+        : undefined
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error)
+    payload.logger.warn(
+      `[home-downloads] Footer global fetch failed; continuing with home page relations only. ${detail}`,
+    )
+  }
+
+  resolvedDownloads = await Promise.all(
+    resolvedDownloads.map(async ({ id, label, href }) => {
+      if (href.trim()) return { id, label, href }
+
+      const fromFooter = (await resolveUploadRelationToHref(payload, footerDownloads?.[id])) || ''
+
+      if (!fromFooter.trim() && pageRecord) {
+        payload.logger.warn(
+          `[home-downloads] Missing or unresolvable Home download asset for "${label}" (field: "${id}") on page #${String(pageIdForLog)} (home)${footerDownloads ? '; footer slot also empty' : '; footer unavailable'}.`,
+        )
       }
-      homeMegatrendCards?: unknown
-    }
 
+      return { id, label, href: fromFooter }
+    }),
+  )
+
+  if (resolvedDownloads.every((d) => !d.href.trim())) {
+    payload.logger.warn(
+      '[home-downloads] All download slots are empty on the public home read. Files visible in the admin on a draft, or only on another page, are not served until the Home page is published with those relations (or set the same uploads under Globals → Footer → downloads).',
+    )
+  }
+
+  return resolvedDownloads
+}
+
+async function loadMegatrendDatasetTrendsResolved(payload: PayloadInstance): Promise<TrendItem[]> {
+  const trendResult = await payload.find({
+    collection: 'megatrend-dataset',
+    limit: 100,
+    pagination: false,
+    depth: 2,
+  })
+  const trendDocs = (trendResult.docs ?? []) as unknown as CMSRecord[]
+  const trendItems = parseTrendItems(trendDocs)
+  const trendsWithResolvedImages = await Promise.all(
+    trendItems.map(async (trend) => {
+      const mediaFieldImageUrl = resolveMediaLikeUrl(trend.mediaUpload)
+      const resolvedImageUrl =
+        mediaFieldImageUrl ||
+        (trend.imageSource ? await resolveMediaUrlFromSource(payload, trend.imageSource) : trend.imageUrl)
+
+      return {
+        title: trend.title,
+        body: trend.body,
+        tickers: trend.tickers,
+        imageUrl: resolvedImageUrl || fallbackTrendImageByTitle(trend.title),
+      }
+    }),
+  )
+  return dedupeTrendItemsByTitle(trendsWithResolvedImages).deduped
+}
+
+async function homeShellWithoutPublishedHomePage(
+  payload: PayloadInstance,
+  trustListItems: RegulatoryItem[],
+  exploreMegatrendsTitle: string,
+  exploreMegatrendsImageUrl: string,
+  regulatoryNoticeFromCMS: HomeCMSContent['regulatoryNotice'] | null,
+): Promise<HomeCMSContent> {
+  let dedupedTrendsWithResolvedImages: TrendItem[] = []
+  try {
+    dedupedTrendsWithResolvedImages = await loadMegatrendDatasetTrendsResolved(payload)
+    if (dedupedTrendsWithResolvedImages.length === 0) {
+      payload.logger.warn('Trend data missing: megatrend-dataset returned no valid rows (home page unpublished).')
+    }
+  } catch (error) {
+    payload.logger.warn(
+      `[home-trends] Failed to load megatrend-dataset (no published home): ${error instanceof Error ? error.message : String(error)}`,
+    )
+  }
+
+  const resolvedDownloads = await resolveHomeDownloadsFromHomeAndFooter(payload, null, undefined)
+
+  if (trustListItems.length === 0) {
+    payload.logger.warn('Regulatory strip data missing: no valid rows found in payload collection trust-list.')
+  }
+
+  return {
+    hero: EMPTY_HOME_CONTENT.hero,
+    regulatoryItems: trustListItems,
+    trends: dedupedTrendsWithResolvedImages,
+    downloads: resolvedDownloads,
+    exploreMegatrendsCard: {
+      title: exploreMegatrendsTitle || EMPTY_HOME_CONTENT.exploreMegatrendsCard.title,
+      imageUrl: exploreMegatrendsImageUrl || EMPTY_HOME_CONTENT.exploreMegatrendsCard.imageUrl,
+    },
+    regulatoryNotice: regulatoryNoticeFromCMS ?? EMPTY_HOME_CONTENT.regulatoryNotice,
+  }
+}
+
+export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
+  let payload: PayloadInstance | null = null
+  try {
+    payload = await getPayload({ config: configPromise })
+  } catch (error) {
+    console.error('[getHomeCMSContent] getPayload failed.', error)
+    return EMPTY_HOME_CONTENT
+  }
+
+  const trustListItems = await loadTrustListRegulatoryItems(payload)
+  const { exploreMegatrendsTitle, exploreMegatrendsImageUrl, regulatoryNoticeFromCMS } =
+    await loadExploreAndRegulatoryNoticeShell(payload)
+
+  let page: Awaited<ReturnType<typeof queryPageBySlug>>
+  try {
+    page = await queryPageBySlug('home', 0)
+  } catch (error) {
+    console.error('[getHomeCMSContent] Home page query failed.', error)
+    return homeShellWithoutPublishedHomePage(
+      payload,
+      trustListItems,
+      exploreMegatrendsTitle,
+      exploreMegatrendsImageUrl,
+      regulatoryNoticeFromCMS,
+    )
+  }
+  if (!page) {
+    return homeShellWithoutPublishedHomePage(
+      payload,
+      trustListItems,
+      exploreMegatrendsTitle,
+      exploreMegatrendsImageUrl,
+      regulatoryNoticeFromCMS,
+    )
+  }
+
+  const pageRecord = page as {
+    homeDownloads?: {
+      factsheetUsd?: unknown
+      factsheetChfHedged?: unknown
+      fundCommentary?: unknown
+      presentation?: unknown
+    }
+    homeMegatrendCards?: unknown
+  }
+
+  const resolvedDownloads = await resolveHomeDownloadsFromHomeAndFooter(
+    payload,
+    pageRecord,
+    (page as { id?: unknown }).id,
+  )
+
+  if (trustListItems.length === 0) {
+    payload.logger.warn('Regulatory strip data missing: no valid rows found in payload collection trust-list.')
+  }
+
+  let dedupedTrendsWithResolvedImages: TrendItem[] = []
+  try {
     const linkedHomeMegatrendCards = await resolveHomeMegatrendCardDocsInOrder({
       payload,
       raw: pageRecord.homeMegatrendCards,
@@ -884,7 +1240,7 @@ export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
         const mediaFieldImageUrl = resolveMediaLikeUrl(trend.mediaUpload)
         const resolvedImageUrl =
           mediaFieldImageUrl ||
-          (trend.imageSource ? await resolveMediaUrlFromSource(payload!, trend.imageSource) : trend.imageUrl)
+          (trend.imageSource ? await resolveMediaUrlFromSource(payload, trend.imageSource) : trend.imageUrl)
 
         return {
           title: trend.title,
@@ -895,7 +1251,7 @@ export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
       }),
     )
     const dedupedTrendResult = dedupeTrendItemsByTitle(trendsWithResolvedImages)
-    const dedupedTrendsWithResolvedImages = dedupedTrendResult.deduped
+    dedupedTrendsWithResolvedImages = dedupedTrendResult.deduped
 
     if (dedupedTrendResult.removed > 0) {
       payload.logger.warn(
@@ -906,89 +1262,35 @@ export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
     if (trendItems.length === 0) {
       payload.logger.warn('Trend data missing: no valid rows found in home-megatrend-cards or megatrend-dataset.')
     }
-
-    // Canonical source for homepage downloads is pages(home).homeDownloads.* .
-    // Missing or broken relations log a warning and yield an empty href so builds and previews
-    // still succeed; fix media in the Home document (or run upload scripts) to restore links.
-    const resolvedDownloads: DownloadItem[] = await Promise.all(
-      REQUIRED_HOME_DOWNLOADS.map(async ({ id, label }) => ({
-        id,
-        label,
-        href: await resolveHomeDownloadUrlAsync({
-          payload: payload!,
-          media: pageRecord.homeDownloads?.[id],
-          field: id,
-          label,
-          pageId: (page as { id?: unknown }).id,
-          pageSlug: 'home',
-          logWarn: (msg) => payload!.logger.warn(msg),
-        }),
-      })),
+  } catch (error) {
+    payload.logger.warn(
+      `[home-trends] Failed to load or resolve megatrend cards: ${error instanceof Error ? error.message : String(error)}`,
     )
+  }
 
-    const downloadResult = await payload.find({
-      collection: 'homepage-links',
-      limit: 10,
-      pagination: false,
-      depth: 0,
-    })
-    const downloadDocs = (downloadResult.docs ?? []) as unknown as CMSRecord[]
-    const downloadData = ((downloadDocs[0]?.data as CMSRecord | undefined) ?? {}) as CMSRecord
+  const heroParagraphs = richTextToParagraphs(page.hero?.richText)
+  const heroSource = heroParagraphs[0] ?? ''
+  const heroSplit = heroSource.split('Harnessing')
+  const heroHeading = (heroSplit[0] ?? '').replace(/\.+$/, '').trim()
+  const heroSubtitle = heroSplit[1] ? `Harnessing${heroSplit[1]}`.trim() : ''
+  const heroRecord = page as { heroCtaLabel?: unknown; heroCtaHref?: unknown }
+  const heroCtaLabel = typeof heroRecord.heroCtaLabel === 'string' ? heroRecord.heroCtaLabel.trim() : ''
+  const heroCtaHref = typeof heroRecord.heroCtaHref === 'string' ? heroRecord.heroCtaHref.trim() : ''
 
-    const exploreMegatrendsTitle = parseExploreMegatrendsTitle(downloadData)
-    const exploreMegatrendsImageSource = parseExploreMegatrendsImageSource(downloadData)
-
-    const exploreMegatrendsImageUrl = exploreMegatrendsImageSource
-      ? await resolveMediaUrlFromSource(payload!, exploreMegatrendsImageSource)
-      : ''
-
-    const legalResult = await payload.find({
-      collection: 'legal-information',
-      limit: 5,
-      pagination: false,
-      depth: 0,
-    })
-    const legalDocs = (legalResult.docs ?? []) as unknown as CMSRecord[]
-
-    const contactResult = await payload.find({
-      collection: 'contact-us',
-      limit: 5,
-      pagination: false,
-      depth: 0,
-    })
-    const contactDocs = (contactResult.docs ?? []) as unknown as CMSRecord[]
-
-    const regulatoryNoticeFromCMS = parseRegulatoryNoticeFromCMS(legalDocs, contactDocs)
-    if (!regulatoryNoticeFromCMS) {
-      payload.logger.warn('Regulatory notice data missing in payload collections legal-information / contact-us.')
-    }
-
-    const heroParagraphs = richTextToParagraphs(page.hero?.richText)
-    const heroSource = heroParagraphs[0] ?? ''
-    const heroSplit = heroSource.split('Harnessing')
-    const heroHeading = (heroSplit[0] ?? '').replace(/\.+$/, '').trim()
-    const heroSubtitle = heroSplit[1] ? `Harnessing${heroSplit[1]}`.trim() : ''
-    const heroRecord = page as { heroCtaLabel?: unknown; heroCtaHref?: unknown }
-    const heroCtaLabel = typeof heroRecord.heroCtaLabel === 'string' ? heroRecord.heroCtaLabel.trim() : ''
-    const heroCtaHref = typeof heroRecord.heroCtaHref === 'string' ? heroRecord.heroCtaHref.trim() : ''
-
-    return {
-      hero: {
-        heading: heroHeading || '',
-        subtitle: heroSubtitle || '',
-        ctaLabel: heroCtaLabel,
-        ctaHref: heroCtaHref,
-      },
-      regulatoryItems: trustListItems,
-      trends: dedupedTrendsWithResolvedImages,
-      downloads: resolvedDownloads,
-      exploreMegatrendsCard: {
-        title: exploreMegatrendsTitle || EMPTY_HOME_CONTENT.exploreMegatrendsCard.title,
-        imageUrl: exploreMegatrendsImageUrl || EMPTY_HOME_CONTENT.exploreMegatrendsCard.imageUrl,
-      },
-      regulatoryNotice: regulatoryNoticeFromCMS ?? EMPTY_HOME_CONTENT.regulatoryNotice,
-    }
-  } catch {
-    return EMPTY_HOME_CONTENT
+  return {
+    hero: {
+      heading: heroHeading || '',
+      subtitle: heroSubtitle || '',
+      ctaLabel: heroCtaLabel,
+      ctaHref: heroCtaHref,
+    },
+    regulatoryItems: trustListItems,
+    trends: dedupedTrendsWithResolvedImages,
+    downloads: resolvedDownloads,
+    exploreMegatrendsCard: {
+      title: exploreMegatrendsTitle || EMPTY_HOME_CONTENT.exploreMegatrendsCard.title,
+      imageUrl: exploreMegatrendsImageUrl || EMPTY_HOME_CONTENT.exploreMegatrendsCard.imageUrl,
+    },
+    regulatoryNotice: regulatoryNoticeFromCMS ?? EMPTY_HOME_CONTENT.regulatoryNotice,
   }
 })

@@ -11,12 +11,6 @@ const STATIC_IMAGE_HOSTS = ['https://impgmtfund.com', 'https://www.impgmtfund.co
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Default Next uses (cpu count - 1) static workers; each runs Payload + pg, which can exhaust
-  // hosted Postgres connection limits and stall "Collecting page data". Override via NEXT_BUILD_CPUS.
-  experimental: {
-    cpus: Math.max(1, Number(process.env.NEXT_BUILD_CPUS) || 3),
-    staticGenerationMaxConcurrency: Number(process.env.NEXT_STATIC_EXPORT_CONCURRENCY) || 2,
-  },
   images: {
     qualities: [75, 85],
     remotePatterns: [

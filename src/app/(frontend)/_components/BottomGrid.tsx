@@ -97,7 +97,7 @@ export async function BottomGrid() {
             </div>
             <div className="flex flex-col items-center space-y-4">
               {cms.downloads
-                .filter((d) => d.href.trim() !== '')
+                .filter((d) => d.id !== 'presentation' && d.href.trim() !== '')
                 .map((d) => (
                   <div key={d.label}>
                     <ActionLinkButton

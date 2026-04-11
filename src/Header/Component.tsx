@@ -15,7 +15,7 @@ const fallbackNavItems = [
 export async function Header() {
   let headerData: Header | null = null
   try {
-    headerData = await getCachedGlobal('header', 1)()
+    headerData = await getCachedGlobal('header', 1, { navItems: true })()
   } catch {
     // CMS not available, use fallback
   }

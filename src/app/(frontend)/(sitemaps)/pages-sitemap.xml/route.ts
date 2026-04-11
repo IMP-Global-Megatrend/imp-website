@@ -4,54 +4,33 @@ import config from '@payload-config'
 import { unstable_cache } from 'next/cache'
 import { getServerSideURL } from '@/utilities/getURL'
 
+import { fetchAllPublishedForSitemap } from '@/app/(frontend)/(sitemaps)/lib/fetchSitemapDocs'
+
+export const revalidate = 3600
+
 const getPagesSitemap = unstable_cache(
   async () => {
     const payload = await getPayload({ config })
     const SITE_URL = getServerSideURL()
-
-    const results = await payload.find({
-      collection: 'pages',
-      overrideAccess: false,
-      draft: false,
-      depth: 0,
-      limit: 1000,
-      pagination: false,
-      where: {
-        _status: {
-          equals: 'published',
-        },
-      },
-      select: {
-        slug: true,
-        updatedAt: true,
-      },
-    })
-
     const dateFallback = new Date().toISOString()
 
-    const defaultSitemap = [
-      {
-        loc: `${SITE_URL}/search`,
-        lastmod: dateFallback,
-      },
-      {
-        loc: `${SITE_URL}/posts`,
-        lastmod: dateFallback,
-      },
-    ]
+    const docs = await fetchAllPublishedForSitemap(payload, 'pages')
+    const slugs = new Set(docs.map((d) => d.slug))
 
-    const sitemap = results.docs
-      ? results.docs
-          .filter((page) => Boolean(page?.slug))
-          .map((page) => {
-            return {
-              loc: page?.slug === 'home' ? `${SITE_URL}/` : `${SITE_URL}/${page?.slug}`,
-              lastmod: page.updatedAt || dateFallback,
-            }
-          })
-      : []
+    const defaultSitemap: Array<{ loc: string; lastmod: string }> = []
+    if (!slugs.has('search')) {
+      defaultSitemap.push({ loc: `${SITE_URL}/search`, lastmod: dateFallback })
+    }
+    if (!slugs.has('articles')) {
+      defaultSitemap.push({ loc: `${SITE_URL}/articles`, lastmod: dateFallback })
+    }
 
-    return [...defaultSitemap, ...sitemap]
+    const pages = docs.map((page) => ({
+      loc: page.slug === 'home' ? `${SITE_URL}/` : `${SITE_URL}/${page.slug}`,
+      lastmod: page.updatedAt || dateFallback,
+    }))
+
+    return [...defaultSitemap, ...pages]
   },
   ['pages-sitemap'],
   {
