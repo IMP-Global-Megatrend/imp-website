@@ -10,7 +10,10 @@ import { Logo } from '@/components/Logo/Logo'
 export async function Footer() {
   let footerData: Footer | null = null
   try {
-    footerData = await getCachedGlobal('footer', 1)()
+    footerData = await getCachedGlobal('footer', 1, {
+      navItems: true,
+      downloads: true,
+    })()
   } catch {
     // CMS not available
   }

@@ -3,6 +3,10 @@ import { draftMode } from 'next/headers'
 import { getPayload } from 'payload'
 
 import {
+  buildPayloadMediaFileHrefFromFilename,
+  resolveApiMediaFileOrSupabasePath,
+} from '@/utilities/payloadMediaFileUrl'
+import {
   normalizeSupabasePublicObjectUrl,
   resolveSupabasePublicMediaUrl,
 } from '@/utilities/resolveSupabasePublicMediaUrl'
@@ -72,8 +76,10 @@ export async function getCMSAboutUsVideoUrl(): Promise<string | null> {
 
     const mediaFilename = page?.aboutUsVideo?.filename
     if (typeof mediaFilename === 'string' && mediaFilename.trim()) {
-      const resolvedUrl = resolveSupabasePublicMediaUrl(mediaFilename.trim())
+      const fn = mediaFilename.trim()
+      const resolvedUrl = resolveSupabasePublicMediaUrl(fn)
       if (resolvedUrl) return resolvedUrl
+      return buildPayloadMediaFileHrefFromFilename(fn)
     }
 
     return null
@@ -656,8 +662,10 @@ export async function getCMSFundPageData(): Promise<CMSFundPageData | null> {
         if (normalized) return normalized
       }
       if (typeof media.filename === 'string' && media.filename.trim()) {
-        const resolved = resolveSupabasePublicMediaUrl(media.filename.trim())
+        const fn = media.filename.trim()
+        const resolved = resolveSupabasePublicMediaUrl(fn)
         if (resolved) return resolved
+        return buildPayloadMediaFileHrefFromFilename(fn)
       }
       return undefined
     }
@@ -679,27 +687,30 @@ export async function getCMSFundPageData(): Promise<CMSFundPageData | null> {
 }
 
 function resolvePayloadApiMediaPath(source: string): string {
-  if (!source.startsWith('/api/media/file/')) return ''
-
-  const filename = source.replace('/api/media/file/', '').split('?')[0]?.split('#')[0]?.trim() || ''
-  if (!filename) return ''
-
-  return resolveSupabasePublicMediaUrl(filename) || ''
+  return resolveApiMediaFileOrSupabasePath(source)
 }
 
 function normalizeCMSMediaUrl(source: string): string {
   if (!source) return ''
 
   if (source.startsWith('/api/media/file/')) {
-    return resolvePayloadApiMediaPath(source)
+    return resolvePayloadApiMediaPath(source) || source
   }
   if (source.startsWith('/')) return source
 
-  if (
-    (source.startsWith('http://') || source.startsWith('https://')) &&
-    source.includes('/storage/v1/object/public/')
-  ) {
-    return normalizeSupabasePublicObjectUrl(source)
+  if (source.startsWith('http://') || source.startsWith('https://')) {
+    try {
+      const u = new URL(source)
+      if (u.pathname.startsWith('/api/media/file/')) {
+        const apiPath = `${u.pathname}${u.search}`
+        return resolvePayloadApiMediaPath(apiPath) || apiPath
+      }
+    } catch {
+      // ignore
+    }
+    if (source.includes('/storage/v1/object/public/')) {
+      return normalizeSupabasePublicObjectUrl(source)
+    }
   }
 
   return ''
@@ -720,16 +731,23 @@ async function resolveCMSImageUrlFromMedia(
 ): Promise<string> {
   if (!source) return ''
   if (source.startsWith('/api/media/file/')) {
-    const resolvedApiMediaPath = resolvePayloadApiMediaPath(source)
-    if (resolvedApiMediaPath) return resolvedApiMediaPath
+    return resolvePayloadApiMediaPath(source) || source
   }
   if (source.startsWith('/') && !source.startsWith('/api/media/file/')) return source
 
-  if (
-    (source.startsWith('http://') || source.startsWith('https://')) &&
-    source.includes('/storage/v1/object/public/')
-  ) {
-    return normalizeSupabasePublicObjectUrl(source)
+  if (source.startsWith('http://') || source.startsWith('https://')) {
+    try {
+      const u = new URL(source)
+      if (u.pathname.startsWith('/api/media/file/')) {
+        const apiPath = `${u.pathname}${u.search}`
+        return resolvePayloadApiMediaPath(apiPath) || apiPath
+      }
+    } catch {
+      // ignore
+    }
+    if (source.includes('/storage/v1/object/public/')) {
+      return normalizeSupabasePublicObjectUrl(source)
+    }
   }
 
   const normalizedSource = normalizeSourceForMediaLookup(source)
@@ -758,8 +776,10 @@ async function resolveCMSImageUrlFromMedia(
   const mediaDoc = mediaBySource.docs?.[0] as { url?: unknown; filename?: unknown } | undefined
   const mediaFilename = mediaDoc?.filename
   if (typeof mediaFilename === 'string' && mediaFilename.trim() !== '') {
-    const supabaseMediaUrl = resolveSupabasePublicMediaUrl(mediaFilename)
+    const fn = mediaFilename.trim()
+    const supabaseMediaUrl = resolveSupabasePublicMediaUrl(fn)
     if (supabaseMediaUrl) return supabaseMediaUrl
+    return buildPayloadMediaFileHrefFromFilename(fn)
   }
 
   const mediaUrl = mediaDoc?.url
@@ -1412,8 +1432,10 @@ export async function getCMSPerformancePageData(): Promise<CMSPerformancePageDat
       }
 
       if (typeof media.filename === 'string' && media.filename.trim()) {
-        const resolved = resolveSupabasePublicMediaUrl(media.filename.trim())
+        const fn = media.filename.trim()
+        const resolved = resolveSupabasePublicMediaUrl(fn)
         if (resolved) return resolved
+        return buildPayloadMediaFileHrefFromFilename(fn)
       }
 
       return undefined

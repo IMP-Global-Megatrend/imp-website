@@ -58,6 +58,22 @@ export const getServerSideURL = () => {
   return 'http://localhost:3000'
 }
 
+/**
+ * Origins allowed for Payload CORS (REST/GraphQL responses). Must cover any host you use to open
+ * the admin in the browser — same list as CSRF extras plus `serverURL` — or credentialed `fetch`
+ * from the API tab / admin will fail with "Failed to fetch" when e.g. `serverURL` is localhost
+ * but you browse via a LAN IP.
+ */
+export function getPayloadCorsOrigins(): string[] {
+  const origins = new Set<string>()
+  const server = getServerSideURL()
+  if (server) origins.add(server)
+  for (const o of getPayloadCsrfExtraOrigins()) {
+    if (o) origins.add(o)
+  }
+  return [...origins]
+}
+
 export const getClientSideURL = () => {
   if (canUseDOM) {
     const protocol = window.location.protocol

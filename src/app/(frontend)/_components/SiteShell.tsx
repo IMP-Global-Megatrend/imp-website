@@ -79,8 +79,8 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
 
   try {
     ;[headerData, footerData] = await Promise.all([
-      getCachedGlobal('header', 1)() as Promise<Header>,
-      getCachedGlobal('footer', 1)() as Promise<Footer>,
+      getCachedGlobal('header', 1, { navItems: true })() as Promise<Header>,
+      getCachedGlobal('footer', 1, { navItems: true })() as Promise<Footer>,
     ])
   } catch {}
 

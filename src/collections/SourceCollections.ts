@@ -1,10 +1,13 @@
 import type { CollectionConfig } from 'payload'
+import { anyone } from '@/access/anyone'
 import { authenticated } from '@/access/authenticated'
 
 export interface WixCollectionDefinition {
   sourceCollectionId: string
   slug: string
   label: string
+  /** Public marketing data read without auth (homepage regulatory strip, etc.). */
+  publicRead?: boolean
 }
 
 interface WixCollectionAdminOverride {
@@ -95,7 +98,7 @@ export const wixCollectionDefinitions: WixCollectionDefinition[] = [
     label: 'Sector Allocations',
   },
   { sourceCollectionId: 'TopHoldings', slug: 'top-holdings', label: 'Top Holdings' },
-  { sourceCollectionId: 'TrustList', slug: 'trust-list', label: 'Trust List' },
+  { sourceCollectionId: 'TrustList', slug: 'trust-list', label: 'Trust List', publicRead: true },
 ]
 
 const wixCollectionAdminOverrides: Record<string, WixCollectionAdminOverride> = {
@@ -186,7 +189,7 @@ function buildWixCollection(def: WixCollectionDefinition): CollectionConfig {
     access: {
       create: authenticated,
       delete: authenticated,
-      read: authenticated,
+      read: def.publicRead ? anyone : authenticated,
       update: authenticated,
     },
     admin: {

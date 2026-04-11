@@ -1,7 +1,12 @@
 import configPromise from '@payload-config'
+import { draftMode } from 'next/headers'
 import { cache } from 'react'
 import { getPayload } from 'payload'
 import fallbacks from '@/constants/fallbacks.json'
+import {
+  buildPayloadMediaFileHrefFromFilename,
+  resolveApiMediaFileOrSupabasePath,
+} from '@/utilities/payloadMediaFileUrl'
 import {
   normalizeSupabasePublicObjectUrl,
   resolveSupabasePublicMediaUrl,
@@ -35,6 +40,7 @@ type ParsedTrendItem = TrendItem & { manualSort: string; imageSource: string; me
 type MediaLike = {
   url?: unknown
   filename?: unknown
+  storageUrl?: unknown
 }
 
 type HomeMegatrendCardRecord = {
@@ -139,12 +145,23 @@ function stripHtml(value: string): string {
 function resolveCMSImageUrl(value: string): string {
   if (!value) return ''
   if (value.startsWith('/api/media/file/')) {
-    return resolvePayloadApiMediaPath(value)
+    return resolveApiMediaFileOrSupabasePath(value) || value
   }
   if (value.startsWith('/')) return value
   if (value.startsWith('http://') || value.startsWith('https://')) {
-    // Keep only already-migrated storage URLs; block other external image hosts.
-    return value.includes('/storage/v1/object/public/') ? normalizeSupabasePublicObjectUrl(value) : ''
+    try {
+      const u = new URL(value)
+      if (u.pathname.startsWith('/api/media/file/')) {
+        const apiPath = `${u.pathname}${u.search}`
+        return resolveApiMediaFileOrSupabasePath(apiPath) || apiPath
+      }
+    } catch {
+      // ignore invalid URL
+    }
+    if (value.includes('/storage/v1/object/public/')) {
+      return normalizeSupabasePublicObjectUrl(value)
+    }
+    return ''
   }
 
   // Disallow Wix tokens in frontend content; CMS rows should already reference local media URLs.
@@ -658,59 +675,83 @@ function resolveMediaLikeUrl(media: unknown): string {
   const mediaRecord = media as MediaLike
   const directUrl = mediaRecord.url
   if (typeof directUrl === 'string' && directUrl.trim() !== '') {
-    return resolveCMSImageUrl(directUrl.trim())
+    const fromUrl = resolveCMSImageUrl(directUrl.trim())
+    if (fromUrl) return fromUrl
   }
 
   const filename = mediaRecord.filename
   if (typeof filename === 'string' && filename.trim() !== '') {
-    return resolveSupabasePublicMediaUrl(filename.trim()) || ''
+    const trimmed = filename.trim()
+    return resolveSupabasePublicMediaUrl(trimmed) || buildPayloadMediaFileHrefFromFilename(trimmed)
+  }
+
+  const storageUrl = mediaRecord.storageUrl
+  if (typeof storageUrl === 'string' && storageUrl.trim() !== '') {
+    const trimmed = storageUrl.trim()
+    if (trimmed.includes('/storage/v1/object/public/')) {
+      return normalizeSupabasePublicObjectUrl(trimmed)
+    }
+    return resolveCMSImageUrl(trimmed)
   }
 
   return ''
 }
 
-async function resolveHomeDownloadUrlAsync(args: {
-  payload: Awaited<ReturnType<typeof getPayload>>
-  media: unknown
-  field: DownloadItem['id']
-  label: string
-  pageId: unknown
-  pageSlug: string
-  logWarn: (msg: string) => void
-}): Promise<string> {
-  let mediaValue: unknown = args.media
+/**
+ * Payload may pass an upload as a bare id, a polymorphic `{ relationTo, value }`, or a partial
+ * `{ id }` without `url` / `filename`. Without resolving the document, `resolveMediaLikeUrl` stays empty.
+ */
+function extractMediaDocumentId(media: unknown): string | number | null {
+  if (typeof media === 'number' && Number.isFinite(media)) return media
+  if (typeof media === 'string' && media.trim() !== '') return media.trim()
+  if (!media || typeof media !== 'object') return null
 
-  if (typeof args.media === 'number') {
-    try {
-      const doc = await args.payload.findByID({
-        collection: 'media',
-        id: args.media,
-        depth: 0,
-      })
-      mediaValue = doc
-    } catch {
-      mediaValue = null
-    }
-  } else if (typeof args.media === 'string' && args.media.trim() !== '') {
-    try {
-      const doc = await args.payload.findByID({
-        collection: 'media',
-        id: args.media.trim(),
-        depth: 0,
-      })
-      mediaValue = doc
-    } catch {
-      mediaValue = null
+  const o = media as Record<string, unknown>
+
+  if (o.relationTo === 'media') {
+    const v = o.value
+    if (typeof v === 'number' && Number.isFinite(v)) return v
+    if (typeof v === 'string' && v.trim() !== '') return v.trim()
+    if (v && typeof v === 'object') {
+      const inner = (v as { id?: unknown }).id
+      if (typeof inner === 'number' && Number.isFinite(inner)) return inner
+      if (typeof inner === 'string' && inner.trim() !== '') return inner.trim()
     }
   }
 
-  const href = resolveMediaLikeUrl(mediaValue)
+  const id = o.id
+  if (typeof id === 'number' && Number.isFinite(id)) return id
+  if (typeof id === 'string' && id.trim() !== '') return id.trim()
+
+  return null
+}
+
+async function resolveUploadRelationToHref(
+  payload: Awaited<ReturnType<typeof getPayload>>,
+  media: unknown,
+): Promise<string> {
+  const hrefFromValue = (value: unknown) => resolveMediaLikeUrl(value).trim()
+
+  let href = hrefFromValue(media)
   if (href) return href
 
-  args.logWarn(
-    `[home-downloads] Missing or unresolvable Home download asset for "${args.label}" (field: "${args.field}") on page #${String(args.pageId)} (${args.pageSlug}).`,
-  )
-  return ''
+  const id = extractMediaDocumentId(media)
+  if (id === null) return ''
+
+  try {
+    const doc = await payload.findByID({
+      collection: 'media',
+      id,
+      depth: 1,
+      // Public homepage: no authenticated req; media read is public but some environments still need this.
+      overrideAccess: true,
+    })
+    href = hrefFromValue(doc)
+  } catch {
+    return ''
+  }
+
+  return href
 }
 
 function normalizeMediaLookupSource(source: string): string {
@@ -728,12 +769,7 @@ function normalizeMediaLookupSource(source: string): string {
 }
 
 function resolvePayloadApiMediaPath(source: string): string {
-  if (!source.startsWith('/api/media/file/')) return ''
-
-  const filename = source.replace('/api/media/file/', '').split('?')[0]?.split('#')[0]?.trim() || ''
-  if (!filename) return ''
-
-  return resolveSupabasePublicMediaUrl(filename) || ''
+  return resolveApiMediaFileOrSupabasePath(source)
 }
 
 async function resolveMediaUrlFromSource(
@@ -742,15 +778,22 @@ async function resolveMediaUrlFromSource(
 ): Promise<string> {
   if (!source) return ''
   if (source.startsWith('/api/media/file/')) {
-    const resolvedApiMediaPath = resolvePayloadApiMediaPath(source)
-    if (resolvedApiMediaPath) return resolvedApiMediaPath
+    return resolvePayloadApiMediaPath(source) || source
   }
   if (source.startsWith('/') && !source.startsWith('/api/media/file/')) return source
-  if (
-    (source.startsWith('http://') || source.startsWith('https://')) &&
-    source.includes('/storage/v1/object/public/')
-  ) {
-    return source
+  if (source.startsWith('http://') || source.startsWith('https://')) {
+    try {
+      const u = new URL(source)
+      if (u.pathname.startsWith('/api/media/file/')) {
+        const apiPath = `${u.pathname}${u.search}`
+        return resolveApiMediaFileOrSupabasePath(apiPath) || apiPath
+      }
+    } catch {
+      // ignore
+    }
+    if (source.includes('/storage/v1/object/public/')) {
+      return source
+    }
   }
 
   const lookupSource = normalizeMediaLookupSource(source)
@@ -793,8 +836,10 @@ async function resolveMediaUrlFromSource(
   const mediaDoc = mediaBySource.docs?.[0] as { url?: unknown; filename?: unknown } | undefined
   const mediaFilename = mediaDoc?.filename
   if (typeof mediaFilename === 'string' && mediaFilename.trim() !== '') {
-    const supabaseMediaUrl = resolveSupabasePublicMediaUrl(mediaFilename)
+    const t = mediaFilename.trim()
+    const supabaseMediaUrl = resolveSupabasePublicMediaUrl(t)
     if (supabaseMediaUrl) return supabaseMediaUrl
+    return buildPayloadMediaFileHrefFromFilename(t)
   }
 
   const mediaUrl = mediaDoc?.url
@@ -819,11 +864,23 @@ export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
 
   try {
     payload = await getPayload({ config: configPromise })
+    // draftMode() requires a request scope; it throws during static prerender / some workers,
+    // which would hit the outer catch and return EMPTY_HOME_CONTENT (empty strip, trends, hero).
+    let draft = false
+    try {
+      draft = (await draftMode()).isEnabled
+    } catch {
+      draft = false
+    }
     const result = await payload.find({
       collection: 'pages',
+      draft,
       limit: 1,
       pagination: false,
-      depth: 2,
+      // Depth 0: upload fields are plain ids. Deep population can return partial media objects
+      // (missing filename) which breaks href resolution; we load each media doc via findByID instead.
+      depth: 0,
+      overrideAccess: draft,
       where: {
         slug: { equals: 'home' },
       },
@@ -831,19 +888,6 @@ export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
 
     const page = result.docs?.[0]
     if (!page) return EMPTY_HOME_CONTENT
-
-    const trustListResult = await payload.find({
-      collection: 'trust-list',
-      limit: 100,
-      pagination: false,
-      depth: 0,
-    })
-    const trustListDocs = (trustListResult.docs ?? []) as unknown as Array<Record<string, unknown>>
-    const trustListItems = parseTrustListItems(trustListDocs)
-
-    if (trustListItems.length === 0) {
-      payload.logger.warn('Regulatory strip data missing: no valid rows found in payload collection trust-list.')
-    }
 
     const pageRecord = page as {
       homeDownloads?: {
@@ -855,76 +899,140 @@ export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
       homeMegatrendCards?: unknown
     }
 
-    const linkedHomeMegatrendCards = await resolveHomeMegatrendCardDocsInOrder({
-      payload,
-      raw: pageRecord.homeMegatrendCards,
-    })
-
-    const relationshipTrendItems = parseHomeMegatrendCards(linkedHomeMegatrendCards)
-    const trendItems =
-      relationshipTrendItems.length > 0
-        ? relationshipTrendItems
-        : await (async () => {
-            payload.logger.warn(
-              'Home megatrend cards relationship is empty; falling back to legacy collection megatrend-dataset.',
-            )
-
-            const trendResult = await payload.find({
-              collection: 'megatrend-dataset',
-              limit: 100,
-              pagination: false,
-              depth: 2,
-            })
-            const trendDocs = (trendResult.docs ?? []) as unknown as CMSRecord[]
-            return parseTrendItems(trendDocs)
-          })()
-
-    const trendsWithResolvedImages = await Promise.all(
-      trendItems.map(async (trend) => {
-        const mediaFieldImageUrl = resolveMediaLikeUrl(trend.mediaUpload)
-        const resolvedImageUrl =
-          mediaFieldImageUrl ||
-          (trend.imageSource ? await resolveMediaUrlFromSource(payload!, trend.imageSource) : trend.imageUrl)
-
-        return {
-          title: trend.title,
-          body: trend.body,
-          tickers: trend.tickers,
-          imageUrl: resolvedImageUrl || fallbackTrendImageByTitle(trend.title),
-        }
+    // Resolve home first. Footer global is only a fallback — if findGlobal("footer") throws (DB/SQL),
+    // we must not skip resolving uploads from pages(home).homeDownloads.* .
+    let resolvedDownloads: DownloadItem[] = await Promise.all(
+      REQUIRED_HOME_DOWNLOADS.map(async ({ id, label }) => {
+        const href =
+          (await resolveUploadRelationToHref(payload!, pageRecord.homeDownloads?.[id])) || ''
+        return { id, label, href }
       }),
     )
-    const dedupedTrendResult = dedupeTrendItemsByTitle(trendsWithResolvedImages)
-    const dedupedTrendsWithResolvedImages = dedupedTrendResult.deduped
 
-    if (dedupedTrendResult.removed > 0) {
+    let footerDownloads: Record<string, unknown> | undefined
+    try {
+      // Narrow select: loading the full footer runs a single SQL with navItems + _rels laterals;
+      // that query has been failing in some DBs—only the download id columns are needed here.
+      const footerGlobal = await payload.findGlobal({
+        slug: 'footer',
+        depth: 0,
+        select: {
+          downloads: true,
+        },
+      })
+      footerDownloads =
+        footerGlobal && typeof footerGlobal === 'object' && 'downloads' in footerGlobal
+          ? (footerGlobal as { downloads?: Record<string, unknown> }).downloads
+          : undefined
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : String(error)
       payload.logger.warn(
-        `Removed ${dedupedTrendResult.removed} duplicate home megatrend entries by title: ${dedupedTrendResult.duplicateTitles.join(', ')}`,
+        `[home-downloads] Footer global fetch failed; continuing with home page relations only. ${detail}`,
       )
     }
 
-    if (trendItems.length === 0) {
-      payload.logger.warn('Trend data missing: no valid rows found in home-megatrend-cards or megatrend-dataset.')
+    resolvedDownloads = await Promise.all(
+      resolvedDownloads.map(async ({ id, label, href }) => {
+        if (href.trim()) return { id, label, href }
+
+        const fromFooter =
+          (await resolveUploadRelationToHref(payload!, footerDownloads?.[id])) || ''
+
+        if (!fromFooter.trim()) {
+          payload!.logger.warn(
+            `[home-downloads] Missing or unresolvable Home download asset for "${label}" (field: "${id}") on page #${String((page as { id?: unknown }).id)} (home)${footerDownloads ? '; footer slot also empty' : '; footer unavailable'}.`,
+          )
+        }
+
+        return { id, label, href: fromFooter }
+      }),
+    )
+
+    if (resolvedDownloads.every((d) => !d.href.trim())) {
+      payload.logger.warn(
+        '[home-downloads] All download slots are empty on the public home read. Files visible in the admin on a draft, or only on another page, are not served until the Home page is published with those relations (or set the same uploads under Globals → Footer → downloads).',
+      )
     }
 
-    // Canonical source for homepage downloads is pages(home).homeDownloads.* .
-    // Missing or broken relations log a warning and yield an empty href so builds and previews
-    // still succeed; fix media in the Home document (or run upload scripts) to restore links.
-    const resolvedDownloads: DownloadItem[] = await Promise.all(
-      REQUIRED_HOME_DOWNLOADS.map(async ({ id, label }) => ({
-        id,
-        label,
-        href: await resolveHomeDownloadUrlAsync({
-          payload: payload!,
-          media: pageRecord.homeDownloads?.[id],
-          field: id,
-          label,
-          pageId: (page as { id?: unknown }).id,
-          pageSlug: 'home',
-          logWarn: (msg) => payload!.logger.warn(msg),
+    let trustListItems: RegulatoryItem[] = []
+    try {
+      const trustListResult = await payload.find({
+        collection: 'trust-list',
+        limit: 100,
+        pagination: false,
+        depth: 0,
+        overrideAccess: true,
+      })
+      const trustListDocs = (trustListResult.docs ?? []) as unknown as Array<Record<string, unknown>>
+      trustListItems = parseTrustListItems(trustListDocs)
+    } catch (error) {
+      payload.logger.warn(
+        `[trust-list] Failed to load regulatory strip rows: ${error instanceof Error ? error.message : String(error)}`,
+      )
+    }
+
+    if (trustListItems.length === 0) {
+      payload.logger.warn('Regulatory strip data missing: no valid rows found in payload collection trust-list.')
+    }
+
+    let dedupedTrendsWithResolvedImages: TrendItem[] = []
+    try {
+      const linkedHomeMegatrendCards = await resolveHomeMegatrendCardDocsInOrder({
+        payload,
+        raw: pageRecord.homeMegatrendCards,
+      })
+
+      const relationshipTrendItems = parseHomeMegatrendCards(linkedHomeMegatrendCards)
+      const trendItems =
+        relationshipTrendItems.length > 0
+          ? relationshipTrendItems
+          : await (async () => {
+              payload.logger.warn(
+                'Home megatrend cards relationship is empty; falling back to legacy collection megatrend-dataset.',
+              )
+
+              const trendResult = await payload.find({
+                collection: 'megatrend-dataset',
+                limit: 100,
+                pagination: false,
+                depth: 2,
+              })
+              const trendDocs = (trendResult.docs ?? []) as unknown as CMSRecord[]
+              return parseTrendItems(trendDocs)
+            })()
+
+      const trendsWithResolvedImages = await Promise.all(
+        trendItems.map(async (trend) => {
+          const mediaFieldImageUrl = resolveMediaLikeUrl(trend.mediaUpload)
+          const resolvedImageUrl =
+            mediaFieldImageUrl ||
+            (trend.imageSource ? await resolveMediaUrlFromSource(payload!, trend.imageSource) : trend.imageUrl)
+
+          return {
+            title: trend.title,
+            body: trend.body,
+            tickers: trend.tickers,
+            imageUrl: resolvedImageUrl || fallbackTrendImageByTitle(trend.title),
+          }
         }),
-      })),
-    )
+      )
+      const dedupedTrendResult = dedupeTrendItemsByTitle(trendsWithResolvedImages)
+      dedupedTrendsWithResolvedImages = dedupedTrendResult.deduped
+
+      if (dedupedTrendResult.removed > 0) {
+        payload.logger.warn(
+          `Removed ${dedupedTrendResult.removed} duplicate home megatrend entries by title: ${dedupedTrendResult.duplicateTitles.join(', ')}`,
+        )
+      }
+
+      if (trendItems.length === 0) {
+        payload.logger.warn('Trend data missing: no valid rows found in home-megatrend-cards or megatrend-dataset.')
+      }
+    } catch (error) {
+      payload.logger.warn(
+        `[home-trends] Failed to load or resolve megatrend cards: ${error instanceof Error ? error.message : String(error)}`,
+      )
+    }
 
     const downloadResult = await payload.find({
       collection: 'homepage-links',
@@ -988,7 +1096,8 @@ export const getHomeCMSContent = cache(async (): Promise<HomeCMSContent> => {
       },
       regulatoryNotice: regulatoryNoticeFromCMS ?? EMPTY_HOME_CONTENT.regulatoryNotice,
     }
-  } catch {
+  } catch (error) {
+    console.error('[getHomeCMSContent] Unhandled error; returning empty home shell.', error)
     return EMPTY_HOME_CONTENT
   }
 })
