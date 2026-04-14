@@ -42,6 +42,13 @@ const dirname = path.dirname(filename)
 
 const isNextProductionBuild = process.env.NEXT_PHASE === 'phase-production-build'
 
+/**
+ * `@payloadcms/db-postgres` runs `migrate()` on every production connect when `prodMigrations` is set.
+ * On Vercel that runs inside a serverless invocation and can exceed the function time limit (504).
+ * Apply schema changes with `pnpm payload migrate` from a controlled environment, not on each request.
+ */
+const isVercelRuntime = process.env.VERCEL === '1'
+
 /** Same allowlist for CORS and CSRF so admin API calls from the browser match (incl. www vs apex). */
 const payloadBrowserOrigins = getPayloadCorsOrigins()
 
@@ -99,9 +106,10 @@ export default buildConfig({
     push: false,
     // During `next build`, NODE_ENV is production and each static worker connects to Postgres;
     // prodMigrations would run migrate() per worker and can block on the dev-push confirmation
-    // prompt with no TTY. Do not run `payload migrate` on Vercel; apply migrations from a
-    // controlled environment (e.g. local or CI) with `pnpm payload migrate` / migrate:status.
-    prodMigrations: isNextProductionBuild ? undefined : migrations,
+    // prompt with no TTY. At runtime on Vercel, migrate-on-connect can cold-start timeout /admin.
+    // Apply migrations from a controlled environment with `pnpm payload migrate` / migrate:status.
+    prodMigrations:
+      isNextProductionBuild || isVercelRuntime ? undefined : migrations,
   }),
   collections: [
     Pages,
