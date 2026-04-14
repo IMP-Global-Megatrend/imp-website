@@ -1,5 +1,6 @@
 import {
   getClientSideURL,
+  getPayloadCorsOrigins,
   getPayloadCsrfExtraOrigins,
   getPayloadServerURL,
   getServerSideURL,
@@ -106,6 +107,61 @@ describe('getPayloadCsrfExtraOrigins', () => {
   it('adds loopback origin in non-production', () => {
     setEnv({ NODE_ENV: 'development' })
     expect(getPayloadCsrfExtraOrigins()).toContain('http://127.0.0.1:3000')
+  })
+})
+
+describe('getPayloadCorsOrigins', () => {
+  beforeEach(() => {
+    setEnv({
+      NODE_ENV: 'production',
+      VERCEL_ENV: undefined,
+      VERCEL_URL: undefined,
+      PAYLOAD_CSRF_EXTRA_ORIGINS: undefined,
+      __NEXT_PRIVATE_ORIGIN: undefined,
+      PAYLOAD_PUBLIC_SERVER_URL: undefined,
+    })
+  })
+
+  it('includes apex when server URL uses www', () => {
+    setEnv({
+      NODE_ENV: 'production',
+      VERCEL_ENV: undefined,
+      VERCEL_URL: undefined,
+      VERCEL_PROJECT_PRODUCTION_URL: undefined,
+      PAYLOAD_PUBLIC_SERVER_URL: undefined,
+      NEXT_PUBLIC_SERVER_URL: 'https://www.impgmtfund.com',
+    })
+    expect(getPayloadCorsOrigins()).toEqual(
+      expect.arrayContaining(['https://www.impgmtfund.com', 'https://impgmtfund.com']),
+    )
+  })
+
+  it('includes www when server URL uses apex only', () => {
+    setEnv({
+      NODE_ENV: 'production',
+      VERCEL_ENV: undefined,
+      VERCEL_URL: undefined,
+      VERCEL_PROJECT_PRODUCTION_URL: undefined,
+      PAYLOAD_PUBLIC_SERVER_URL: undefined,
+      NEXT_PUBLIC_SERVER_URL: 'https://impgmtfund.com',
+    })
+    expect(getPayloadCorsOrigins()).toEqual(
+      expect.arrayContaining(['https://impgmtfund.com', 'https://www.impgmtfund.com']),
+    )
+  })
+
+  it('does not add www alias for multi-label hosts', () => {
+    setEnv({
+      NODE_ENV: 'production',
+      VERCEL_ENV: undefined,
+      VERCEL_URL: undefined,
+      VERCEL_PROJECT_PRODUCTION_URL: undefined,
+      PAYLOAD_PUBLIC_SERVER_URL: undefined,
+      NEXT_PUBLIC_SERVER_URL: 'https://api.example.com',
+    })
+    const origins = getPayloadCorsOrigins()
+    expect(origins).toContain('https://api.example.com')
+    expect(origins.some((o) => o.includes('www.api.'))).toBe(false)
   })
 })
 

@@ -10,6 +10,40 @@ const withProtocol = (value: string) => {
 const trimTrailingSlash = (value: string) => value.replace(/\/+$/, '')
 
 /**
+ * Adds the paired `www` ↔ apex origin when both are valid for the same site (e.g. admin opened on
+ * `www` while `serverURL` / env uses the bare domain). Skips localhost, `.local`, and `*.vercel.app`.
+ */
+function addWwwApexOriginAliases(origins: Set<string>): void {
+  const snapshot = [...origins]
+  for (const originStr of snapshot) {
+    try {
+      const u = new URL(originStr)
+      if (u.protocol !== 'http:' && u.protocol !== 'https:') continue
+      const host = u.hostname.toLowerCase()
+      if (host === 'localhost' || host.endsWith('.local') || host.endsWith('.vercel.app')) continue
+
+      if (host.startsWith('www.')) {
+        const bare = host.slice(4)
+        if (!bare) continue
+        const alt = new URL(originStr)
+        alt.hostname = bare
+        origins.add(alt.origin)
+      } else {
+        // Only synthesize www for a single-label apex (`impgmtfund.com`), not `api.example.com`.
+        const dotCount = (host.match(/\./g) ?? []).length
+        if (dotCount === 1) {
+          const alt = new URL(originStr)
+          alt.hostname = `www.${host}`
+          origins.add(alt.origin)
+        }
+      }
+    } catch {
+      // ignore invalid URL
+    }
+  }
+}
+
+/**
  * Extra origins Payload accepts for CSRF checks on cookie-based JWT (see `extractJWT` in payload).
  * Without this, opening the admin on a host that differs from `serverURL` (e.g. LAN IP while
  * serverURL is localhost) strips auth and server actions like `render-document` return 401.
@@ -85,6 +119,7 @@ export function getPayloadCorsOrigins(): string[] {
   for (const o of getPayloadCsrfExtraOrigins()) {
     if (o) origins.add(o)
   }
+  addWwwApexOriginAliases(origins)
   return [...origins]
 }
 
