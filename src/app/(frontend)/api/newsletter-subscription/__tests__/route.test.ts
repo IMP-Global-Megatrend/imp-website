@@ -22,20 +22,18 @@ jest.mock('@/utilities/emails/syncContactToResend', () => ({
 
 import { getPayload } from 'payload'
 
-describe('POST /api/newsletter-subscription (route handler)', () => {
+import { jsonRequest } from '@/test-utils'
+
+describe('POST /api/newsletter-subscription', () => {
   it('returns 400 and does not touch Payload when validation fails', async () => {
-    const { POST } = await import('@/app/(frontend)/api/newsletter-subscription/route')
+    const { POST } = await import('../route')
 
     const res = await POST(
-      new Request('http://localhost/api/newsletter-subscription', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          firstName: '',
-          lastName: 'Doe',
-          email: 'not-an-email',
-          consentAccepted: true,
-        }),
+      jsonRequest('http://localhost/api/newsletter-subscription', {
+        firstName: '',
+        lastName: 'Doe',
+        email: 'not-an-email',
+        consentAccepted: true,
       }),
     )
 
