@@ -99,7 +99,8 @@ export default buildConfig({
     push: false,
     // During `next build`, NODE_ENV is production and each static worker connects to Postgres;
     // prodMigrations would run migrate() per worker and can block on the dev-push confirmation
-    // prompt with no TTY. Run `pnpm payload migrate` in deploy (or locally) instead.
+    // prompt with no TTY. Do not run `payload migrate` on Vercel; apply migrations from a
+    // controlled environment (e.g. local or CI) with `pnpm payload migrate` / migrate:status.
     prodMigrations: isNextProductionBuild ? undefined : migrations,
   }),
   collections: [
