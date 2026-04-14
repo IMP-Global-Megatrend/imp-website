@@ -19,6 +19,8 @@ module.exports = {
   exclude: [
     '/admin',
     '/admin/*',
+    '/cms',
+    '/cms/*',
     '/api',
     '/api/*',
     '/next',

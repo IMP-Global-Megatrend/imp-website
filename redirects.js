@@ -13,6 +13,17 @@ const redirects = async () => {
   }
 
   const seoCanonicalRedirects = [
+    // Payload admin lives at `/admin`; `/cms` is a common expectation and legacy path.
+    {
+      source: '/cms',
+      destination: '/admin',
+      permanent: true,
+    },
+    {
+      source: '/cms/:path*',
+      destination: '/admin/:path*',
+      permanent: true,
+    },
     {
       source: '/home',
       destination: '/',

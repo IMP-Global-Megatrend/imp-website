@@ -34,13 +34,16 @@ import { Footer } from '@/Footer/config'
 import { Header } from '@/Header/config'
 import { plugins } from '@/plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
-import { getPayloadCorsOrigins, getPayloadCsrfExtraOrigins, getPayloadServerURL } from '@/utilities/getURL'
+import { getPayloadCorsOrigins, getPayloadServerURL } from '@/utilities/getURL'
 import { migrations } from '@/migrations'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 const isNextProductionBuild = process.env.NEXT_PHASE === 'phase-production-build'
+
+/** Same allowlist for CORS and CSRF so admin API calls from the browser match (incl. www vs apex). */
+const payloadBrowserOrigins = getPayloadCorsOrigins()
 
 export default buildConfig({
   admin: {
@@ -123,8 +126,8 @@ export default buildConfig({
     ...WixCollections,
   ],
   serverURL: getPayloadServerURL(),
-  cors: getPayloadCorsOrigins(),
-  csrf: getPayloadCsrfExtraOrigins(),
+  cors: payloadBrowserOrigins,
+  csrf: payloadBrowserOrigins,
   email: resendAdapter({
     apiKey: process.env.RESEND_API_KEY || '',
     defaultFromAddress: process.env.RESEND_FROM_EMAIL || 'noreply@example.com',
