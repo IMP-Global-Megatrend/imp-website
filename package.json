@@ -7,6 +7,7 @@
   "type": "module",
   "scripts": {
     "build": "cross-env NODE_OPTIONS=--no-deprecation next build",
+    "vercel-build": "cross-env NODE_OPTIONS=--no-deprecation next build",
     "postbuild": "next-sitemap --config next-sitemap.config.cjs",
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
     "dev:prod": "cross-env NODE_OPTIONS=--no-deprecation rm -rf .next && pnpm build && pnpm start",
@@ -23,7 +24,8 @@
     "upload:og-images": "tsx scripts/upload-og-images.ts",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "test": "cross-env NODE_OPTIONS=--no-deprecation jest",
-    "test:integration": "cross-env NODE_OPTIONS=--no-deprecation jest --testPathPattern=src/__tests__/integration",
+    "test:coverage": "cross-env NODE_OPTIONS=--no-deprecation jest --coverage --coverageReporters=text-summary",
+    "test:integration": "cross-env NODE_OPTIONS=--no-deprecation jest --testPathPatterns=route.test.ts",
     "test:watch": "cross-env NODE_OPTIONS=--no-deprecation jest --watch",
     "prepare": "husky"
   },

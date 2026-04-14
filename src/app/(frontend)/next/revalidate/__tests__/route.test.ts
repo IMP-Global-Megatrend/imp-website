@@ -9,61 +9,59 @@ jest.mock('next/cache', () => ({
 import { revalidatePath } from 'next/cache'
 import { NextRequest } from 'next/server'
 
-describe('GET /next/revalidate (route handler)', () => {
-  const originalEnv = { ...process.env }
+import { snapshotEnv } from '@/test-utils'
 
-  beforeEach(() => {
-    jest.mocked(revalidatePath).mockClear()
-  })
-
-  afterEach(() => {
-    process.env = { ...originalEnv } as NodeJS.ProcessEnv
-  })
+describe('GET /next/revalidate', () => {
+  const envKeys = ['REVALIDATE_SECRET']
 
   it('returns 500 when REVALIDATE_SECRET is not configured', async () => {
-    process.env = { ...originalEnv } as NodeJS.ProcessEnv
+    const snap = snapshotEnv(envKeys)
     Reflect.deleteProperty(process.env, 'REVALIDATE_SECRET')
+    jest.mocked(revalidatePath).mockClear()
 
-    const { GET } = await import('@/app/(frontend)/next/revalidate/route')
-    const res = await GET(
-      new NextRequest('http://localhost/next/revalidate?secret=any&path=/foo'),
-    )
+    const { GET } = await import('../route')
+    const res = await GET(new NextRequest('http://localhost/next/revalidate?secret=any&path=/foo'))
 
     expect(res.status).toBe(500)
     expect(revalidatePath).not.toHaveBeenCalled()
+    snap.restore()
   })
 
   it('returns 401 when the secret does not match', async () => {
-    process.env = { ...originalEnv, REVALIDATE_SECRET: 'expected' } as NodeJS.ProcessEnv
+    const snap = snapshotEnv(envKeys)
+    process.env.REVALIDATE_SECRET = 'expected'
+    jest.mocked(revalidatePath).mockClear()
 
-    const { GET } = await import('@/app/(frontend)/next/revalidate/route')
-    const res = await GET(
-      new NextRequest('http://localhost/next/revalidate?secret=wrong&path=/foo'),
-    )
+    const { GET } = await import('../route')
+    const res = await GET(new NextRequest('http://localhost/next/revalidate?secret=wrong&path=/foo'))
 
     expect(res.status).toBe(401)
     expect(revalidatePath).not.toHaveBeenCalled()
+    snap.restore()
   })
 
   it('returns 400 when path is missing or not root-relative', async () => {
-    process.env = { ...originalEnv, REVALIDATE_SECRET: 'expected' } as NodeJS.ProcessEnv
+    const snap = snapshotEnv(envKeys)
+    process.env.REVALIDATE_SECRET = 'expected'
+    jest.mocked(revalidatePath).mockClear()
 
-    const { GET } = await import('@/app/(frontend)/next/revalidate/route')
+    const { GET } = await import('../route')
 
     let res = await GET(new NextRequest('http://localhost/next/revalidate?secret=expected'))
     expect(res.status).toBe(400)
 
-    res = await GET(
-      new NextRequest('http://localhost/next/revalidate?secret=expected&path=missing-slash'),
-    )
+    res = await GET(new NextRequest('http://localhost/next/revalidate?secret=expected&path=missing-slash'))
     expect(res.status).toBe(400)
     expect(revalidatePath).not.toHaveBeenCalled()
+    snap.restore()
   })
 
   it('calls revalidatePath and returns success JSON', async () => {
-    process.env = { ...originalEnv, REVALIDATE_SECRET: 'expected' } as NodeJS.ProcessEnv
+    const snap = snapshotEnv(envKeys)
+    process.env.REVALIDATE_SECRET = 'expected'
+    jest.mocked(revalidatePath).mockClear()
 
-    const { GET } = await import('@/app/(frontend)/next/revalidate/route')
+    const { GET } = await import('../route')
     const res = await GET(
       new NextRequest('http://localhost/next/revalidate?secret=expected&path=/portfolio'),
     )
@@ -77,5 +75,6 @@ describe('GET /next/revalidate (route handler)', () => {
       }),
     )
     expect(revalidatePath).toHaveBeenCalledWith('/portfolio')
+    snap.restore()
   })
 })

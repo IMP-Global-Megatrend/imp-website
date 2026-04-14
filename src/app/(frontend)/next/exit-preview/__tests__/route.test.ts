@@ -8,12 +8,14 @@ jest.mock('next/headers', () => ({
 
 import { draftMode } from 'next/headers'
 
-describe('GET /next/exit-preview (route handler)', () => {
+describe('GET /next/exit-preview', () => {
   it('disables draft mode and returns a confirmation body', async () => {
     const disable = jest.fn()
-    jest.mocked(draftMode).mockResolvedValue({ disable } as unknown as Awaited<ReturnType<typeof draftMode>>)
+    jest
+      .mocked(draftMode)
+      .mockResolvedValue({ disable } as unknown as Awaited<ReturnType<typeof draftMode>>)
 
-    const { GET } = await import('@/app/(frontend)/next/exit-preview/route')
+    const { GET } = await import('../route')
     const res = await GET()
 
     expect(disable).toHaveBeenCalledTimes(1)
