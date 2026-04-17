@@ -12,6 +12,9 @@ import aboutUsContent from '@/constants/about-us-content.json'
 import fallbacks from '@/constants/fallbacks.json'
 import { generateMeta, generateStaticFallbackMeta } from '@/utilities/generateMeta'
 
+/** Set to true when Advisory Board portraits should render again from the CMS. */
+const SHOW_ADVISOR_PROFILE_IMAGES = false
+
 export async function generateMetadata(): Promise<Metadata> {
   const cmsPage = await getCMSPageBySlug('about-us')
   if (cmsPage) return generateMeta({ doc: cmsPage })
@@ -242,7 +245,7 @@ export default async function AboutUsPage() {
                   key={`${advisor.name}-${advisor.roleTitle}`}
                   className="flex flex-col items-center text-center sm:items-stretch sm:text-left"
                 >
-                  {advisor.photoSrc ? (
+                  {SHOW_ADVISOR_PROFILE_IMAGES && advisor.photoSrc ? (
                     <div className="mx-auto mb-5 w-full max-w-[220px] shrink-0 overflow-hidden rounded-lg bg-white sm:mx-0">
                       {/* eslint-disable-next-line @next/next/no-img-element -- CMS URLs (Supabase / API paths) */}
                       <img
