@@ -5,12 +5,15 @@ import React, { useState } from 'react'
 import type { Header as HeaderType } from '@/payload-types'
 
 import { CMSLink } from '@/components/Link'
+import { useLucideIdleRef } from '@/hooks/useLucideIdleRef'
 import Link from 'next/link'
 import { MenuIcon, XIcon } from 'lucide-animated'
 
 export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
   const navItems = data?.navItems || []
   const [mobileOpen, setMobileOpen] = useState(false)
+  const setMenuIconRef = useLucideIdleRef()
+  const setCloseIconRef = useLucideIdleRef()
 
   return (
     <>
@@ -38,7 +41,7 @@ export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
         onClick={() => setMobileOpen(!mobileOpen)}
         aria-label="Toggle menu"
       >
-        {mobileOpen ? <XIcon className="w-6 h-6" /> : <MenuIcon className="w-6 h-6" />}
+        {mobileOpen ? <XIcon ref={setCloseIconRef} className="w-6 h-6" /> : <MenuIcon ref={setMenuIconRef} className="w-6 h-6" />}
       </button>
 
       {mobileOpen && (

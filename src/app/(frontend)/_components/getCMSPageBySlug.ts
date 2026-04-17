@@ -1,4 +1,5 @@
 import configPromise from '@payload-config'
+import aboutUsContent from '@/constants/about-us-content.json'
 import { draftMode } from 'next/headers'
 import { getPayload } from 'payload'
 
@@ -28,7 +29,7 @@ async function getPerformanceAnalysisPageForDepthFind(options: { depth: number }
   return pageResult.docs?.[0]
 }
 
-export async function getCMSPageBySlug(slug: string) {
+export async function getCMSPageBySlug(slug: string, options?: { depth?: number }) {
   const { isEnabled: draft } = await draftMode()
   const payload = await getPayload({ config: configPromise })
 
@@ -37,6 +38,7 @@ export async function getCMSPageBySlug(slug: string) {
     draft,
     limit: 1,
     pagination: false,
+    depth: options?.depth ?? 0,
     overrideAccess: draft,
     where: {
       slug: { equals: slug },
@@ -44,6 +46,129 @@ export async function getCMSPageBySlug(slug: string) {
   })
 
   return result.docs?.[0] ?? null
+}
+
+export type CMSAboutUsAdvisor = {
+  name: string
+  roleTitle: string
+  bioParagraphs: string[]
+  photoSrc: string | null
+  linkedinUrl: string | null
+}
+
+type AboutUsAdvisoryPageSlice = {
+  aboutUsAdvisoryBoardHeading?: unknown
+  aboutUsAdvisoryBoardIntro?: unknown
+  aboutUsAdvisors?: unknown
+}
+
+function resolveCmsUploadObjectToUrl(value: unknown): string | null {
+  if (!value || typeof value !== 'object') return null
+  const media = value as { url?: unknown; filename?: unknown }
+  if (typeof media.url === 'string' && media.url.trim()) {
+    const normalized = normalizeCMSMediaUrl(media.url.trim())
+    if (normalized) return normalized
+  }
+  if (typeof media.filename === 'string' && media.filename.trim()) {
+    const fn = media.filename.trim()
+    const resolved = resolveSupabasePublicMediaUrl(fn)
+    if (resolved) return resolved
+    return buildPayloadMediaFileHrefFromFilename(fn)
+  }
+  return null
+}
+
+function normalizeAdvisorFromDoc(doc: unknown): CMSAboutUsAdvisor | null {
+  if (!doc || typeof doc !== 'object') return null
+  const record = doc as Record<string, unknown>
+  const name = typeof record.name === 'string' ? record.name.trim() : ''
+  const roleTitle = typeof record.roleTitle === 'string' ? record.roleTitle.trim() : ''
+  const bio = typeof record.bio === 'string' ? record.bio.trim() : ''
+  if (!name || !roleTitle || !bio) return null
+
+  const bioParagraphs = bio
+    .split(/\n\s*\n/)
+    .map((p) => p.trim())
+    .filter((p) => p.length > 0)
+  if (bioParagraphs.length === 0) return null
+
+  const linkedinRaw = typeof record.linkedinUrl === 'string' ? record.linkedinUrl.trim() : ''
+  const linkedinUrl = linkedinRaw.length > 0 ? linkedinRaw : null
+
+  const photoSrc = resolveCmsUploadObjectToUrl(record.photo)
+
+  return { name, roleTitle, bioParagraphs, photoSrc, linkedinUrl }
+}
+
+export async function getCMSAboutUsAdvisoryBoard(preloadedPage?: unknown): Promise<{
+  heading: string
+  intro: string
+  advisors: CMSAboutUsAdvisor[]
+}> {
+  const defaults = aboutUsContent.advisoryBoard
+  const headingDefault = typeof defaults?.heading === 'string' ? defaults.heading : 'Advisory Board'
+  const introDefault =
+    typeof defaults?.intro === 'string'
+      ? defaults.intro
+      : 'Our Advisory Board strengthens our investment strategy through seasoned judgment, independent perspective, and extensive experience across markets, industries, and economic cycles.'
+
+  try {
+    const { isEnabled: draft } = await draftMode()
+    const payload = await getPayload({ config: configPromise })
+
+    let page: AboutUsAdvisoryPageSlice | undefined = preloadedPage as AboutUsAdvisoryPageSlice | undefined
+
+    if (!page || typeof page !== 'object') {
+      const pageResult = await payload.find({
+        collection: 'pages',
+        draft,
+        limit: 1,
+        pagination: false,
+        depth: 2,
+        overrideAccess: draft,
+        where: {
+          slug: { equals: 'about-us' },
+        },
+      })
+      page = pageResult.docs?.[0] as AboutUsAdvisoryPageSlice | undefined
+    }
+
+    const heading =
+      typeof page?.aboutUsAdvisoryBoardHeading === 'string' && page.aboutUsAdvisoryBoardHeading.trim()
+        ? page.aboutUsAdvisoryBoardHeading.trim()
+        : headingDefault
+    const intro =
+      typeof page?.aboutUsAdvisoryBoardIntro === 'string' && page.aboutUsAdvisoryBoardIntro.trim()
+        ? page.aboutUsAdvisoryBoardIntro.trim()
+        : introDefault
+
+    const linkedRaw = page?.aboutUsAdvisors
+    const fromLinks = Array.isArray(linkedRaw)
+      ? linkedRaw.map(normalizeAdvisorFromDoc).filter((item): item is CMSAboutUsAdvisor => Boolean(item))
+      : []
+
+    if (fromLinks.length > 0) {
+      return { heading, intro, advisors: fromLinks }
+    }
+
+    const allResult = await payload.find({
+      collection: 'advisors',
+      draft,
+      limit: 200,
+      pagination: false,
+      depth: 1,
+      overrideAccess: draft,
+      sort: 'sortOrder',
+    })
+
+    const advisors = allResult.docs
+      .map(normalizeAdvisorFromDoc)
+      .filter((item): item is CMSAboutUsAdvisor => Boolean(item))
+
+    return { heading, intro, advisors }
+  } catch {
+    return { heading: headingDefault, intro: introDefault, advisors: [] }
+  }
 }
 
 export async function getCMSAboutUsVideoUrl(): Promise<string | null> {

@@ -1,6 +1,6 @@
 'use client'
 
-import { forwardRef, useEffect, useRef, useState, type ForwardRefExoticComponent } from 'react'
+import { forwardRef, useCallback, useEffect, useRef, useState, type ForwardRefExoticComponent } from 'react'
 import {
   ArrowUpRightIcon,
   BadgePercentIcon,
@@ -69,6 +69,11 @@ const GraduationCapIcon = forwardRef<SVGSVGElement, { size?: number; className?:
 )
 GraduationCapIcon.displayName = 'GraduationCapIcon'
 
+type LucideAnimatedIconHandle = {
+  startAnimation?: () => void
+  stopAnimation?: () => void
+} | null
+
 const icons = {
   arrowUpRight: ArrowUpRightIcon,
   badgePercent: BadgePercentIcon,
@@ -109,9 +114,34 @@ export function AnimatedIcon({
 }) {
   const Icon = icons[name] as unknown as ForwardRefExoticComponent<any>
   const wrapperRef = useRef<HTMLSpanElement | null>(null)
-  const iconRef = useRef<{ startAnimation: () => void; stopAnimation: () => void } | null>(null)
+  const iconRef = useRef<LucideAnimatedIconHandle>(null)
   const [isHovered, setIsHovered] = useState(false)
   const shouldAnimate = animateOnHover ? isHovered : animate
+
+  const applyLucideAnimationState = useCallback((icon: LucideAnimatedIconHandle) => {
+    if (!icon) return
+    if (shouldAnimate) {
+      icon.startAnimation?.()
+    } else {
+      const settle = () => {
+        icon.stopAnimation?.()
+      }
+      settle()
+      queueMicrotask(settle)
+      requestAnimationFrame(() => {
+        settle()
+        requestAnimationFrame(settle)
+      })
+    }
+  }, [shouldAnimate])
+
+  const setIconRef = useCallback(
+    (instance: LucideAnimatedIconHandle) => {
+      iconRef.current = instance
+      applyLucideAnimationState(instance)
+    },
+    [applyLucideAnimationState],
+  )
 
   useEffect(() => {
     if (!animateOnHover) return
@@ -134,16 +164,11 @@ export function AnimatedIcon({
 
   // lucide-animated icons use Motion with imperative controls; if we never call
   // `stopAnimation`, the `normal` variant (opacity: 1) is not applied and Motion
-  // warns: animating opacity from undefined to 1.
+  // warns: animating opacity from undefined to 1. Sync when the ref attaches and
+  // whenever `shouldAnimate` changes (first effect run can occur before ref exists).
   useEffect(() => {
-    const icon = iconRef.current
-    if (!icon) return
-    if (shouldAnimate) {
-      icon.startAnimation?.()
-    } else {
-      icon.stopAnimation?.()
-    }
-  }, [shouldAnimate])
+    applyLucideAnimationState(iconRef.current)
+  }, [applyLucideAnimationState])
 
   return (
     <span
@@ -152,7 +177,7 @@ export function AnimatedIcon({
       onMouseEnter={animateOnHover ? () => setIsHovered(true) : undefined}
       onMouseLeave={animateOnHover ? () => setIsHovered(false) : undefined}
     >
-      <Icon ref={iconRef} size={size} className={className} aria-hidden={ariaHidden} />
+      <Icon ref={setIconRef} size={size} className={className} aria-hidden={ariaHidden} />
     </span>
   )
 }

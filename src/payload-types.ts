@@ -68,6 +68,7 @@ export interface Config {
   blocks: {};
   collections: {
     pages: Page;
+    advisors: Advisor;
     posts: Post;
     media: Media;
     categories: Category;
@@ -129,6 +130,7 @@ export interface Config {
   };
   collectionsSelect: {
     pages: PagesSelect<false> | PagesSelect<true>;
+    advisors: AdvisorsSelect<false> | AdvisorsSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
@@ -329,6 +331,18 @@ export interface Page {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Section heading above the Advisory Board grid.
+   */
+  aboutUsAdvisoryBoardHeading?: string | null;
+  /**
+   * Introductory line or short paragraph for the Advisory Board section.
+   */
+  aboutUsAdvisoryBoardIntro?: string | null;
+  /**
+   * Advisory Board members in display order. If empty, all advisors are shown sorted by their sortOrder field.
+   */
+  aboutUsAdvisors?: (number | Advisor)[] | null;
   /**
    * Bottom highlight strip items on /about-us.
    */
@@ -1162,6 +1176,36 @@ export interface Form {
         id?: string | null;
       }[]
     | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "advisors".
+ */
+export interface Advisor {
+  id: number;
+  name: string;
+  /**
+   * Short role line shown under the name (e.g. “Senior Advisor to the Fund”).
+   */
+  roleTitle: string;
+  /**
+   * Portrait for the Advisory Board section.
+   */
+  photo?: (number | null) | Media;
+  /**
+   * Biography text. Use blank lines between paragraphs for spacing on the site.
+   */
+  bio: string;
+  /**
+   * Optional full LinkedIn profile URL.
+   */
+  linkedinUrl?: string | null;
+  /**
+   * Used when loading advisors without an explicit order on the About Us page.
+   */
+  sortOrder: number;
   updatedAt: string;
   createdAt: string;
 }
@@ -3677,6 +3721,10 @@ export interface PayloadLockedDocument {
         value: number | Page;
       } | null)
     | ({
+        relationTo: 'advisors';
+        value: number | Advisor;
+      } | null)
+    | ({
         relationTo: 'posts';
         value: number | Post;
       } | null)
@@ -3972,6 +4020,9 @@ export interface PagesSelect<T extends boolean = true> {
             };
         id?: T;
       };
+  aboutUsAdvisoryBoardHeading?: T;
+  aboutUsAdvisoryBoardIntro?: T;
+  aboutUsAdvisors?: T;
   aboutUsHighlights?:
     | T
     | {
@@ -4182,6 +4233,20 @@ export interface FormBlockSelect<T extends boolean = true> {
   introContent?: T;
   id?: T;
   blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "advisors_select".
+ */
+export interface AdvisorsSelect<T extends boolean = true> {
+  name?: T;
+  roleTitle?: T;
+  photo?: T;
+  bio?: T;
+  linkedinUrl?: T;
+  sortOrder?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
