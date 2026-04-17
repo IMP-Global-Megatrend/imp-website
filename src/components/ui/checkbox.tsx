@@ -2,28 +2,33 @@
 
 import { cn } from '@/utilities/ui'
 import * as CheckboxPrimitive from '@radix-ui/react-checkbox'
+import { useLucideIdleRef } from '@/hooks/useLucideIdleRef'
 import { CheckIcon } from 'lucide-animated'
 import * as React from 'react'
 
 const Checkbox: React.FC<React.ComponentProps<typeof CheckboxPrimitive.Root>> = ({
   className,
   ...props
-}) => (
-  <CheckboxPrimitive.Root
-    data-slot="checkbox"
-    className={cn(
-      'peer border-input data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground data-[state=checked]:border-primary ring-ring/10 dark:ring-ring/20 dark:outline-ring/40 outline-ring/50 size-4 shrink-0 rounded-[4px] border shadow-xs transition-[color,box-shadow] focus-visible:ring-4 focus-visible:outline-1 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:focus-visible:ring-0',
-      className,
-    )}
-    {...props}
-  >
-    <CheckboxPrimitive.Indicator
-      data-slot="checkbox-indicator"
-      className="flex items-center justify-center text-current"
+}) => {
+  const setCheckIconRef = useLucideIdleRef()
+
+  return (
+    <CheckboxPrimitive.Root
+      data-slot="checkbox"
+      className={cn(
+        'peer border-input data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground data-[state=checked]:border-primary ring-ring/10 dark:ring-ring/20 dark:outline-ring/40 outline-ring/50 size-4 shrink-0 rounded-[4px] border shadow-xs transition-[color,box-shadow] focus-visible:ring-4 focus-visible:outline-1 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:focus-visible:ring-0',
+        className,
+      )}
+      {...props}
     >
-      <CheckIcon size={14} />
-    </CheckboxPrimitive.Indicator>
-  </CheckboxPrimitive.Root>
-)
+      <CheckboxPrimitive.Indicator
+        data-slot="checkbox-indicator"
+        className="flex items-center justify-center text-current"
+      >
+        <CheckIcon ref={setCheckIconRef} size={14} />
+      </CheckboxPrimitive.Indicator>
+    </CheckboxPrimitive.Root>
+  )
+}
 
 export { Checkbox }

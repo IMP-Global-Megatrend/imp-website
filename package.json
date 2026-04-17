@@ -17,6 +17,8 @@
     "lint": "cross-env NODE_OPTIONS=--no-deprecation tsc --noEmit",
     "lint:fix": "cross-env NODE_OPTIONS=--no-deprecation tsc --noEmit",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
+    "docs:export-advisory-board": "cd docs && pandoc \"ABOUT US Advisory Board 14.04.2026.docx\" -f docx -t gfm -o \"about-us-advisory-board-14-04-2026.md\" --extract-media=\"about-us-advisory-board-14-04-2026_media\"",
+    "seed:advisory-board": "tsx scripts/seed-advisory-board.ts",
     "sync:wix-documents": "tsx scripts/upload-footer-download-assets.ts",
     "import:fund-commentaries": "tsx scripts/import-fund-commentaries.ts",
     "sync:wix-portfolio-charts": "tsx scripts/migrate-portfolio-strategy-chart-data.ts && tsx scripts/set-portfolio-strategy-page-relationships.ts",

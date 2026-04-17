@@ -5,6 +5,7 @@ import path from 'path'
 import { buildConfig, PayloadRequest } from 'payload'
 import { fileURLToPath } from 'url'
 
+import { Advisors } from '@/collections/Advisors'
 import { Categories } from '@/collections/Categories'
 import { ContactSubmissions } from '@/collections/ContactSubmissions'
 import { ContentGateSubmissions } from '@/collections/ContentGateSubmissions'
@@ -113,6 +114,7 @@ export default buildConfig({
   }),
   collections: [
     Pages,
+    Advisors,
     Posts,
     Media,
     Categories,

@@ -1,6 +1,12 @@
-jest.mock('lucide-animated', () => ({
-  CheckIcon: () => <span data-testid="check-icon" aria-hidden />,
-}))
+import React from 'react'
+
+jest.mock('lucide-animated', () => {
+  const CheckIcon = React.forwardRef<HTMLSpanElement>((props, ref) => (
+    <span ref={ref} data-testid="check-icon" aria-hidden {...props} />
+  ))
+  CheckIcon.displayName = 'CheckIcon'
+  return { CheckIcon }
+})
 
 import { Checkbox } from '@/components/ui/checkbox'
 import { fireEvent, render, screen } from '@testing-library/react'

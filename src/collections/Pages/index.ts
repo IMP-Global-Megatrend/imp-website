@@ -231,6 +231,33 @@ export const Pages: CollectionConfig<'pages'> = {
               ],
             },
             {
+              name: 'aboutUsAdvisoryBoardHeading',
+              type: 'text',
+              admin: {
+                description: 'Section heading above the Advisory Board grid.',
+                condition: (data) => data?.slug === 'about-us',
+              },
+            },
+            {
+              name: 'aboutUsAdvisoryBoardIntro',
+              type: 'textarea',
+              admin: {
+                description: 'Introductory line or short paragraph for the Advisory Board section.',
+                condition: (data) => data?.slug === 'about-us',
+              },
+            },
+            {
+              name: 'aboutUsAdvisors',
+              type: 'relationship',
+              relationTo: 'advisors',
+              hasMany: true,
+              admin: {
+                description:
+                  'Advisory Board members in display order. If empty, all advisors are shown sorted by their sortOrder field.',
+                condition: (data) => data?.slug === 'about-us',
+              },
+            },
+            {
               name: 'aboutUsHighlights',
               type: 'array',
               admin: {

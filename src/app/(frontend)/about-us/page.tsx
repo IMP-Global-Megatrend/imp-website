@@ -1,5 +1,9 @@
 import type { Metadata } from 'next'
-import { getCMSAboutUsVideoUrl, getCMSPageBySlug } from '@/app/(frontend)/_components/getCMSPageBySlug'
+import {
+  getCMSAboutUsAdvisoryBoard,
+  getCMSAboutUsVideoUrl,
+  getCMSPageBySlug,
+} from '@/app/(frontend)/_components/getCMSPageBySlug'
 import { AnimatedIcon } from '@/app/(frontend)/_components/AnimatedIcon'
 import { ActionLinkButton } from '@/app/(frontend)/_components/ActionLinkButton'
 import { CMSPageHero } from '@/app/(frontend)/_components/CMSPageHero'
@@ -42,7 +46,11 @@ const profileLinkedinByName: Record<string, string> = {
 }
 
 export default async function AboutUsPage() {
-  const [cmsPage, cmsVideoUrl] = await Promise.all([getCMSPageBySlug('about-us'), getCMSAboutUsVideoUrl()])
+  const cmsPage = await getCMSPageBySlug('about-us', { depth: 2 })
+  const [cmsVideoUrl, advisoryBoard] = await Promise.all([
+    getCMSAboutUsVideoUrl(),
+    getCMSAboutUsAdvisoryBoard(cmsPage),
+  ])
   const page = (cmsPage && typeof cmsPage === 'object' ? cmsPage : {}) as Record<string, unknown>
   const videoUrl = cmsVideoUrl ?? fallbacks.ui.emptyText
 
@@ -219,9 +227,61 @@ export default async function AboutUsPage() {
         </div>
       </div>
 
+      {advisoryBoard.advisors.length > 0 ? (
+        <section className="bg-[#f8f9ff]">
+          <div className="container py-16 md:py-20 space-y-10">
+            <div className="mx-auto max-w-3xl text-center space-y-4">
+              <h2 className="font-display text-[28px] leading-[1.2] text-[#0b1035] md:text-[32px]">
+                {advisoryBoard.heading}
+              </h2>
+              <p className="text-[17px] leading-relaxed text-[#2b3045]">{advisoryBoard.intro}</p>
+            </div>
+            <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 xl:grid-cols-3">
+              {advisoryBoard.advisors.map((advisor) => (
+                <article
+                  key={`${advisor.name}-${advisor.roleTitle}`}
+                  className="flex flex-col items-center text-center sm:items-stretch sm:text-left"
+                >
+                  {advisor.photoSrc ? (
+                    <div className="mx-auto mb-5 w-full max-w-[220px] shrink-0 overflow-hidden rounded-lg bg-white sm:mx-0">
+                      {/* eslint-disable-next-line @next/next/no-img-element -- CMS URLs (Supabase / API paths) */}
+                      <img
+                        src={advisor.photoSrc}
+                        alt={`Portrait of ${advisor.name}`}
+                        className="aspect-[3/4] w-full object-cover object-top"
+                        loading="lazy"
+                      />
+                    </div>
+                  ) : null}
+                  <h3 className="font-display text-[22px] leading-snug text-[#0b1035]">{advisor.name}</h3>
+                  <p className="mt-1 text-[15px] font-medium leading-snug text-[#2b3dea]">{advisor.roleTitle}</p>
+                  <div className="mt-4 space-y-3 text-left text-[16px] leading-relaxed text-[#2b3045]">
+                    {advisor.bioParagraphs.map((paragraph, index) => (
+                      <p key={`${advisor.name}-${index}`}>{paragraph}</p>
+                    ))}
+                  </div>
+                  {advisor.linkedinUrl ? (
+                    <div className="mt-5">
+                      <ActionLinkButton
+                        href={advisor.linkedinUrl}
+                        label="Connect on LinkedIn"
+                        icon="users"
+                        external
+                        iconBefore
+                        buttonVariant="outlineMuted"
+                      />
+                    </div>
+                  ) : null}
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
       <RelatedLinksStrip
         className="py-16 md:py-20"
-        borderTop
+        borderTop={advisoryBoard.advisors.length === 0}
         items={[
           {
             href: requestCallHref,

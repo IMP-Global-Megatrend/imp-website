@@ -5,6 +5,7 @@ import * as migration_20260313_130800_backfill_portfolio_top_holdings_colors fro
 import * as migration_20260410_120000_add_performance_mtd_columns from './20260410_120000_add_performance_mtd_columns';
 import * as migration_20260411_100000_fix_perf_mtd_db_column_name from './20260411_100000_fix_perf_mtd_db_column_name';
 import * as migration_20260412_100000_add_footer_download_columns from './20260412_100000_add_footer_download_columns';
+import * as migration_20260417_113419_add_advisors_collection from './20260417_113419_add_advisors_collection';
 
 export const migrations = [
   {
@@ -41,5 +42,10 @@ export const migrations = [
     up: migration_20260412_100000_add_footer_download_columns.up,
     down: migration_20260412_100000_add_footer_download_columns.down,
     name: '20260412_100000_add_footer_download_columns',
+  },
+  {
+    up: migration_20260417_113419_add_advisors_collection.up,
+    down: migration_20260417_113419_add_advisors_collection.down,
+    name: '20260417_113419_add_advisors_collection',
   },
 ];

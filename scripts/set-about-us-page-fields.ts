@@ -34,6 +34,8 @@ async function main() {
       aboutUsQuoteText: aboutUsContent.quote.text,
       aboutUsQuoteAttributionPrimary: aboutUsContent.quote.attributionLines[0] || '',
       aboutUsQuoteAttributionSecondary: aboutUsContent.quote.attributionLines[1] || '',
+      aboutUsAdvisoryBoardHeading: aboutUsContent.advisoryBoard?.heading,
+      aboutUsAdvisoryBoardIntro: aboutUsContent.advisoryBoard?.intro,
       aboutUsProfiles: aboutUsContent.profiles.map((profile) => ({
         name: profile.name,
         paragraphs: profile.paragraphs.map((text) => ({ text })),

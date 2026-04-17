@@ -2,6 +2,7 @@
 
 import { cn } from '@/utilities/ui'
 import * as SelectPrimitive from '@radix-ui/react-select'
+import { useLucideIdleRef } from '@/hooks/useLucideIdleRef'
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from 'lucide-animated'
 import * as React from 'react'
 
@@ -22,6 +23,8 @@ const SelectTrigger: React.FC<React.ComponentProps<typeof SelectPrimitive.Trigge
   className,
   ...props
 }) => {
+  const setChevronDownRef = useLucideIdleRef()
+
   return (
     <SelectPrimitive.Trigger
       data-slot="select-trigger"
@@ -33,7 +36,7 @@ const SelectTrigger: React.FC<React.ComponentProps<typeof SelectPrimitive.Trigge
     >
       {children}
       <SelectPrimitive.Icon asChild>
-        <ChevronDownIcon size={16} className="opacity-50" />
+        <ChevronDownIcon ref={setChevronDownRef} size={16} className="opacity-50" />
       </SelectPrimitive.Icon>
     </SelectPrimitive.Trigger>
   )
@@ -92,6 +95,8 @@ const SelectItem: React.FC<React.ComponentProps<typeof SelectPrimitive.Item>> = 
   className,
   ...props
 }) => {
+  const setCheckIconRef = useLucideIdleRef()
+
   return (
     <SelectPrimitive.Item
       data-slot="select-item"
@@ -103,7 +108,7 @@ const SelectItem: React.FC<React.ComponentProps<typeof SelectPrimitive.Item>> = 
     >
       <span className="absolute right-2 flex size-3.5 items-center justify-center">
         <SelectPrimitive.ItemIndicator>
-          <CheckIcon size={16} />
+          <CheckIcon ref={setCheckIconRef} size={16} />
         </SelectPrimitive.ItemIndicator>
       </span>
       <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
@@ -127,13 +132,15 @@ const SelectSeparator: React.FC<React.ComponentProps<typeof SelectPrimitive.Sepa
 const SelectScrollUpButton: React.FC<
   React.ComponentProps<typeof SelectPrimitive.ScrollUpButton>
 > = ({ className, ...props }) => {
+  const setChevronUpRef = useLucideIdleRef()
+
   return (
     <SelectPrimitive.ScrollUpButton
       data-slot="select-scroll-up-button"
       className={cn('flex cursor-default items-center justify-center py-1', className)}
       {...props}
     >
-      <ChevronUpIcon size={16} />
+      <ChevronUpIcon ref={setChevronUpRef} size={16} />
     </SelectPrimitive.ScrollUpButton>
   )
 }
@@ -141,13 +148,15 @@ const SelectScrollUpButton: React.FC<
 const SelectScrollDownButton: React.FC<
   React.ComponentProps<typeof SelectPrimitive.ScrollDownButton>
 > = ({ className, ...props }) => {
+  const setChevronDownScrollRef = useLucideIdleRef()
+
   return (
     <SelectPrimitive.ScrollDownButton
       data-slot="select-scroll-down-button"
       className={cn('flex cursor-default items-center justify-center py-1', className)}
       {...props}
     >
-      <ChevronDownIcon size={16} />
+      <ChevronDownIcon ref={setChevronDownScrollRef} size={16} />
     </SelectPrimitive.ScrollDownButton>
   )
 }
