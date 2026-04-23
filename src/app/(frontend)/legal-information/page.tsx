@@ -205,7 +205,7 @@ export default async function LegalPage() {
           <ConvertRichText
             data={legalRichText}
             converters={converters}
-            className="payload-richtext mx-auto max-w-[48rem] prose md:prose-md text-[#2b3045]"
+            className="payload-richtext mx-auto max-w-[48rem] prose md:prose-md text-[#2b3045] prose-headings:text-[#0b1035] prose-strong:text-[#0b1035] prose-li:text-[#2b3045] prose-a:text-[#2b3dea] prose-a:no-underline hover:prose-a:text-[#1f2ecf]"
           />
         ) : null}
       </div>
