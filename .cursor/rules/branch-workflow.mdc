@@ -12,3 +12,4 @@ alwaysApply: true
 - In GitHub **Settings → Branches** (or **Rules** / rulesets) for `main`, mark the `develop → main only` check as **required** so the branch policy cannot be merged around.
 - Automation (e.g. Dependabot) that opens PRs into `main` from other head branches will fail the guard until those tools are set to use `target-branch: develop` or a documented exception is added in the guard workflow.
 - `git config init.defaultBranch develop` is optional for new local repos; the remote default branch is configured on GitHub.
+- Agent-oriented copy: [`.cursor/skills/branch-workflow/SKILL.md`](../skills/branch-workflow/SKILL.md) (triggers: branching, base/head for PRs, how to ship).

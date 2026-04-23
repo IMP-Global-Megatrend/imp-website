@@ -45,6 +45,8 @@ Baselines in this repo:
 
 ## Quick checklist (before opening a PR with a new migration)
 
+Follow the repo [branch workflow](../../rules/branch-workflow.mdc): work on `develop` and open PRs **to** `develop` (or merge feature branches into `develop` first). Do not target `main` except the release PR **`develop` → `main`**.
+
 - [ ] Every **new** `public` table from this change has RLS **enabled** in the same batch or a dedicated follow-up migration.
 - [ ] The same table has a **`deny_postgrest_api_roles`** (or your chosen explicit policies) so linter **0008** does not regress.
 - [ ] No dependency on `FORCE ROW LEVEL SECURITY` for normal Payload access (table owner / expected connection role should still work).
@@ -52,5 +54,6 @@ Baselines in this repo:
 
 ## Related
 
+- [`.cursor/rules/branch-workflow.mdc`](../../rules/branch-workflow.mdc) and [`.cursor/skills/branch-workflow/SKILL.md`](../branch-workflow/SKILL.md) — `develop` / `main` policy
 - [`.cursor/rules/payload-migration-baseline.mdc`](../../rules/payload-migration-baseline.mdc)
 - [docs/payload-migration-baseline.md](../../../docs/payload-migration-baseline.md)
