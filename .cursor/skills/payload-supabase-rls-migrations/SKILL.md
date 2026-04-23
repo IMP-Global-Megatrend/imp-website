@@ -45,7 +45,7 @@ Baselines in this repo:
 
 ## Quick checklist (before opening a PR with a new migration)
 
-Follow the repo [branch workflow](../../rules/branch-workflow.mdc): work on `develop` and open PRs **to** `develop` (or merge feature branches into `develop` first). Do not target `main` except the release PR **`develop` → `main`**.
+Follow the repo [branch workflow](../../rules/branch-workflow.mdc): use a **branch** (e.g. `feature/…`), open a PR **to** `develop` (no direct push to `develop`). Do not target `main` except the release PR **`develop` → `main`**.
 
 - [ ] Every **new** `public` table from this change has RLS **enabled** in the same batch or a dedicated follow-up migration.
 - [ ] The same table has a **`deny_postgrest_api_roles`** (or your chosen explicit policies) so linter **0008** does not regress.

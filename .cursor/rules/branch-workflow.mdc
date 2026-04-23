@@ -1,15 +1,16 @@
 ---
-description: Work on develop; only develop may merge to main
+description: No direct push to develop or main; PRs only; develop→main only
 alwaysApply: true
 ---
 
 # Branch workflow
 
-- **Default work branch:** do day-to-day work on `develop` (locally: `git checkout develop` and pull before editing).
-- **`main`** is the release / production integration branch. Do not push commits directly to `main`.
+- **Do not push commits directly to `develop` or to `main`.** The **Develop** repository ruleset includes **require a pull request before merging** for `refs/heads/develop`, so direct pushes to `develop` are **rejected**. Push to another **branch** and open a **PR into `develop`**, then merge to land work.
+- **Clone / sync:** default branch is `develop` — `git pull` on `develop`, then `git checkout -b feature/…` (or `fix/…`, `chore/…`) from the current tip.
+- **`main`** is the release / production branch. Do not push to it directly (use PRs; `main` is further constrained by the **Main** ruleset and the merge guard below).
 - **Pull requests into `main`:** only from `develop` (see `.github/workflows/merge-to-main-guard.yml`). Do not open PRs from `feature/…`, `fix/…`, or other head branches **into** `main`.
-- **Feature and fix work:** use short-lived branches **from** `develop` and open PRs **into** `develop` (or commit directly to `develop` if your team allows it). When `develop` is ready, open **one** PR `develop` → `main` (or merge it through your release process on GitHub that uses that same pair of branches).
-- In GitHub **Settings → Branches** (or **Rules** / rulesets) for `main`, mark the `develop → main only` check as **required** so the branch policy cannot be merged around.
-- Automation (e.g. Dependabot) that opens PRs into `main` from other head branches will fail the guard until those tools are set to use `target-branch: develop` or a documented exception is added in the guard workflow.
-- `git config init.defaultBranch develop` is optional for new local repos; the remote default branch is configured on GitHub.
-- Agent-oriented copy: [`.cursor/skills/branch-workflow/SKILL.md`](../skills/branch-workflow/SKILL.md) (triggers: branching, base/head for PRs, how to ship).
+- **Releases:** when `develop` is ready, open **one** PR **`develop` → `main`**. All feature work merges to `develop` first (branch → `develop` PRs only).
+- In GitHub **Settings → Rules** / **Branches** for `main`, add the `develop → main only` / Test checks as **required** so policy cannot be bypassed casually.
+- Automation (e.g. Dependabot) that opens PRs into `main` from non-`develop` heads will fail the guard until `target-branch: develop` (or a documented exception in the guard workflow).
+- `git config init.defaultBranch develop` is optional locally; the remote default branch on GitHub is `develop`.
+- Agent copy: [`.cursor/skills/branch-workflow/SKILL.md`](../skills/branch-workflow/SKILL.md) (triggers: branching, PR base/head, how to ship).

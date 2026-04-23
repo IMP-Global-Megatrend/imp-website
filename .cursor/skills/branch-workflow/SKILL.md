@@ -1,10 +1,9 @@
 ---
 name: branch-workflow
 description: >-
-  Git and GitHub flow for this repository: work on develop, never open pull
-  requests from feature/fix branches into main. Use when choosing a base or
-  head branch, planning a PR, answering how to ship changes, or git setup for
-  this project.
+  Git and GitHub flow for this repository: no direct pushes to develop or main;
+  branch → PR → develop, then develop → main only. Use when choosing a base or
+  head branch, planning a PR, or git setup for this project.
 ---
 
 # Branch workflow (this repo)
@@ -13,11 +12,11 @@ Canonical policy is in [`.cursor/rules/branch-workflow.mdc`](../../rules/branch-
 
 | Branch | Role |
 |--------|------|
-| `develop` | Default work branch; local work, feature PRs target this. |
-| `main` | Release / production; **only** updated by merging **`develop` → `main`**. |
+| `develop` | **Integration** branch. GitHub **rejects direct pushes**; land work only by merging a PR from another branch. |
+| `main` | Release / production; **only** via PR **`develop` → `main`**. |
 
-**Do not** open PRs from `feature/…`, `fix/…`, or other head branches **into** `main`. CI enforces this in [`.github/workflows/merge-to-main-guard.yml`](../../../.github/workflows/merge-to-main-guard.yml).
+**Flow:** `git checkout develop && git pull` → `git checkout -b feature/…` (or `fix/…`) → implement → `git push -u origin feature/…` → open **PR into `develop`** → merge. No `git push origin develop`.
 
-**Do** branch from `develop`, open PRs into `develop`, then when ready open **one** PR `develop` → `main`.
+**Do not** open PRs from `feature/…` **into** `main`. CI: [`.github/workflows/merge-to-main-guard.yml`](../../../.github/workflows/merge-to-main-guard.yml).
 
-After clone: `git checkout develop && git pull` (remote default branch is `develop`).
+**Release:** one PR **`develop` → `main`** when ready.
