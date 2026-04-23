@@ -6,6 +6,9 @@ import * as migration_20260410_120000_add_performance_mtd_columns from './202604
 import * as migration_20260411_100000_fix_perf_mtd_db_column_name from './20260411_100000_fix_perf_mtd_db_column_name';
 import * as migration_20260412_100000_add_footer_download_columns from './20260412_100000_add_footer_download_columns';
 import * as migration_20260417_113419_add_advisors_collection from './20260417_113419_add_advisors_collection';
+import * as migration_20260423_120000_enable_rls_on_public_tables from './20260423_120000_enable_rls_on_public_tables';
+import * as migration_20260423_140000_deny_postgrest_rls_policies_on_public from './20260423_140000_deny_postgrest_rls_policies_on_public';
+import * as migration_20260423_160000_add_advisor_slug_column from './20260423_160000_add_advisor_slug_column';
 
 export const migrations = [
   {
@@ -47,5 +50,20 @@ export const migrations = [
     up: migration_20260417_113419_add_advisors_collection.up,
     down: migration_20260417_113419_add_advisors_collection.down,
     name: '20260417_113419_add_advisors_collection',
+  },
+  {
+    up: migration_20260423_120000_enable_rls_on_public_tables.up,
+    down: migration_20260423_120000_enable_rls_on_public_tables.down,
+    name: '20260423_120000_enable_rls_on_public_tables',
+  },
+  {
+    up: migration_20260423_140000_deny_postgrest_rls_policies_on_public.up,
+    down: migration_20260423_140000_deny_postgrest_rls_policies_on_public.down,
+    name: '20260423_140000_deny_postgrest_rls_policies_on_public',
+  },
+  {
+    up: migration_20260423_160000_add_advisor_slug_column.up,
+    down: migration_20260423_160000_add_advisor_slug_column.down,
+    name: '20260423_160000_add_advisor_slug_column',
   },
 ];

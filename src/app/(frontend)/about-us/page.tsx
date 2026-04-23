@@ -127,6 +127,13 @@ export default async function AboutUsPage() {
     (typeof page.aboutUsRequestCallHref === 'string' && page.aboutUsRequestCallHref.trim()) ||
     aboutUsContent.ctas.requestCall.href
 
+  const advisoryBoardCopy = aboutUsContent.advisoryBoard as
+    | { heading?: string; intro?: string; advisorSeeMoreLabel?: string }
+    | undefined
+  const advisorSeeMoreLabel =
+    (typeof advisoryBoardCopy?.advisorSeeMoreLabel === 'string' && advisoryBoardCopy.advisorSeeMoreLabel.trim()) ||
+    'More details'
+
   return (
     <main className="bg-white text-[#0b1035]">
       <CMSPageHero
@@ -158,18 +165,20 @@ export default async function AboutUsPage() {
       </section>
 
       {videoUrl ? (
-        <section className="w-full pb-12 md:pb-16">
-          <div className="overflow-hidden">
-            <video
-              className="w-full h-auto"
-              autoPlay
-              muted
-              playsInline
-              preload="metadata"
-              aria-label={videoAriaLabel}
-            >
-              <source src={videoUrl} type="video/mp4" />
-            </video>
+        <section className="pb-12 md:pb-16">
+          <div className="container">
+            <div className="overflow-hidden">
+              <video
+                className="w-full h-auto"
+                autoPlay
+                muted
+                playsInline
+                preload="metadata"
+                aria-label={videoAriaLabel}
+              >
+                <source src={videoUrl} type="video/mp4" />
+              </video>
+            </div>
           </div>
         </section>
       ) : null}
@@ -242,7 +251,7 @@ export default async function AboutUsPage() {
             <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 xl:grid-cols-3">
               {advisoryBoard.advisors.map((advisor) => (
                 <article
-                  key={`${advisor.name}-${advisor.roleTitle}`}
+                  key={advisor.slug}
                   className="flex flex-col items-center text-center sm:items-stretch sm:text-left"
                 >
                   {SHOW_ADVISOR_PROFILE_IMAGES && advisor.photoSrc ? (
@@ -258,23 +267,15 @@ export default async function AboutUsPage() {
                   ) : null}
                   <h3 className="font-display text-[22px] leading-snug text-[#0b1035]">{advisor.name}</h3>
                   <p className="mt-1 text-[15px] font-medium leading-snug text-[#2b3dea]">{advisor.roleTitle}</p>
-                  <div className="mt-4 space-y-3 text-left text-[16px] leading-relaxed text-[#2b3045]">
-                    {advisor.bioParagraphs.map((paragraph, index) => (
-                      <p key={`${advisor.name}-${index}`}>{paragraph}</p>
-                    ))}
+                  <div className="mt-6">
+                    <ActionLinkButton
+                      href={`/advisors/${advisor.slug}`}
+                      label={advisorSeeMoreLabel}
+                      icon="user"
+                      iconBefore
+                      buttonVariant="outlineMuted"
+                    />
                   </div>
-                  {advisor.linkedinUrl ? (
-                    <div className="mt-5">
-                      <ActionLinkButton
-                        href={advisor.linkedinUrl}
-                        label="Connect on LinkedIn"
-                        icon="users"
-                        external
-                        iconBefore
-                        buttonVariant="outlineMuted"
-                      />
-                    </div>
-                  ) : null}
                 </article>
               ))}
             </div>

@@ -49,6 +49,7 @@ export async function getCMSPageBySlug(slug: string, options?: { depth?: number 
 }
 
 export type CMSAboutUsAdvisor = {
+  slug: string
   name: string
   roleTitle: string
   bioParagraphs: string[]
@@ -62,7 +63,7 @@ type AboutUsAdvisoryPageSlice = {
   aboutUsAdvisors?: unknown
 }
 
-function resolveCmsUploadObjectToUrl(value: unknown): string | null {
+export function resolveCmsUploadObjectToUrl(value: unknown): string | null {
   if (!value || typeof value !== 'object') return null
   const media = value as { url?: unknown; filename?: unknown }
   if (typeof media.url === 'string' && media.url.trim()) {
@@ -82,9 +83,10 @@ function normalizeAdvisorFromDoc(doc: unknown): CMSAboutUsAdvisor | null {
   if (!doc || typeof doc !== 'object') return null
   const record = doc as Record<string, unknown>
   const name = typeof record.name === 'string' ? record.name.trim() : ''
+  const slug = typeof record.slug === 'string' ? record.slug.trim() : ''
   const roleTitle = typeof record.roleTitle === 'string' ? record.roleTitle.trim() : ''
   const bio = typeof record.bio === 'string' ? record.bio.trim() : ''
-  if (!name || !roleTitle || !bio) return null
+  if (!name || !slug || !roleTitle || !bio) return null
 
   const bioParagraphs = bio
     .split(/\n\s*\n/)
@@ -97,7 +99,7 @@ function normalizeAdvisorFromDoc(doc: unknown): CMSAboutUsAdvisor | null {
 
   const photoSrc = resolveCmsUploadObjectToUrl(record.photo)
 
-  return { name, roleTitle, bioParagraphs, photoSrc, linkedinUrl }
+  return { slug, name, roleTitle, bioParagraphs, photoSrc, linkedinUrl }
 }
 
 export async function getCMSAboutUsAdvisoryBoard(preloadedPage?: unknown): Promise<{

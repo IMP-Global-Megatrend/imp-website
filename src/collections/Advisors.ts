@@ -3,6 +3,7 @@ import type { CollectionConfig } from 'payload'
 import { anyone } from '@/access/anyone'
 import { authenticated } from '@/access/authenticated'
 import { revalidateAboutUsPage, revalidateAboutUsPageOnDelete } from '@/hooks/revalidateAboutUsPage'
+import { advisorPublicSlugFromName } from '@/utilities/advisorSlug'
 
 export const Advisors: CollectionConfig = {
   slug: 'advisors',
@@ -12,7 +13,7 @@ export const Advisors: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'name',
-    defaultColumns: ['sortOrder', 'name', 'roleTitle', 'updatedAt'],
+    defaultColumns: ['sortOrder', 'name', 'slug', 'roleTitle', 'updatedAt'],
     group: 'About Us',
   },
   access: {
@@ -26,6 +27,17 @@ export const Advisors: CollectionConfig = {
       name: 'name',
       type: 'text',
       required: true,
+    },
+    {
+      name: 'slug',
+      type: 'text',
+      required: true,
+      unique: true,
+      index: true,
+      admin: {
+        position: 'sidebar',
+        description: 'URL segment for /advisors/… (lowercase, kebab-case). Filled from name if left empty on create.',
+      },
     },
     {
       name: 'roleTitle',
@@ -71,6 +83,21 @@ export const Advisors: CollectionConfig = {
   ],
   defaultSort: 'sortOrder',
   hooks: {
+    beforeChange: [
+      ({ data, originalDoc }) => {
+        const mergedName =
+          typeof data?.name === 'string' ? data.name : typeof originalDoc?.name === 'string' ? originalDoc.name : ''
+        const hasSlug = typeof data?.slug === 'string' && data.slug.trim().length > 0
+        if (!hasSlug && mergedName.trim().length > 0) {
+          if (!data) return data
+          return {
+            ...data,
+            slug: advisorPublicSlugFromName(mergedName),
+          }
+        }
+        return data
+      },
+    ],
     afterChange: [revalidateAboutUsPage],
     afterDelete: [revalidateAboutUsPageOnDelete],
   },

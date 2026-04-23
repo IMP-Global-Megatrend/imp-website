@@ -19,6 +19,7 @@ import {
   ShieldCheckIcon,
   TelescopeIcon,
   TrendingUpIcon,
+  UserIcon,
   UsersIcon,
   XIcon,
 } from 'lucide-animated'
@@ -42,6 +43,7 @@ export type AnimatedIconName =
   | 'shieldCheck'
   | 'telescope'
   | 'trendingUp'
+  | 'user'
   | 'users'
   | 'x'
 
@@ -93,6 +95,7 @@ const icons = {
   shieldCheck: ShieldCheckIcon,
   telescope: TelescopeIcon,
   trendingUp: TrendingUpIcon,
+  user: UserIcon,
   users: UsersIcon,
   x: XIcon,
 }

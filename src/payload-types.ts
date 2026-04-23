@@ -1187,6 +1187,10 @@ export interface Advisor {
   id: number;
   name: string;
   /**
+   * URL segment for /advisors/… (lowercase, kebab-case). Filled from name if left empty on create.
+   */
+  slug: string;
+  /**
    * Short role line shown under the name (e.g. “Senior Advisor to the Fund”).
    */
   roleTitle: string;
@@ -4240,6 +4244,7 @@ export interface FormBlockSelect<T extends boolean = true> {
  */
 export interface AdvisorsSelect<T extends boolean = true> {
   name?: T;
+  slug?: T;
   roleTitle?: T;
   photo?: T;
   bio?: T;
