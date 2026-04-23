@@ -11,7 +11,8 @@ const customJestConfig = {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@payload-config$': '<rootDir>/src/payload.config.ts',
   },
-  testMatch: ['**/__tests__/**/*.test.ts', '**/__tests__/**/*.test.tsx'],
+  // Colocated: Foo.test.tsx / Foo.test.ts. Includes __tests__/route.test.ts under src
+  testMatch: ['<rootDir>/src/**/*.test.tsx', '<rootDir>/src/**/*.test.ts'],
   testPathIgnorePatterns: ['<rootDir>/.next/', '<rootDir>/node_modules/', '/e2e/'],
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',

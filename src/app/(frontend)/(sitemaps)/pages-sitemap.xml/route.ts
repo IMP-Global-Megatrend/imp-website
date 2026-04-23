@@ -4,7 +4,10 @@ import config from '@payload-config'
 import { unstable_cache } from 'next/cache'
 import { getServerSideURL } from '@/utilities/getURL'
 
-import { fetchAllPublishedForSitemap } from '@/app/(frontend)/(sitemaps)/lib/fetchSitemapDocs'
+import {
+  fetchAllAdvisorsForSitemap,
+  fetchAllPublishedForSitemap,
+} from '@/app/(frontend)/(sitemaps)/lib/fetchSitemapDocs'
 
 export const revalidate = 3600
 
@@ -14,7 +17,10 @@ const getPagesSitemap = unstable_cache(
     const SITE_URL = getServerSideURL()
     const dateFallback = new Date().toISOString()
 
-    const docs = await fetchAllPublishedForSitemap(payload, 'pages')
+    const [docs, advisors] = await Promise.all([
+      fetchAllPublishedForSitemap(payload, 'pages'),
+      fetchAllAdvisorsForSitemap(payload),
+    ])
     const slugs = new Set(docs.map((d) => d.slug))
 
     const defaultSitemap: Array<{ loc: string; lastmod: string }> = []
@@ -30,7 +36,12 @@ const getPagesSitemap = unstable_cache(
       lastmod: page.updatedAt || dateFallback,
     }))
 
-    return [...defaultSitemap, ...pages]
+    const advisorPages = advisors.map((a) => ({
+      loc: `${SITE_URL}/advisors/${a.slug}`,
+      lastmod: a.updatedAt || dateFallback,
+    }))
+
+    return [...defaultSitemap, ...pages, ...advisorPages]
   },
   ['pages-sitemap'],
   {

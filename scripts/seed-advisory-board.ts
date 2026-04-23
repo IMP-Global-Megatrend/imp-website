@@ -157,6 +157,7 @@ async function upsertAdvisor(
   const found = existing.docs?.[0]
   const data = {
     name: row.name,
+    slug: row.key,
     roleTitle: row.roleTitle,
     bio: row.bio,
     photo: photoId,

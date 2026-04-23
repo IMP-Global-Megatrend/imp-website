@@ -54,6 +54,48 @@ export async function fetchAllPublishedForSitemap(
   return out
 }
 
+/**
+ * All advisor profile URLs under `/advisors/{slug}`. The advisors collection
+ * is not versioned; every row is public.
+ */
+export async function fetchAllAdvisorsForSitemap(
+  payload: Payload,
+): Promise<Array<{ slug: string; updatedAt: string }>> {
+  const out: Array<{ slug: string; updatedAt: string }> = []
+  let page = 1
+
+  for (;;) {
+    const result = await payload.find({
+      collection: 'advisors',
+      overrideAccess: true,
+      draft: false,
+      depth: 0,
+      limit: BATCH_SIZE,
+      page,
+      pagination: true,
+      select: {
+        slug: true,
+        updatedAt: true,
+      },
+    })
+
+    for (const doc of result.docs) {
+      const slug = doc?.slug
+      if (typeof slug === 'string' && slug.length > 0) {
+        const raw = doc.updatedAt as string | undefined
+        const updatedAt =
+          typeof raw === 'string' && raw.length > 0 ? raw : new Date().toISOString()
+        out.push({ slug, updatedAt })
+      }
+    }
+
+    if (!result.hasNextPage) break
+    page += 1
+  }
+
+  return out
+}
+
 /** Paginated article index URLs: `/articles/page/2`, … (page 1 is `/articles`). */
 export async function fetchArticleArchivePageUrls(
   payload: Payload,
