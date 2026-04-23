@@ -1,0 +1,27 @@
+name: Merge to main (branch policy)
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, edited, ready_for_review]
+    branches: [main]
+
+permissions:
+  contents: read
+
+# Require this workflow (or its job) to be a “required check” for merging into main
+# in GitHub branch protection / rulesets, so the policy cannot be bypassed.
+jobs:
+  pr-must-come-from-develop:
+    if: github.event.pull_request.merged == false
+    name: develop → main only
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enforce pull request head branch
+        run: |
+          head="${{ github.head_ref }}"
+          if [ "$head" = "develop" ]; then
+            echo "OK: base=main, head=develop"
+            exit 0
+          fi
+          echo "::error::Only pull requests from the develop branch into main are allowed. Open a pull request to develop first, or change this PR to use develop as the head branch. Current head: $head"
+          exit 1
